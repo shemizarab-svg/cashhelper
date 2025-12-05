@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Azeroth Budget</title>
+    <title>Бюджет Азерота</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@400;700&display=swap" rel="stylesheet">
@@ -19,7 +19,7 @@
             <div class="scrollable-area">
                 
                 <div id="month-selector-panel" class="gold-section top-section">
-                    <span class="gold-label">Select Month:</span>
+                    <span class="gold-label">Выбор месяца:</span>
                     <select id="month-select" class="wow-input" onchange="changeMonth()">
                         <option value="Jan">Январь</option>
                         <option value="Feb">Февраль</option>
@@ -38,7 +38,7 @@
 
                 <div id="monthly-view">
                     <div class="gold-section">
-                        <span class="gold-label">Month Treasury:</span>
+                        <span class="gold-label">Казна месяца (Доход):</span>
                         <div class="gold-value-container">
                             <span class="gold-icon-big"></span>
                             <input type="number" id="income-input" class="invisible-input" placeholder="0" onchange="manualIncomeEdit()">
@@ -51,7 +51,7 @@
                     </div>
 
                     <div class="gold-section remaining-section">
-                        <span class="gold-label">Remaining Gold:</span>
+                        <span class="gold-label">Остаток золота:</span>
                         <div class="gold-value-container">
                             <span class="gold-icon-big"></span>
                             <span id="remaining-amount" class="gold-text">0</span>
@@ -61,32 +61,32 @@
                     <div class="control-panel-wrapper">
                         <div class="new-category-panel">
                             <div class="input-row">
-                                <input type="text" id="new-cat-name" class="wow-input" placeholder="New Category...">
-                                <button onclick="addNewCategory()" class="wow-btn small-btn">Add Line</button>
+                                <input type="text" id="new-cat-name" class="wow-input" placeholder="Новая категория...">
+                                <button onclick="addNewCategory()" class="wow-btn small-btn">Создать</button>
                             </div>
                         </div>
 
                         <div class="spend-panel">
-                            <div class="panel-header">Add Loot (Quick Add)</div>
+                            <div class="panel-header">Добавить расход</div>
                             <div class="input-row">
                                 <select id="category-select" class="wow-input"></select>
                             </div>
                             <div class="input-row">
-                                <input type="number" id="amount" class="wow-input" placeholder="Amount...">
-                                <button onclick="addExpense()" class="wow-btn spend-btn">SPEND</button>
+                                <input type="number" id="amount" class="wow-input" placeholder="Сумма...">
+                                <button onclick="addExpense()" class="wow-btn spend-btn">Потратить</button>
                             </div>
                         </div>
                     </div>
 
                     <div class="breakdown-panel">
-                        <div class="panel-header">Monthly Breakdown</div>
+                        <div class="panel-header">Список трат</div>
                         <div id="breakdown-list"></div>
                     </div>
                 </div>
                 
                 <div id="yearly-view" style="display: none;">
                     <div class="gold-section">
-                        <span class="gold-label">Total Year Savings:</span>
+                        <span class="gold-label">Накопления за год:</span>
                         <div class="gold-value-container">
                             <span class="gold-icon-big"></span>
                             <span id="year-total-savings" class="gold-text">0</span>
@@ -94,37 +94,37 @@
                     </div>
 
                     <div class="chart-box">
-                        <div class="panel-header">Expenses by Category (Year)</div>
+                        <div class="panel-header">Траты по категориям (Год)</div>
                         <div class="chart-wrapper"><canvas id="yearRadarChart"></canvas></div>
                     </div>
 
                     <div class="chart-box">
-                        <div class="panel-header">Most Expensive Month</div>
+                        <div class="panel-header">Самый затратный месяц</div>
                         <div class="chart-wrapper"><canvas id="yearBarChartExpenses"></canvas></div>
                     </div>
 
                     <div class="chart-box">
-                        <div class="panel-header">Savings Trend (Remaining)</div>
+                        <div class="panel-header">Тренд накоплений</div>
                         <div class="chart-wrapper"><canvas id="yearBarChartSavings"></canvas></div>
                     </div>
 
                     <div class="breakdown-panel">
-                        <div class="panel-header">Oracle's Report</div>
+                        <div class="panel-header">Отчет Оракула</div>
                         <div id="year-text-report" style="color: #ccc; font-size: 16px; padding: 10px;"></div>
                     </div>
                 </div>
 
-                <div id="user-id-display" style="text-align: center; color: #555; font-size: 10px; margin-top: 10px;">Loading...</div>
+                <div id="user-id-display" style="text-align: center; color: #555; font-size: 10px; margin-top: 10px;">Загрузка...</div>
                 <div class="bottom-spacer"></div>
             </div>
 
             <div class="bottom-nav">
-                <button id="tab-month" class="nav-btn active" onclick="switchTab('month')">Current Month</button>
-                <button id="tab-year" class="nav-btn" onclick="switchTab('year')">Yearly Stats</button>
+                <button id="tab-month" class="nav-btn active" onclick="switchTab('month')">Текущий месяц</button>
+                <button id="tab-year" class="nav-btn" onclick="switchTab('year')">Статистика года</button>
             </div>
         </div>
     </div>
 
-    <script src="script.js?v=4.0"></script>
+    <script src="script.js?v=5.0"></script>
 </body>
 </html>
