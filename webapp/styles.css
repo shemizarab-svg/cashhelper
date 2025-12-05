@@ -5,12 +5,22 @@ body {
     padding: 0;
     height: 100vh;
     width: 100vw;
-    background: #000; /* Черный фон за рамками */
+    background: #000;
     color: #f0e6d2;
     font-family: 'MedievalSharp', serif;
     display: flex;
     flex-direction: column;
     overflow: hidden;
+}
+
+/* === УБИРАЕМ СТРЕЛКИ (SPINNERS) В INPUT === */
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none; 
+    margin: 0; 
+}
+input[type=number] {
+    -moz-appearance: textfield; /* Для Firefox */
 }
 
 .main-frame-wrapper {
@@ -20,22 +30,21 @@ body {
     align-items: flex-start;
     padding: 10px;
     padding-bottom: 70px;
-    overflow-y: auto; /* Прокрутка если много категорий */
+    overflow-y: auto;
 }
 
-/* === ГЛАВНАЯ РАМКА С ФОНОМ ВНУТРИ === */
 .main-frame {
     width: 100%;
     max-width: 600px;
-    min-height: 100%; /* Растягиваем */
-    /* ФОН ВНУТРИ ПРИЛОЖЕНИЯ */
+    min-height: 100%;
+    /* ФОН ЗАЛА ШТОРМГРАДА */
     background: url('https://i.imgur.com/3p3g2kS.jpeg') no-repeat center center; 
     background-size: cover;
     border: 3px solid #4a3b2a;
     box-shadow: 
         0 0 0 2px #000,
-        0 0 0 5px #b39a58, /* Золотая обводка */
-        inset 0 0 50px rgba(0,0,0,0.8); /* Внутренняя тень */
+        0 0 0 5px #b39a58,
+        inset 0 0 50px rgba(0,0,0,0.8);
     border-radius: 8px;
     padding: 15px;
     box-sizing: border-box;
@@ -43,7 +52,7 @@ body {
     flex-direction: column;
 }
 
-/* === ЕДИНЫЙ СТИЛЬ ЗОЛОТЫХ СЕКЦИЙ (ВЕРХ И НИЗ) === */
+/* === ВЕРХНЯЯ СЕКЦИЯ (ДОХОД) === */
 .gold-section {
     display: flex;
     flex-direction: column;
@@ -51,23 +60,23 @@ body {
     justify-content: center;
     margin-bottom: 15px;
     text-shadow: 0 0 5px #000;
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(0, 0, 0, 0.6); /* Чуть темнее фон */
     padding: 10px;
     border-radius: 8px;
-    border: 1px solid rgba(179, 154, 88, 0.3);
+    border: 1px solid rgba(179, 154, 88, 0.5);
+    position: relative;
 }
-.top-section { margin-top: 5px; }
 
 .gold-value-container {
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 5px;
 }
 
 .gold-icon-big::after {
     content: "💰";
     font-size: 24px;
-    margin-right: 8px;
     filter: drop-shadow(0 0 2px gold);
 }
 
@@ -78,14 +87,7 @@ body {
     margin-bottom: 5px;
 }
 
-.gold-text {
-    font-size: 28px;
-    font-weight: bold;
-    color: #fff;
-    text-shadow: 0 0 10px #ffd700;
-}
-
-/* Невидимый инпут для ввода дохода */
+/* Поле ввода дохода */
 .invisible-input {
     background: transparent;
     border: none;
@@ -94,31 +96,56 @@ body {
     font-size: 28px;
     font-weight: bold;
     color: #fff;
-    width: 150px;
+    width: 140px;
     text-shadow: 0 0 10px #ffd700;
-    border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
-    text-align: left;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.2); /* Еле видная линия */
+    text-align: center;
 }
-.invisible-input::placeholder { color: rgba(255, 255, 255, 0.5); }
-.invisible-input:focus { border-bottom: 1px solid #ffd700; }
+.invisible-input:focus {
+    border-bottom: 1px solid #ffd700; /* При нажатии линия становится золотой */
+}
 
+/* Кнопка ПЛЮС (Добавить доход) */
+.add-income-btn {
+    background: #1a4a1a; /* Зеленый */
+    color: #5f5;
+    border: 1px solid #5f5;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 10px;
+    box-shadow: 0 0 5px #0f0;
+    font-family: 'MedievalSharp', serif;
+}
+.add-income-btn:active { transform: scale(0.9); }
 
-/* === ГРАФИК === */
+/* Остаток (просто текст) */
+.gold-text {
+    font-size: 28px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 0 0 10px #ffd700;
+}
+
+/* === ГРАФИК И ПАНЕЛИ === */
 .chart-wrapper {
     position: relative;
     width: 100%;
-    flex-grow: 1; /* Растягиваем */
+    flex-grow: 1;
     min-height: 250px;
     margin: 10px 0;
 }
 
-/* === ПАНЕЛИ УПРАВЛЕНИЯ === */
 .control-panel-wrapper {
-    background: rgba(14, 17, 23, 0.85); /* Темная подложка */
+    background: rgba(14, 17, 23, 0.9);
     padding: 15px;
     border-radius: 8px;
     border: 1px solid #444;
-    box-shadow: inset 0 0 15px #000;
 }
 
 .panel-header {
@@ -149,10 +176,10 @@ body {
     padding: 10px;
     font-family: 'MedievalSharp', serif;
     font-size: 16px;
-    flex: 1; /* Растягиваем инпуты */
+    flex: 1;
     box-sizing: border-box;
 }
-select.wow-input { appearance: none; } /* Убираем стандартную стрелку */
+select.wow-input { appearance: none; }
 
 .wow-btn {
     font-family: 'MedievalSharp', serif;
@@ -167,7 +194,6 @@ select.wow-input { appearance: none; } /* Убираем стандартную 
 .spend-btn { background: #7d0808; font-size: 16px; flex: 0.5; }
 .small-btn { background: #2a2a2a; border-color: #666; color: #aaa; }
 
-/* === НИЖНИЕ ВКЛАДКИ === */
 .bottom-nav {
     position: fixed;
     bottom: 0; left: 0; width: 100%; height: 65px;

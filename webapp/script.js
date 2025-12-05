@@ -4,8 +4,7 @@ tg.expand();
 let chartInstance = null;
 let currentTab = 'month';
 
-// --- БАЗА ДАННЫХ ---
-// Используем Map для хранения соответствия "ключ -> название", чтобы сохранить порядок
+// Базовые категории
 let labelsMap = new Map([
     ['housing', 'Citadel'],
     ['food', 'Supplies'],
@@ -14,13 +13,11 @@ let labelsMap = new Map([
     ['gear', 'Gear']
 ]);
 
-// Хранилище денег. Категории сюда будут добавляться динамически.
 let db = {
     month: { income: 0, expenses: { housing: 0, food: 0, transport: 0, fun: 0, gear: 0 } },
     year: { income: 0, expenses: { housing: 0, food: 0, transport: 0, fun: 0, gear: 0 } }
 };
 
-// --- ИНИЦИАЛИЗАЦИЯ ---
 function initChart() {
     const ctx = document.getElementById('radarChart').getContext('2d');
     Chart.defaults.font.family = 'MedievalSharp';
@@ -28,11 +25,10 @@ function initChart() {
     chartInstance = new Chart(ctx, {
         type: 'radar',
         data: {
-            // Метки берем из нашего Map (значения)
             labels: Array.from(labelsMap.values()),
             datasets: [{
                 label: 'Spent',
-                data: [], // Данные подгрузятся в updateView
+                data: [],
                 backgroundColor: 'rgba(255, 215, 0, 0.25)',
                 borderColor: '#ffd700',
                 borderWidth: 2,
@@ -56,52 +52,69 @@ function initChart() {
         }
     });
     
-    updateDropdown(); // Заполняем селект начальными категориями
-    updateView(); // Рисуем все
+    updateDropdown();
+    updateView();
 }
 
-// --- ЛОГИКА ---
-
-// Переключение вкладок
 function switchTab(tab) {
     currentTab = tab;
     document.getElementById('tab-month').classList.toggle('active', tab === 'month');
     document.getElementById('tab-year').classList.toggle('active', tab === 'year');
-    
-    // Обновляем инпут дохода
-    const incInput = document.getElementById('income-input');
-    incInput.value = db[currentTab].income === 0 ? '' : db[currentTab].income;
-    
     updateView();
 }
 
-// Обновление дохода при вводе
-function updateIncome() {
-    const val = parseFloat(document.getElementById('income-input').value);
-    db[currentTab].income = isNaN(val) ? 0 : val;
-    updateView();
+// === ЛОГИКА ДОХОДА ===
+
+// 1. Ручное исправление (если стер и написал заново)
+function manualIncomeEdit() {
+    const input = document.getElementById('income-input');
+    let val = parseFloat(input.value);
+    
+    if (isNaN(val)) val = 0;
+    
+    db[currentTab].income = val;
+    updateView(); // Пересчитываем остаток
 }
 
-// Главная функция обновления экрана
+// 2. Добавление через кнопку "+" (Вторая зарплата и т.д.)
+function addMoreIncome() {
+    // Спрашиваем сумму
+    let amount = prompt("How much Gold to add to treasury?", "0");
+    
+    if (amount !== null) {
+        let val = parseFloat(amount);
+        if (!isNaN(val) && val > 0) {
+            db[currentTab].income += val; // ПЛЮСУЕМ
+            tg.HapticFeedback.notificationOccurred('success');
+            updateView();
+        }
+    }
+}
+
+// === ОБНОВЛЕНИЕ ЭКРАНА ===
 function updateView() {
+    // 1. Обновляем поле ввода (отображаем текущий доход)
+    const incInput = document.getElementById('income-input');
+    // Если доход 0, не показываем ничего, иначе показываем цифру
+    incInput.value = db[currentTab].income === 0 ? '' : db[currentTab].income;
+
+    // 2. Считаем расходы
     const currentExp = db[currentTab].expenses;
-    
-    // 1. Собираем данные для графика в правильном порядке (по ключам из Map)
     let dataForChart = [];
     let totalSpent = 0;
     
     for (let key of labelsMap.keys()) {
-        const amount = currentExp[key] || 0; // Если новой категории нет в базе, берем 0
+        const amount = currentExp[key] || 0;
         dataForChart.push(amount);
         totalSpent += amount;
     }
 
-    // 2. Обновляем график
-    chartInstance.data.labels = Array.from(labelsMap.values()); // Обновляем метки (если добавились)
+    // 3. График
+    chartInstance.data.labels = Array.from(labelsMap.values());
     chartInstance.data.datasets[0].data = dataForChart;
     chartInstance.update();
 
-    // 3. Считаем и выводим остаток
+    // 4. Остаток
     let remaining = db[currentTab].income - totalSpent;
     const remEl = document.getElementById('remaining-amount');
     remEl.innerText = remaining.toLocaleString();
@@ -110,14 +123,11 @@ function updateView() {
     else remEl.style.color = '#fff';
 }
 
-// Добавление расхода
 function addExpense() {
     const catKey = document.getElementById('category-select').value;
     const amount = parseFloat(document.getElementById('amount').value);
-
     if (!amount || !catKey) return;
 
-    // Если такой категории еще нет в базе для этого периода, инициализируем нулем
     if (!db[currentTab].expenses[catKey]) {
          db[currentTab].expenses[catKey] = 0;
     }
@@ -127,44 +137,26 @@ function addExpense() {
     updateView();
 }
 
-// --- ДИНАМИЧЕСКОЕ ДОБАВЛЕНИЕ КАТЕГОРИЙ ---
 function addNewCategory() {
     const nameInput = document.getElementById('new-cat-name');
     const name = nameInput.value.trim();
+    if (!name) return;
 
-    if (!name) {
-        tg.showAlert("Enter category name!");
-        return;
-    }
-
-    // Создаем безопасный ключ из имени (Car -> car, My Food -> my_food)
     const key = name.toLowerCase().replace(/\s+/g, '_');
+    if (labelsMap.has(key)) return;
 
-    if (labelsMap.has(key)) {
-         tg.showAlert("Category already exists!");
-         return;
-    }
-
-    // 1. Добавляем в наш список меток
     labelsMap.set(key, name);
-
-    // 2. Инициализируем нулями в базе (на всякий случай)
     db.month.expenses[key] = 0;
     db.year.expenses[key] = 0;
 
-    // 3. Обновляем интерфейс
     updateDropdown();
     updateView();
-    
-    nameInput.value = ''; // Очищаем поле ввода
-    tg.HapticFeedback.notificationOccurred('success'); // Вибрация при успехе
+    nameInput.value = '';
 }
 
-// Обновление выпадающего списка категорий
 function updateDropdown() {
     const select = document.getElementById('category-select');
-    select.innerHTML = ''; // Очищаем старые
-    
+    select.innerHTML = '';
     for (let [key, name] of labelsMap.entries()) {
         let option = document.createElement('option');
         option.value = key;
@@ -173,5 +165,4 @@ function updateDropdown() {
     }
 }
 
-// Запуск
 initChart();
