@@ -4,7 +4,7 @@ tg.expand();
 let chartInstance = null;
 let currentTab = 'month';
 
-// Начальные метки
+// Начальные категории
 let labelsMap = new Map([
     ['housing', 'Citadel'],
     ['food', 'Supplies'],
@@ -13,17 +13,15 @@ let labelsMap = new Map([
     ['gear', 'Gear']
 ]);
 
-// База данных + ИСТОРИЯ
+// База данных
 let db = {
     month: { 
         income: 0, 
-        expenses: { housing: 0, food: 0, transport: 0, fun: 0, gear: 0 },
-        history: [] // Здесь храним список трат
+        expenses: { housing: 0, food: 0, transport: 0, fun: 0, gear: 0 }
     },
     year: { 
         income: 0, 
-        expenses: { housing: 0, food: 0, transport: 0, fun: 0, gear: 0 },
-        history: []
+        expenses: { housing: 0, food: 0, transport: 0, fun: 0, gear: 0 }
     }
 };
 
@@ -92,86 +90,72 @@ function addMoreIncome() {
     }
 }
 
-// === РАСХОДЫ И ИСТОРИЯ ===
-
+// === РАСХОДЫ (ДОБАВИТЬ ИЗ ФОРМЫ) ===
 function addExpense() {
     const catKey = document.getElementById('category-select').value;
     const amount = parseFloat(document.getElementById('amount').value);
     
-    // Получаем красивое имя для лога
-    const catName = labelsMap.get(catKey);
-
     if (!amount || !catKey) return;
 
-    // 1. Добавляем в общую сумму
     if (!db[currentTab].expenses[catKey]) db[currentTab].expenses[catKey] = 0;
+    
+    // Просто прибавляем к общей куче
     db[currentTab].expenses[catKey] += amount;
 
-    // 2. Добавляем запись в ИСТОРИЮ (в начало списка)
-    const newRecord = {
-        id: Date.now(), // Уникальный ID (время в мс)
-        key: catKey,
-        name: catName,
-        amount: amount
-    };
-    db[currentTab].history.unshift(newRecord);
-
-    // Очищаем и обновляем
     document.getElementById('amount').value = '';
     updateView();
 }
 
-// Удаление по ID (Undo)
-function deleteTransaction(id) {
-    const history = db[currentTab].history;
-    // Ищем индекс записи
-    const index = history.findIndex(item => item.id === id);
+// === РЕДАКТИРОВАНИЕ В СПИСКЕ (Breakdown) ===
+function manualExpenseEdit(key, inputElement) {
+    let val = parseFloat(inputElement.value);
+    if (isNaN(val)) val = 0;
+    
+    // Прямая запись нового значения
+    db[currentTab].expenses[key] = val;
+    
+    // Обновляем всё (кроме самого инпута, чтоб фокус не слетел)
+    updateView(false); 
+}
 
-    if (index !== -1) {
-        const item = history[index];
+// === ОТРИСОВКА СПИСКА КАТЕГОРИЙ ===
+function renderBreakdown() {
+    const list = document.getElementById('breakdown-list');
+    list.innerHTML = ''; // Очистить
+    
+    const expenses = db[currentTab].expenses;
+
+    // Проходимся по карте меток, чтобы сохранить порядок
+    for (let [key, name] of labelsMap.entries()) {
+        const amount = expenses[key] || 0;
+
+        let div = document.createElement('div');
+        div.className = 'breakdown-item';
         
-        // 1. Возвращаем деньги (отнимаем расход)
-        db[currentTab].expenses[item.key] -= item.amount;
-        if (db[currentTab].expenses[item.key] < 0) db[currentTab].expenses[item.key] = 0;
-
-        // 2. Удаляем запись из массива
-        history.splice(index, 1);
-
-        updateView();
+        // Создаем HTML: Название слева, Инпут справа
+        div.innerHTML = `
+            <span class="breakdown-name">${name}</span>
+            <input type="number" 
+                   class="edit-expense-input" 
+                   value="${amount}" 
+                   onchange="manualExpenseEdit('${key}', this)">
+        `;
+        list.appendChild(div);
     }
 }
 
-// Отрисовка списка истории
-function renderHistory() {
-    const list = document.getElementById('history-list');
-    list.innerHTML = ''; // Очистить старое
-    
-    const history = db[currentTab].history;
-
-    history.forEach(item => {
-        let li = document.createElement('li');
-        li.className = 'history-item';
-        // Кнопка крестика вызывает deleteTransaction с ID этой записи
-        li.innerHTML = `
-            <span>${item.name}</span>
-            <div style="display:flex; align-items:center;">
-                <b>${item.amount}</b>
-                <button class="delete-btn" onclick="deleteTransaction(${item.id})">✖</button>
-            </div>
-        `;
-        list.appendChild(li);
-    });
-}
-
 // === ОБЩЕЕ ОБНОВЛЕНИЕ ===
-function updateView() {
+function updateView(redrawBreakdown = true) {
     const currentData = db[currentTab];
 
-    // Доход
+    // 1. Доход
     const incInput = document.getElementById('income-input');
-    incInput.value = currentData.income === 0 ? '' : currentData.income;
+    // Если фокус не на инпуте дохода, обновляем его (чтоб не мешать вводу)
+    if (document.activeElement !== incInput) {
+        incInput.value = currentData.income === 0 ? '' : currentData.income;
+    }
 
-    // График
+    // 2. График
     let dataForChart = [];
     let totalSpent = 0;
     for (let key of labelsMap.keys()) {
@@ -184,14 +168,16 @@ function updateView() {
     chartInstance.data.datasets[0].data = dataForChart;
     chartInstance.update();
 
-    // Остаток
+    // 3. Остаток
     let remaining = currentData.income - totalSpent;
     const remEl = document.getElementById('remaining-amount');
     remEl.innerText = remaining.toLocaleString();
     remEl.style.color = remaining < 0 ? '#ff3333' : '#fff';
 
-    // История
-    renderHistory();
+    // 4. Список категорий (перерисовываем, если нужно)
+    if (redrawBreakdown) {
+        renderBreakdown();
+    }
 }
 
 // === КАТЕГОРИИ ===
@@ -203,8 +189,10 @@ function addNewCategory() {
     const key = name.toLowerCase().replace(/\s+/g, '_');
     if (!labelsMap.has(key)) {
         labelsMap.set(key, name);
+        // Инициализируем нулями
         db.month.expenses[key] = 0;
         db.year.expenses[key] = 0;
+        
         updateDropdown();
         updateView();
     }

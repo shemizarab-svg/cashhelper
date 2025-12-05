@@ -12,9 +12,7 @@
 <body>
 
     <div class="desktop-wrapper">
-        
         <div class="main-frame">
-            
             <div class="scrollable-area">
                 
                 <div class="gold-section top-section">
@@ -42,34 +40,35 @@
                     
                     <div class="new-category-panel">
                         <div class="input-row">
-                            <input type="text" id="new-cat-name" class="wow-input" placeholder="New Category Name...">
+                            <input type="text" id="new-cat-name" class="wow-input" placeholder="New Category...">
                             <button onclick="addNewCategory()" class="wow-btn small-btn">Add Line</button>
                         </div>
                     </div>
 
                     <div class="spend-panel">
-                        <div class="panel-header">Add Expense</div>
+                        <div class="panel-header">Add Loot (Quick Add)</div>
                         <div class="input-row">
                             <select id="category-select" class="wow-input"></select>
                         </div>
                         <div class="input-row">
-                            <input type="number" id="amount" class="wow-input" placeholder="Cost...">
+                            <input type="number" id="amount" class="wow-input" placeholder="Amount...">
                             <button onclick="addExpense()" class="wow-btn spend-btn">SPEND</button>
                         </div>
                     </div>
                 </div>
 
-                <div class="history-panel">
-                    <div class="panel-header">Loot Log (Tap X to Undo)</div>
-                    <ul id="history-list">
-                        </ul>
+                <div class="breakdown-panel">
+                    <div class="panel-header">Expenses Breakdown (Edit Totals)</div>
+                    <div id="breakdown-list">
+                        </div>
                 </div>
 
                 <div class="bottom-spacer"></div>
+            </div>
 
-            </div> <div class="bottom-nav">
-                <button id="tab-month" class="nav-btn active" onclick="switchTab('month')">Monthly Log</button>
-                <button id="tab-year" class="nav-btn" onclick="switchTab('year')">Yearly Log</button>
+            <div class="bottom-nav">
+                <button id="tab-month" class="nav-btn active" onclick="switchTab('month')">Monthly</button>
+                <button id="tab-year" class="nav-btn" onclick="switchTab('year')">Yearly</button>
             </div>
 
         </div>

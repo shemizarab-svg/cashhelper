@@ -1,17 +1,18 @@
 @import url('https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap');
 
-/* === УБИРАЕМ СТРЕЛКИ У ЦИФР (АГРЕССИВНО) === */
+/* === УБИРАЕМ СТРЕЛКИ НАВСЕГДА (ЯДЕРНЫЙ МЕТОД) === */
 input[type=number]::-webkit-inner-spin-button, 
 input[type=number]::-webkit-outer-spin-button { 
-    -webkit-appearance: none; 
-    margin: 0; 
+    -webkit-appearance: none !important; 
+    margin: 0 !important; 
+    display: none !important;
 }
 input[type=number] {
-    -moz-appearance: textfield; /* Firefox */
-    appearance: none;
+    -moz-appearance: textfield !important; /* Firefox */
+    appearance: none !important;
 }
 
-/* === ОСНОВНОЙ ФОН СТРАНИЦЫ (ЧЕРНЫЙ) === */
+/* === БАЗА === */
 body {
     margin: 0;
     padding: 0;
@@ -20,10 +21,9 @@ body {
     background: #000; 
     color: #f0e6d2;
     font-family: 'MedievalSharp', serif;
-    overflow: hidden; /* Запрещаем скролл самого тела страницы */
+    overflow: hidden;
 }
 
-/* === ОБЕРТКА ДЛЯ ПК (ЦЕНТРИРОВАНИЕ) === */
 .desktop-wrapper {
     width: 100%;
     height: 100%;
@@ -33,49 +33,47 @@ body {
     background: #050505;
 }
 
-/* === ГЛАВНОЕ ОКНО ПРИЛОЖЕНИЯ === */
+/* === ГЛАВНОЕ ОКНО === */
 .main-frame {
     width: 100%;
-    max-width: 500px; /* Ограничиваем ширину */
-    height: 100%;     /* На мобильном 100% высоты */
+    max-width: 500px;
+    height: 100%;
     
-    /* ФОН ВНУТРИ ПРИЛОЖЕНИЯ */
-    /* Сначала ищем локальный bg.jpg, если нет - черный градиент */
-    background: url('bg.jpg'), linear-gradient(to bottom, #1a1a1a, #000);
+    /* ФОН: Ищет файл bg.jpg рядом с index.html */
+    background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('bg.jpg');
     background-size: cover;
     background-position: center;
     
-    position: relative; /* Чтобы позиционировать вкладки внутри */
+    position: relative;
     display: flex;
     flex-direction: column;
     box-shadow: 0 0 50px rgba(0,0,0,0.8);
-    border-left: 1px solid #333;
-    border-right: 1px solid #333;
+    border-left: 2px solid #333;
+    border-right: 2px solid #333;
 }
 
-/* Затемнение фона внутри рамки */
+/* Вуаль внутри рамки */
 .main-frame::before {
     content: "";
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.5); /* Полупрозрачная вуаль */
+    background: rgba(0, 0, 0, 0.5);
     z-index: 0;
-    pointer-events: none; /* Пропускает клики */
+    pointer-events: none;
 }
 
-/* === ОБЛАСТЬ ПРОКРУТКИ === */
+/* === СКРОЛЛ === */
 .scrollable-area {
-    flex: 1; /* Занимает всё доступное место */
-    overflow-y: auto; /* Включает скролл если контента много */
+    flex: 1;
+    overflow-y: auto;
     padding: 15px;
-    z-index: 1; /* Поверх вуали */
-    scrollbar-width: none; /* Скрыть скроллбар (Firefox) */
+    z-index: 1;
+    scrollbar-width: none;
 }
-.scrollable-area::-webkit-scrollbar { display: none; } /* Скрыть скроллбар (Chrome) */
+.scrollable-area::-webkit-scrollbar { display: none; }
+.bottom-spacer { height: 80px; }
 
-.bottom-spacer { height: 70px; } /* Место под нижние кнопки */
-
-/* === СЕКЦИИ === */
+/* === ВЕРХНЯЯ СЕКЦИЯ (ДОХОД) === */
 .gold-section {
     background: rgba(0, 0, 0, 0.6);
     padding: 10px;
@@ -107,7 +105,7 @@ body {
     text-shadow: 0 0 10px #ffd700;
 }
 
-/* ИНПУТ БЕЗ СТРЕЛОК */
+/* Инпут дохода - выглядит как текст */
 .invisible-input {
     background: transparent;
     border: none;
@@ -134,13 +132,13 @@ body {
     display: flex; align-items: center; justify-content: center;
 }
 
-/* ГРАФИК */
+/* === ГРАФИК === */
 .chart-wrapper {
     min-height: 250px;
     margin-bottom: 20px;
 }
 
-/* === ПАНЕЛИ УПРАВЛЕНИЯ === */
+/* === УПРАВЛЕНИЕ === */
 .control-panel-wrapper {
     background: rgba(20, 20, 25, 0.9);
     padding: 15px;
@@ -148,12 +146,10 @@ body {
     border: 1px solid #555;
     margin-bottom: 20px;
 }
+.new-category-panel { border-bottom: 1px dashed #444; padding-bottom: 15px; margin-bottom: 15px; }
+.panel-header { color: #a38f56; margin-bottom: 8px; font-size: 14px; text-transform: uppercase; text-align: center; }
 
-.new-category-panel {
-    border-bottom: 1px dashed #444;
-    padding-bottom: 15px;
-    margin-bottom: 15px;
-}
+.input-row { display: flex; gap: 8px; margin-bottom: 8px; }
 
 .wow-input {
     background: #000;
@@ -165,7 +161,6 @@ body {
     flex: 1;
     border-radius: 4px;
 }
-
 .wow-btn {
     font-family: 'MedievalSharp', serif;
     cursor: pointer;
@@ -179,64 +174,52 @@ body {
 .spend-btn { background: #7d0808; margin-left: 5px; }
 .small-btn { background: #333; color: #aaa; border-color: #666; margin-left: 5px; }
 
-.input-row { display: flex; margin-bottom: 8px; }
-
-/* === ИСТОРИЯ (LOG) === */
-.history-panel {
+/* === СПИСОК РАСХОДОВ (Breakdown) === */
+.breakdown-panel {
     background: rgba(0,0,0,0.8);
     padding: 10px;
     border-radius: 6px;
     border: 1px solid #444;
 }
 
-.panel-header {
-    color: #a38f56;
-    margin-bottom: 8px;
-    font-size: 14px;
-    text-transform: uppercase;
-    text-align: center;
-}
-
-#history-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.history-item {
+.breakdown-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 8px 0;
     border-bottom: 1px solid #333;
-    font-size: 14px;
 }
-.history-item span { color: #ccc; }
-.history-item b { color: #ffd700; }
+.breakdown-name {
+    color: #ccc;
+    font-size: 16px;
+}
 
-.delete-btn {
+/* Инпут для редактирования расхода */
+.edit-expense-input {
     background: transparent;
     border: none;
-    color: #ff3333;
-    font-weight: bold;
-    cursor: pointer;
+    border-bottom: 1px dashed #555;
+    color: #ffd700; /* Золотой цвет цифр */
+    font-family: 'MedievalSharp', serif;
     font-size: 18px;
-    padding: 0 10px;
+    width: 80px;
+    text-align: right;
+    outline: none;
+}
+.edit-expense-input:focus {
+    border-bottom: 1px solid #ffd700;
+    background: rgba(255, 215, 0, 0.1);
 }
 
-/* === НИЖНИЕ ВКЛАДКИ (АБСОЛЮТНОЕ ПОЗИЦИОНИРОВАНИЕ ВНУТРИ .main-frame) === */
+/* === ВКЛАДКИ ВНИЗУ === */
 .bottom-nav {
     position: absolute;
-    bottom: 0; 
-    left: 0; 
-    width: 100%; 
-    height: 60px;
+    bottom: 0; left: 0; width: 100%; height: 60px;
     background: #111;
     display: flex;
     border-top: 2px solid #b39a58;
     z-index: 10;
 }
-
 .nav-btn {
     flex: 1;
     background: #1a1a1a;
