@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Azeroth Budget</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -11,36 +11,37 @@
 </head>
 <body>
     <div class="main-frame">
-        <header>
-            <h1>TREASURY LOG</h1>
-            <div class="mode-switch">
-                <button id="btn-month" class="wow-btn active" onclick="setMode('month')">Month</button>
-                <button id="btn-year" class="wow-btn" onclick="setMode('year')">Year</button>
-            </div>
-        </header>
-
-        <div class="chart-container">
-            <canvas id="radarChart"></canvas>
+        <div class="tabs-header">
+            <button id="tab-month" class="wow-tab active" onclick="switchTab('month')">Monthly Log</button>
+            <button id="tab-year" class="wow-tab" onclick="switchTab('year')">Yearly Log</button>
         </div>
 
-        <div class="gold-display">
-            <span class="gold-icon"></span>
-            <span id="total-amount">0</span>
-        </div>
+        <div class="content-body">
+            <h2 id="tab-title">Monthly Expenses</h2>
 
-        <div class="control-panel">
-            <div class="input-row">
-                <select id="category" class="wow-input">
-                    <option value="housing">Citadel (Жилье)</option>
-                    <option value="food">Supplies (Еда)</option>
-                    <option value="transport">Mounts (Транспорт)</option>
-                    <option value="fun">Tavern (Развлечения)</option>
-                    <option value="gear">Gear (Одежда/Вещи)</option>
-                </select>
+            <div class="chart-wrapper">
+                <canvas id="radarChart"></canvas>
             </div>
-            <div class="input-row">
-                <input type="number" id="amount" class="wow-input" placeholder="Gold Amount">
-                <button onclick="addExpense()" class="wow-btn add-btn">Add Loot</button>
+
+            <div class="gold-display">
+                <span class="gold-icon"></span>
+                <span id="total-amount">0</span>
+            </div>
+
+            <div class="control-panel">
+                <div class="input-row">
+                    <select id="category" class="wow-input">
+                        <option value="housing">Citadel (Жилье)</option>
+                        <option value="food">Supplies (Еда)</option>
+                        <option value="transport">Mounts (Транспорт)</option>
+                        <option value="fun">Tavern (Развлечения)</option>
+                        <option value="gear">Gear (Вещи/Одежда)</option>
+                    </select>
+                </div>
+                <div class="input-row">
+                    <input type="number" id="amount" class="wow-input" placeholder="Gold Amount">
+                    <button onclick="addExpense()" class="wow-btn add-btn">Add Loot</button>
+                </div>
             </div>
         </div>
     </div>

@@ -2,15 +2,14 @@ const tg = window.Telegram.WebApp;
 tg.expand();
 
 let chartInstance = null;
-let currentMode = 'month';
+let currentTab = 'month';
 
-// Данные по 5 углам (как на скрине из доты)
-let stats = {
-    month: { housing: 10, food: 10, transport: 10, fun: 10, gear: 10 },
-    year: { housing: 10, food: 10, transport: 10, fun: 10, gear: 10 }
+// Начальные данные (чтобы не было пустоты при первом запуске)
+let db = {
+    month: { housing: 50, food: 80, transport: 40, fun: 30, gear: 20 },
+    year: { housing: 600, food: 900, transport: 500, fun: 300, gear: 200 }
 };
 
-// Соответствие категорий и названий
 const labelsMap = {
     housing: 'Citadel',
     food: 'Supplies',
@@ -22,66 +21,76 @@ const labelsMap = {
 function initChart() {
     const ctx = document.getElementById('radarChart').getContext('2d');
     
+    // Настройки шрифта для Chart.js
+    Chart.defaults.font.family = 'MedievalSharp';
+    Chart.defaults.font.size = 14;
+    Chart.defaults.color = '#a38f56'; // Цвет текста легенды
+
     chartInstance = new Chart(ctx, {
-        type: 'radar', // ТИП ГРАФИКА: ПАУТИНА
+        type: 'radar',
         data: {
-            labels: Object.values(labelsMap), // Названия углов
+            labels: Object.values(labelsMap),
             datasets: [{
-                label: 'Spending Stats',
-                data: [10, 10, 10, 10, 10],
-                backgroundColor: 'rgba(255, 215, 0, 0.4)', // Золотая заливка
-                borderColor: '#FFD700', // Золотая линия
+                label: 'Gold Spent',
+                data: [0, 0, 0, 0, 0],
+                // Золотая заливка (полупрозрачная)
+                backgroundColor: 'rgba(255, 215, 0, 0.2)',
+                // Яркая золотая обводка
+                borderColor: '#FFD700',
+                borderWidth: 2,
+                // Точки на углах
                 pointBackgroundColor: '#fff',
                 pointBorderColor: '#FFD700',
-                borderWidth: 2
+                pointRadius: 4
             }]
         },
         options: {
+            responsive: true,
+            maintainAspectRatio: false,
             scales: {
                 r: {
-                    angleLines: { color: 'rgba(255, 255, 255, 0.2)' }, // Лучи паутины
-                    grid: { color: 'rgba(255, 255, 255, 0.2)' },      // Круги паутины
+                    // Линии паутины
+                    angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
+                    grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                    // Подписи углов (Citadel, Food...)
                     pointLabels: {
-                        color: '#d4af37', // Цвет подписей углов
-                        font: { size: 14, family: 'MedievalSharp' }
+                        color: '#f0e6d2', // Светлый пергамент
+                        font: { size: 14 }
                     },
-                    ticks: { display: false } // Скрыть цифры на осях
+                    ticks: { display: false, backdropColor: 'transparent' }
                 }
             },
             plugins: { legend: { display: false } }
         }
     });
+    
+    updateView();
 }
 
-function updateChart() {
-    const dataObj = stats[currentMode];
-    // Обновляем данные графика
+function switchTab(tab) {
+    currentTab = tab;
+    document.getElementById('tab-month').classList.toggle('active', tab === 'month');
+    document.getElementById('tab-year').classList.toggle('active', tab === 'year');
+    document.getElementById('tab-title').innerText = tab === 'month' ? "Monthly Expenses" : "Yearly Expenses";
+    updateView();
+}
+
+function updateView() {
+    const dataObj = db[currentTab];
     chartInstance.data.datasets[0].data = Object.values(dataObj);
     chartInstance.update();
 
-    // Считаем общую сумму
-    let total = Object.values(dataObj).reduce((a, b) => a + b, 0) - 50; // вычитаем начальные 10*5
-    document.getElementById('total-amount').innerText = total > 0 ? total : 0;
+    let total = Object.values(dataObj).reduce((a, b) => a + b, 0);
+    document.getElementById('total-amount').innerText = total.toLocaleString();
 }
 
 function addExpense() {
     const category = document.getElementById('category').value;
     const amount = parseFloat(document.getElementById('amount').value);
-
     if (!amount) return;
-
-    // Добавляем к текущему значению
-    stats[currentMode][category] += amount;
-    
+    db[currentTab][category] += amount;
     document.getElementById('amount').value = '';
-    updateChart();
-}
-
-function setMode(mode) {
-    currentMode = mode;
-    document.getElementById('btn-month').classList.toggle('active', mode === 'month');
-    document.getElementById('btn-year').classList.toggle('active', mode === 'year');
-    updateChart();
+    updateView();
 }
 
 initChart();

@@ -1,39 +1,97 @@
+@import url('https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap');
+
+/* === ОСНОВНОЙ ФОН (КАК В МЕНЮ) === */
 body {
-    background-color: #0b0d10;
-    font-family: 'MedievalSharp', cursive;
-    color: #ffd700;
     margin: 0;
-    padding: 10px;
-    background-image: url('https://www.transparenttextures.com/patterns/black-scales.png'); /* Текстура */
+    padding: 0;
+    height: 100vh;
+    /* Темный фон с текстурой карты/камня */
+    background-color: #050505; 
+    background-image: url('https://www.transparenttextures.com/patterns/black-scales.png');
+    color: #f0e6d2; /* Цвет пергамента */
+    font-family: 'MedievalSharp', serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
 }
 
-/* Рамка как в меню персонажа */
+/* === РАМКА (КАК ОКНО КВЕСТА) === */
 .main-frame {
-    border: 2px solid #4a3b2a;
-    border-radius: 8px;
-    padding: 15px;
-    background: #15171e;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(0,0,0,0.8);
-    max-width: 400px;
-    margin: 0 auto;
+    width: 95%;
+    max-width: 600px;
+    height: 90vh;
+    /* Темный полупрозрачный фон панели */
+    background: rgba(14, 17, 23, 0.95);
+    /* Двойная рамка: Золото + Камень */
+    border: 3px solid #484848;
+    box-shadow: 
+        0 0 0 2px #000,
+        0 0 0 5px #b39a58, /* Золотая обводка */
+        0 0 20px rgba(0,0,0,1);
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    padding: 2px; /* Отступ для внутренней рамки */
+    position: relative;
 }
 
-h1 {
+/* Вкладки сверху (Month / Year) */
+.tabs-header {
+    display: flex;
+    border-bottom: 2px solid #b39a58;
+}
+
+.wow-tab {
+    flex: 1;
+    background: #1a0f0a;
+    border: none;
+    border-right: 1px solid #444;
+    color: #808080;
+    padding: 15px;
+    font-family: 'MedievalSharp', serif;
+    font-size: 18px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.wow-tab:last-child {
+    border-right: none;
+}
+
+.wow-tab.active {
+    background: #520808; /* Красный фон Орды */
+    color: #ffd700;       /* Золотой текст */
+    text-shadow: 0 0 5px #ff4e4e;
+    box-shadow: inset 0 0 10px #000;
+}
+
+/* Тело контента */
+.content-body {
+    flex: 1;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+h2 {
     text-align: center;
-    color: #e5cc80;
-    text-shadow: 2px 2px 0 #000;
+    color: #ffd700;
     letter-spacing: 2px;
-    margin-top: 0;
-    border-bottom: 1px solid #4a3b2a;
+    text-shadow: 2px 2px 0 #000;
+    margin-top: 5px;
+    border-bottom: 1px solid #444;
     padding-bottom: 10px;
 }
 
 /* График */
-.chart-container {
+.chart-wrapper {
     position: relative;
-    height: 300px;
     width: 100%;
-    margin-bottom: 20px;
+    flex: 1;
+    min-height: 250px;
 }
 
 /* Золото */
@@ -41,56 +99,56 @@ h1 {
     text-align: center;
     font-size: 28px;
     color: #fff;
-    text-shadow: 0 0 5px #ffd700;
-    margin-bottom: 20px;
+    margin: 15px 0;
+    font-weight: bold;
 }
 .gold-icon::after {
-    content: "📀"; /* Можно заменить на картинку */
-    margin-right: 5px;
+    content: "💰"; 
+    filter: drop-shadow(0 0 2px gold);
 }
 
-/* Кнопки и инпуты WoW */
-.wow-input {
-    background: #000;
-    border: 1px solid #5c5c5c;
-    color: #1eff00; /* Зеленый текст как у предметов */
-    padding: 8px;
-    font-family: 'MedievalSharp', cursive;
-    font-size: 16px;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.mode-switch {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 15px;
-}
-
-.wow-btn {
-    background: linear-gradient(to bottom, #7d0808, #3d0303); /* Horde Red */
-    border: 1px solid #d4af37;
-    color: #d4af37;
-    padding: 8px 20px;
-    font-family: 'MedievalSharp', cursive;
-    cursor: pointer;
-    text-transform: uppercase;
-    box-shadow: 0 0 5px #000;
-}
-
-.wow-btn.active {
-    background: linear-gradient(to bottom, #1d4bba, #091d4f); /* Alliance Blue */
-    color: white;
-    box-shadow: 0 0 10px #1d4bba;
+/* === ИНПУТЫ И КНОПКИ (WoW Style) === */
+.control-panel {
+    background: #0f1115;
+    border: 1px solid #444;
+    padding: 15px;
+    border-radius: 4px;
+    box-shadow: inset 0 0 10px #000;
 }
 
 .input-row {
+    display: flex;
+    gap: 8px;
     margin-bottom: 10px;
 }
 
-.add-btn {
+/* Поле ввода */
+.wow-input {
+    background: #000;
+    border: 1px solid #666;
+    color: #1eff00; /* Зеленый текст как у предметов */
+    padding: 12px;
+    font-family: 'MedievalSharp', serif;
+    font-size: 16px;
     width: 100%;
-    margin-top: 5px;
-    font-size: 18px;
+    box-shadow: inset 0 0 5px rgba(0,0,0,0.8);
+}
+
+/* КНОПКА ДОБАВИТЬ */
+.wow-btn {
+    background: linear-gradient(to bottom, #7d0808, #3d0000); /* Градиент красного */
+    border: 1px solid #ffd700;
+    color: #ffd700;
+    font-family: 'MedievalSharp', serif;
+    font-size: 16px;
+    text-transform: uppercase;
+    cursor: pointer;
+    padding: 12px 20px;
+    box-shadow: 0 0 5px #000;
+    text-shadow: 1px 1px 0 #000;
+}
+
+.wow-btn:active {
+    transform: translateY(2px);
+    background: #3d0000;
 }
