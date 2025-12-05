@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dota Budget</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>TREASURY</h1>
+            <p class="subtitle">Gold & XP Monitor</p>
+        </header>
+
+        <div class="toggle-container">
+            <button id="btn-month" class="mode-btn active" onclick="setMode('month')">MONTHLY</button>
+            <button id="btn-year" class="mode-btn" onclick="setMode('year')">YEARLY</button>
+        </div>
+
+        <div class="chart-wrapper">
+            <canvas id="expenseChart"></canvas>
+            <div class="center-text">
+                <span id="total-amount">0</span>
+                <small>GOLD</small>
+            </div>
+        </div>
+
+        <div class="input-section">
+            <h3>Add Expense</h3>
+            <div class="input-group">
+                <select id="category">
+                    <option value="housing">Housing (Tower)</option>
+                    <option value="food">Food (Tango)</option>
+                    <option value="transport">Transport (TP)</option>
+                    <option value="fun">Fun (Skins)</option>
+                    <option value="other">Other</option>
+                </select>
+                <input type="number" id="amount" placeholder="Amount">
+                <button onclick="addExpense()">+</button>
+            </div>
+        </div>
+
+        <div class="list-section">
+            <h3>Net Worth Breakdown</h3>
+            <ul id="expense-list"></ul>
+        </div>
+
+        <div class="tips-section" id="tips-box" style="display:none;">
+            <h3>Oracle's Advice</h3>
+            <p id="tip-text"></p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Roboto:wght@400;500&display=swap');
+
+body {
+    background-color: #121212; /* Глубокий черный/серый */
+    color: #c4c4c4;
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 20px;
+    background-image: linear-gradient(to bottom, #1b1e23, #0d0e10);
+    min-height: 100vh;
+}
+
+h1, h3, .mode-btn {
+    font-family: 'Cinzel', serif; /* Похоже на шрифт Dota 2 */
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+h1 {
+    color: #bd3b3b; /* Dire Red */
+    text-shadow: 0 0 10px rgba(189, 59, 59, 0.5);
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+.subtitle {
+    text-align: center;
+    color: #586069;
+    font-size: 12px;
+    margin-top: 0;
+}
+
+/* График */
+.chart-wrapper {
+    position: relative;
+    height: 300px;
+    width: 100%;
+    margin: 20px 0;
+}
+
+.center-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    pointer-events: none;
+}
+
+#total-amount {
+    display: block;
+    font-size: 24px;
+    color: #e8d282; /* Gold */
+    font-weight: bold;
+}
+
+/* Кнопки и инпуты */
+.toggle-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.mode-btn {
+    background: #26292e;
+    border: 1px solid #3f444b;
+    color: #888;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.mode-btn.active {
+    background: linear-gradient(45deg, #2c0808, #5a1e1e);
+    border-color: #bd3b3b;
+    color: #fff;
+    box-shadow: 0 0 10px #bd3b3b66;
+}
+
+.input-group {
+    display: flex;
+    gap: 5px;
+}
+
+select, input {
+    background: #1c1f24;
+    border: 1px solid #3f444b;
+    color: #fff;
+    padding: 10px;
+    width: 100%;
+}
+
+button {
+    background: #3d5843; /* Radiant Greenish */
+    color: white;
+    border: none;
+    padding: 0 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* Список */
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+li {
+    background: rgba(255, 255, 255, 0.05);
+    margin-bottom: 5px;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    border-left: 3px solid #bd3b3b;
+}
+
+/* Советы */
+.tips-section {
+    background: #151922;
+    border: 1px solid #344861;
+    padding: 15px;
+    margin-top: 20px;
+    border-radius: 4px;
+}
+
+.tips-section h3 {
+    color: #5c8dff; /* Mana Blue */
+    margin-top: 0;
+}
