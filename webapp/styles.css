@@ -1,14 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap');
 
-/* === ОСНОВНОЙ ФОН (КАК В МЕНЮ) === */
 body {
     margin: 0;
     padding: 0;
     height: 100vh;
-    /* Темный фон с текстурой карты/камня */
-    background-color: #050505; 
-    background-image: url('https://www.transparenttextures.com/patterns/black-scales.png');
-    color: #f0e6d2; /* Цвет пергамента */
+    /* ФОН КАК ПРИ СОЗДАНИИ ПЕРСОНАЖА */
+    background: url('https://i.pinimg.com/originals/16/70/e6/1670e6eb5a93902179929288fc0df8d0.jpg') no-repeat center center fixed;
+    background-size: cover; /* Растянуть на весь экран */
+    color: #f0e6d2;
     font-family: 'MedievalSharp', serif;
     display: flex;
     justify-content: center;
@@ -16,74 +15,87 @@ body {
     overflow: hidden;
 }
 
-/* === РАМКА (КАК ОКНО КВЕСТА) === */
-.main-frame {
-    width: 95%;
-    max-width: 600px;
-    height: 90vh;
-    /* Темный полупрозрачный фон панели */
-    background: rgba(14, 17, 23, 0.95);
-    /* Двойная рамка: Золото + Камень */
-    border: 3px solid #484848;
-    box-shadow: 
-        0 0 0 2px #000,
-        0 0 0 5px #b39a58, /* Золотая обводка */
-        0 0 20px rgba(0,0,0,1);
-    border-radius: 4px;
-    display: flex;
-    flex-direction: column;
-    padding: 2px; /* Отступ для внутренней рамки */
-    position: relative;
+/* Затемнение фона, чтобы читать текст */
+body::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.5); /* Полупрозрачная вуаль */
+    z-index: -1;
 }
 
-/* Вкладки сверху (Month / Year) */
+.main-frame {
+    width: 90%;
+    max-width: 500px;
+    height: 85vh;
+    background: rgba(14, 17, 23, 0.9); /* Полупрозрачная панель */
+    border: 2px solid #5a5a5a;
+    box-shadow: 
+        0 0 0 2px #000,
+        0 0 0 4px #b39a58, /* Золотая рамка */
+        0 0 30px rgba(0,0,0,1);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    backdrop-filter: blur(5px); /* Размытие фона за панелью */
+}
+
 .tabs-header {
     display: flex;
     border-bottom: 2px solid #b39a58;
+    background: rgba(0,0,0,0.8);
+    border-radius: 8px 8px 0 0;
 }
 
 .wow-tab {
     flex: 1;
-    background: #1a0f0a;
+    background: transparent;
     border: none;
-    border-right: 1px solid #444;
-    color: #808080;
+    color: #888;
     padding: 15px;
     font-family: 'MedievalSharp', serif;
-    font-size: 18px;
+    font-size: 16px;
     text-transform: uppercase;
     cursor: pointer;
-    transition: 0.2s;
-}
-
-.wow-tab:last-child {
-    border-right: none;
+    transition: 0.3s;
 }
 
 .wow-tab.active {
-    background: #520808; /* Красный фон Орды */
-    color: #ffd700;       /* Золотой текст */
-    text-shadow: 0 0 5px #ff4e4e;
-    box-shadow: inset 0 0 10px #000;
+    background: linear-gradient(to top, #520808, transparent);
+    color: #ffd700;
+    text-shadow: 0 0 10px #ff4e4e;
+    border-bottom: 3px solid #ff0000;
 }
 
-/* Тело контента */
 .content-body {
     flex: 1;
-    padding: 20px;
+    padding: 15px;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
 }
 
-h2 {
+/* Секция дохода */
+.income-section {
+    background: rgba(0,0,0,0.6);
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #444;
+    margin-bottom: 10px;
+    text-align: center;
+}
+.income-section label {
+    color: #aaa;
+    font-size: 14px;
+}
+.gold-input {
     text-align: center;
     color: #ffd700;
-    letter-spacing: 2px;
-    text-shadow: 2px 2px 0 #000;
-    margin-top: 5px;
-    border-bottom: 1px solid #444;
-    padding-bottom: 10px;
+    border: none;
+    border-bottom: 1px solid #ffd700;
+    background: transparent;
+    font-size: 20px;
 }
 
 /* График */
@@ -91,64 +103,65 @@ h2 {
     position: relative;
     width: 100%;
     flex: 1;
-    min-height: 250px;
+    min-height: 200px;
 }
 
-/* Золото */
+/* Остаток золота */
 .gold-display {
     text-align: center;
-    font-size: 28px;
+    margin: 10px 0;
+    padding: 10px;
+    background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.1), transparent);
+}
+.gold-label {
+    font-size: 12px;
+    color: #aaa;
+    text-transform: uppercase;
+}
+#remaining-amount {
+    font-size: 36px;
     color: #fff;
-    margin: 15px 0;
+    text-shadow: 0 0 10px #ffd700;
     font-weight: bold;
 }
-.gold-icon::after {
-    content: "💰"; 
-    filter: drop-shadow(0 0 2px gold);
-}
+.gold-icon::after { content: "💰"; }
 
-/* === ИНПУТЫ И КНОПКИ (WoW Style) === */
+/* Панель ввода */
 .control-panel {
-    background: #0f1115;
+    background: #111;
     border: 1px solid #444;
     padding: 15px;
     border-radius: 4px;
-    box-shadow: inset 0 0 10px #000;
+    box-shadow: inset 0 0 15px #000;
 }
-
-.input-row {
-    display: flex;
-    gap: 8px;
+.panel-title {
+    color: #a38f56;
     margin-bottom: 10px;
+    font-size: 14px;
+    text-transform: uppercase;
+    border-bottom: 1px solid #333;
 }
 
-/* Поле ввода */
 .wow-input {
-    background: #000;
-    border: 1px solid #666;
-    color: #1eff00; /* Зеленый текст как у предметов */
-    padding: 12px;
+    background: #050505;
+    border: 1px solid #555;
+    color: #1eff00;
+    padding: 10px;
     font-family: 'MedievalSharp', serif;
-    font-size: 16px;
     width: 100%;
-    box-shadow: inset 0 0 5px rgba(0,0,0,0.8);
+    box-sizing: border-box;
 }
 
-/* КНОПКА ДОБАВИТЬ */
 .wow-btn {
-    background: linear-gradient(to bottom, #7d0808, #3d0000); /* Градиент красного */
+    background: #7d0808;
     border: 1px solid #ffd700;
     color: #ffd700;
     font-family: 'MedievalSharp', serif;
-    font-size: 16px;
     text-transform: uppercase;
     cursor: pointer;
-    padding: 12px 20px;
-    box-shadow: 0 0 5px #000;
-    text-shadow: 1px 1px 0 #000;
+    padding: 10px;
+    width: 100%;
+    margin-top: 5px;
 }
-
-.wow-btn:active {
-    transform: translateY(2px);
-    background: #3d0000;
-}
+.wow-btn:active { background: #500; }
+.input-row { margin-bottom: 8px; }

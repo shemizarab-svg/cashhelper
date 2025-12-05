@@ -17,30 +17,37 @@
         </div>
 
         <div class="content-body">
-            <h2 id="tab-title">Monthly Expenses</h2>
+            <div class="income-section">
+                <label>Total Budget (Income):</label>
+                <div class="income-input-group">
+                    <input type="number" id="income-input" class="wow-input gold-input" placeholder="Set Budget..." onchange="updateIncome()">
+                </div>
+            </div>
 
             <div class="chart-wrapper">
                 <canvas id="radarChart"></canvas>
             </div>
 
             <div class="gold-display">
+                <div class="gold-label">Remaining Gold:</div>
                 <span class="gold-icon"></span>
-                <span id="total-amount">0</span>
+                <span id="remaining-amount">0</span>
             </div>
 
             <div class="control-panel">
+                <div class="panel-title">Add Expense</div>
                 <div class="input-row">
                     <select id="category" class="wow-input">
                         <option value="housing">Citadel (Жилье)</option>
                         <option value="food">Supplies (Еда)</option>
                         <option value="transport">Mounts (Транспорт)</option>
                         <option value="fun">Tavern (Развлечения)</option>
-                        <option value="gear">Gear (Вещи/Одежда)</option>
+                        <option value="gear">Gear (Вещи)</option>
                     </select>
                 </div>
                 <div class="input-row">
-                    <input type="number" id="amount" class="wow-input" placeholder="Gold Amount">
-                    <button onclick="addExpense()" class="wow-btn add-btn">Add Loot</button>
+                    <input type="number" id="amount" class="wow-input" placeholder="Cost">
+                    <button onclick="addExpense()" class="wow-btn add-btn">Spend</button>
                 </div>
             </div>
         </div>
