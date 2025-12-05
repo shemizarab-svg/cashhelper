@@ -11,39 +11,53 @@
 </head>
 <body>
 
+    <div class="main-frame-wrapper">
     <div class="main-frame">
         
-        <div class="top-gold-section">
-            <span class="gold-icon-big"></span>
-            <span class="gold-label">Gold:</span>
-            <input type="number" id="income-input" class="invisible-input" placeholder="0" oninput="updateIncome()">
+        <div class="gold-section top-section">
+            <span class="gold-label">Income Budget:</span>
+            <div class="gold-value-container">
+                <span class="gold-icon-big"></span>
+                <input type="number" id="income-input" class="invisible-input" placeholder="0" oninput="updateIncome()">
+            </div>
         </div>
 
         <div class="chart-wrapper">
             <canvas id="radarChart"></canvas>
         </div>
 
-        <div class="remaining-section">
-            <div class="small-label">Remaining:</div>
-            <span id="remaining-amount">0</span>
-        </div>
-
-        <div class="control-panel">
-            <div class="input-row">
-                <select id="category" class="wow-input">
-                    <option value="housing">Citadel (Жилье)</option>
-                    <option value="food">Supplies (Еда)</option>
-                    <option value="transport">Mounts (Транспорт)</option>
-                    <option value="fun">Tavern (Развлечения)</option>
-                    <option value="gear">Gear (Вещи)</option>
-                </select>
-            </div>
-            <div class="input-row">
-                <input type="number" id="amount" class="wow-input" placeholder="Cost...">
-                <button onclick="addExpense()" class="wow-btn">SPEND</button>
+        <div class="gold-section remaining-section">
+            <span class="gold-label">Remaining Gold:</span>
+            <div class="gold-value-container">
+                 <span class="gold-icon-big"></span>
+                 <span id="remaining-amount" class="gold-text">0</span>
             </div>
         </div>
 
+        <div class="control-panel-wrapper">
+            
+            <div class="new-category-panel">
+                 <div class="panel-header small-header">New Category Line</div>
+                 <div class="input-row">
+                    <input type="text" id="new-cat-name" class="wow-input" placeholder="Name (e.g. Car)...">
+                    <button onclick="addNewCategory()" class="wow-btn small-btn">Add Line</button>
+                </div>
+            </div>
+
+            <div class="spend-panel">
+                <div class="panel-header">Add Expense</div>
+                <div class="input-row">
+                    <select id="category-select" class="wow-input">
+                        </select>
+                </div>
+                <div class="input-row">
+                    <input type="number" id="amount" class="wow-input" placeholder="Cost...">
+                    <button onclick="addExpense()" class="wow-btn spend-btn">SPEND</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
     </div>
 
     <div class="bottom-nav">

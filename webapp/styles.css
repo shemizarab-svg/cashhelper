@@ -5,9 +5,7 @@ body {
     padding: 0;
     height: 100vh;
     width: 100vw;
-    /* ФОН ЗАЛА ШТОРМГРАДА (КАК НА СКРИНЕ) */
-    background: url('https://i.imgur.com/3p3g2kS.jpeg') no-repeat center center fixed; 
-    background-size: cover;
+    background: #000; /* Черный фон за рамками */
     color: #f0e6d2;
     font-family: 'MedievalSharp', serif;
     display: flex;
@@ -15,96 +13,126 @@ body {
     overflow: hidden;
 }
 
-/* Затемнение фона, чтобы читался текст */
-body::after {
-    content: "";
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.4); 
-    z-index: -1;
+.main-frame-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 10px;
+    padding-bottom: 70px;
+    overflow-y: auto; /* Прокрутка если много категорий */
 }
 
+/* === ГЛАВНАЯ РАМКА С ФОНОМ ВНУТРИ === */
 .main-frame {
-    flex: 1; /* Занимает все место до нижнего меню */
+    width: 100%;
+    max-width: 600px;
+    min-height: 100%; /* Растягиваем */
+    /* ФОН ВНУТРИ ПРИЛОЖЕНИЯ */
+    background: url('https://i.imgur.com/3p3g2kS.jpeg') no-repeat center center; 
+    background-size: cover;
+    border: 3px solid #4a3b2a;
+    box-shadow: 
+        0 0 0 2px #000,
+        0 0 0 5px #b39a58, /* Золотая обводка */
+        inset 0 0 50px rgba(0,0,0,0.8); /* Внутренняя тень */
+    border-radius: 8px;
+    padding: 15px;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    padding: 20px;
-    padding-bottom: 70px; /* Место для нижних кнопок */
-    justify-content: flex-start;
 }
 
-/* === 1. ВЕРХНИЙ ИНПУТ (НЕВИДИМЫЙ) === */
-.top-gold-section {
+/* === ЕДИНЫЙ СТИЛЬ ЗОЛОТЫХ СЕКЦИЙ (ВЕРХ И НИЗ) === */
+.gold-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+    text-shadow: 0 0 5px #000;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(179, 154, 88, 0.3);
+}
+.top-section { margin-top: 5px; }
+
+.gold-value-container {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 10px;
-    text-shadow: 0 0 5px #000;
 }
 
 .gold-icon-big::after {
-    content: "💰"; /* Монетка */
+    content: "💰";
     font-size: 24px;
-    margin-right: 5px;
+    margin-right: 8px;
     filter: drop-shadow(0 0 2px gold);
 }
 
 .gold-label {
-    font-size: 22px;
-    color: #ffd700;
-    margin-right: 8px;
-}
-
-/* Тот самый стиль, чтобы инпут не выделялся */
-.invisible-input {
-    background: transparent;
-    border: none;
-    outline: none;
-    font-family: 'MedievalSharp', serif;
-    font-size: 24px;
-    color: #fff; /* Белый цвет цифр */
-    width: 120px;
-    border-bottom: 1px dashed rgba(255, 255, 255, 0.3); /* Еле заметная линия, чтоб понять куда жать */
-}
-.invisible-input::placeholder {
-    color: rgba(255, 255, 255, 0.5);
-}
-.invisible-input:focus {
-    border-bottom: 1px solid #ffd700;
-}
-
-/* === 2. ГРАФИК === */
-.chart-wrapper {
-    position: relative;
-    width: 100%;
-    flex: 1; /* Растягивается */
-    max-height: 40vh; /* Ограничение высоты */
-    margin: 10px 0;
-}
-
-/* === 3. ОСТАТОК === */
-.remaining-section {
-    text-align: center;
-    margin-bottom: 15px;
-}
-.small-label {
     font-size: 14px;
     color: #aaa;
     text-transform: uppercase;
+    margin-bottom: 5px;
 }
-#remaining-amount {
-    font-size: 32px;
+
+.gold-text {
+    font-size: 28px;
     font-weight: bold;
     color: #fff;
     text-shadow: 0 0 10px #ffd700;
 }
 
-/* === 4. ПАНЕЛЬ РАСХОДОВ === */
-.control-panel {
-    background: rgba(0, 0, 0, 0.7); /* Темная подложка */
+/* Невидимый инпут для ввода дохода */
+.invisible-input {
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: 'MedievalSharp', serif;
+    font-size: 28px;
+    font-weight: bold;
+    color: #fff;
+    width: 150px;
+    text-shadow: 0 0 10px #ffd700;
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
+    text-align: left;
+}
+.invisible-input::placeholder { color: rgba(255, 255, 255, 0.5); }
+.invisible-input:focus { border-bottom: 1px solid #ffd700; }
+
+
+/* === ГРАФИК === */
+.chart-wrapper {
+    position: relative;
+    width: 100%;
+    flex-grow: 1; /* Растягиваем */
+    min-height: 250px;
+    margin: 10px 0;
+}
+
+/* === ПАНЕЛИ УПРАВЛЕНИЯ === */
+.control-panel-wrapper {
+    background: rgba(14, 17, 23, 0.85); /* Темная подложка */
     padding: 15px;
     border-radius: 8px;
     border: 1px solid #444;
+    box-shadow: inset 0 0 15px #000;
+}
+
+.panel-header {
+    color: #a38f56;
+    border-bottom: 1px solid #333;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+.small-header { font-size: 12px; color: #777; }
+
+.new-category-panel {
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px dashed #333;
 }
 
 .input-row {
@@ -115,60 +143,56 @@ body::after {
 .input-row:last-child { margin-bottom: 0; }
 
 .wow-input {
-    background: #111;
+    background: #050505;
     border: 1px solid #555;
-    color: #1eff00; /* Зеленый текст WoW */
+    color: #1eff00;
     padding: 10px;
     font-family: 'MedievalSharp', serif;
     font-size: 16px;
-    width: 100%;
+    flex: 1; /* Растягиваем инпуты */
     box-sizing: border-box;
 }
+select.wow-input { appearance: none; } /* Убираем стандартную стрелку */
 
 .wow-btn {
-    background: #7d0808; /* Красная кнопка */
-    color: #ffd700;
-    border: 1px solid #ffd700;
     font-family: 'MedievalSharp', serif;
     cursor: pointer;
-    padding: 0 20px;
-    font-size: 16px;
+    padding: 0 15px;
+    font-size: 14px;
+    text-transform: uppercase;
+    border: 1px solid #ffd700;
     text-shadow: 1px 1px 0 #000;
+    color: #ffd700;
 }
+.spend-btn { background: #7d0808; font-size: 16px; flex: 0.5; }
+.small-btn { background: #2a2a2a; border-color: #666; color: #aaa; }
 
-/* === 5. НИЖНИЕ ВКЛАДКИ (BOTTOM TABS) === */
+/* === НИЖНИЕ ВКЛАДКИ === */
 .bottom-nav {
     position: fixed;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 60px;
+    bottom: 0; left: 0; width: 100%; height: 65px;
     background: #0e1015;
     display: flex;
-    border-top: 2px solid #b39a58; /* Золотая линия сверху */
+    border-top: 3px solid #b39a58;
     z-index: 100;
+    box-shadow: 0 -5px 15px #000;
 }
 
 .nav-btn {
     flex: 1;
     background: transparent;
     border: none;
-    color: #666;
+    color: #555;
     font-family: 'MedievalSharp', serif;
     font-size: 18px;
     text-transform: uppercase;
     cursor: pointer;
-    transition: 0.2s;
+    transition: 0.3s;
+    border-right: 1px solid #222;
 }
-
-/* Разделитель между кнопками */
-.nav-btn:first-child {
-    border-right: 1px solid #333;
-}
-
 .nav-btn.active {
-    background: #2a0a0a; /* Темно-красный фон активной */
+    background: linear-gradient(to top, #4a0a0a, #1a0505);
     color: #ffd700;
-    text-shadow: 0 0 5px #ff4e4e;
-    box-shadow: inset 0 3px 0 #ffd700; /* Золотая полоска сверху активной */
+    text-shadow: 0 0 8px #ff3333;
+    border-top: 2px solid #ff3333;
 }
