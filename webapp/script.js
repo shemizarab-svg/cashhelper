@@ -21,14 +21,14 @@ let chartMonthly = null;
 let chartYearlyRadar = null;
 let chartYearlyBarExpenses = null;
 let chartYearlyBarSavings = null;
-let chartGarage = null; // Новый чарт для гаража
+let chartGarage = null; 
 
 let globalCategoryNames = new Map(); 
 
 let db = {
     limits: {}, 
     garageStandards: {},
-    garageTypes: {}, // НОВОЕ: Пользовательские типы запчастей
+    garageTypes: {}, 
     months: monthsList.reduce((acc, m) => {
         acc[m] = { 
             income: 0, 
@@ -54,7 +54,6 @@ function loadData() {
             if (parsed.db) {
                 if (parsed.db.limits) db.limits = parsed.db.limits;
                 if (parsed.db.garageStandards) db.garageStandards = parsed.db.garageStandards;
-                // Загружаем типы
                 if (parsed.db.garageTypes) db.garageTypes = parsed.db.garageTypes;
 
                 if (parsed.db.months) {
@@ -70,7 +69,7 @@ function loadData() {
         } catch (e) { console.error(e); }
     }
     
-    // Дефолтные типы, если пусто
+    // Дефолтные типы
     if (!db.garageTypes || Object.keys(db.garageTypes).length === 0) {
         db.garageTypes = {
             'oil': 'Масло/Жидкости',
@@ -98,11 +97,11 @@ function init() {
     loadData();
     if (!globalCategoryNames.has('transport')) globalCategoryNames.set('transport', 'Транспорт (Машина)');
     initCharts();
-    initGarageChart(); // Инициализация нового графика
+    initGarageChart(); 
     
     renderLimitsPanel();
     renderGarageSettings();
-    renderGarageTypeSelect(); // Заполняем селект типов
+    renderGarageTypeSelect(); 
     
     updateView();
 }
@@ -122,7 +121,7 @@ function initCharts() {
     chartYearlyBarSavings = new Chart(ctxY3, createBarConfig('Накопления по месяцам', '#ffd700'));
 }
 
-// === НОВЫЙ ЧАРТ ДЛЯ ГАРАЖА ===
+// === ГАРАЖНЫЙ ГРАФИК ===
 function initGarageChart() {
     const ctxG = document.getElementById('garageChart').getContext('2d');
     chartGarage = new Chart(ctxG, {
@@ -146,14 +145,13 @@ function initGarageChart() {
                         color: '#ffd700',
                         font: { size: 12 },
                         callback: function(value) {
-                            // Хитрость: мы будем использовать индексы 0, 1, 2... как Y, а тут подменять их на названия
                             const keys = Object.keys(db.garageTypes);
                             const key = keys[value];
                             return key ? db.garageTypes[key] : '';
                         }
                     },
                     beginAtZero: true,
-                    suggestedMax: 5 // Запас высоты
+                    suggestedMax: 5 
                 }
             },
             plugins: {
@@ -170,22 +168,16 @@ function initGarageChart() {
     });
 }
 
-// Обновление данных графика гаража
 function updateGarageChart() {
     const typeKeys = Object.keys(db.garageTypes);
     let points = [];
 
-    // Собираем данные со ВСЕХ месяцев для истории
     for (let m of monthsList) {
         if (db.months[m].garage) {
             db.months[m].garage.forEach(item => {
-                // Ищем индекс типа для оси Y
-                // item.type содержит название (например "Масло"), нам нужно найти ключ или просто индекс в массиве значений
-                // Проще найти индекс названия в массиве значений
                 const typeValues = Object.values(db.garageTypes);
                 let yIndex = typeValues.indexOf(item.type);
                 
-                // Если тип был удален или переименован, кидаем в "Прочее" или 0
                 if (yIndex === -1) yIndex = 0; 
 
                 points.push({
@@ -205,7 +197,6 @@ function updateGarageChart() {
         pointHoverRadius: 8
     }];
     
-    // Обновляем высоту оси Y по количеству типов
     chartGarage.options.scales.y.suggestedMax = typeKeys.length - 1;
     chartGarage.update();
 }
@@ -257,6 +248,7 @@ function updateView() {
 // === УПРАВЛЕНИЕ ТИПАМИ ГАРАЖА ===
 function renderGarageTypeSelect() {
     const select = document.getElementById('car-part-type');
+    const savedVal = select.value; 
     select.innerHTML = '';
     
     for (const [key, name] of Object.entries(db.garageTypes)) {
@@ -265,24 +257,50 @@ function renderGarageTypeSelect() {
         opt.innerText = name;
         select.appendChild(opt);
     }
+    
+    if (db.garageTypes[savedVal]) {
+        select.value = savedVal;
+    }
 }
 
 function addGarageType() {
     const name = prompt("Название нового типа (например: Тюнинг, Мойка):");
     if (name) {
-        // Генерируем ключ
         const key = 'custom_' + Date.now();
         db.garageTypes[key] = name;
-        
-        // Сразу добавляем и стандарт 0, чтобы не было глюков
         db.garageStandards[key] = 0;
         
         saveData();
         renderGarageTypeSelect();
-        renderGarageSettings(); // Чтобы появился в настройках
+        renderGarageSettings(); 
         
-        // Выбираем новый тип
         document.getElementById('car-part-type').value = key;
+        autoFillMileage();
+    }
+}
+
+// === НОВАЯ ФУНКЦИЯ УДАЛЕНИЯ ===
+function deleteGarageType() {
+    const select = document.getElementById('car-part-type');
+    const key = select.value;
+    
+    const protected = ['oil', 'filter', 'brakes', 'engine', 'wheels', 'other'];
+
+    if (protected.includes(key)) {
+        tg.showAlert("Нельзя удалить стандартный тип!");
+        return;
+    }
+
+    if (confirm("Удалить этот тип и его настройки?")) {
+        delete db.garageTypes[key];
+        delete db.garageStandards[key];
+        saveData();
+        
+        renderGarageTypeSelect();
+        renderGarageSettings();
+        
+        // Сбрасываем выбор на масло
+        select.value = 'oil';
         autoFillMileage();
     }
 }
@@ -323,7 +341,6 @@ function renderGarageSettings() {
     if (!container) return;
     container.innerHTML = '';
 
-    // Используем динамические типы
     for (const [typeKey, typeName] of Object.entries(db.garageTypes)) {
         if (typeKey === 'other') continue; 
 
@@ -402,8 +419,6 @@ function renderGarageView() {
 
     if (!mData.garage) mData.garage = [];
     autoFillMileage();
-
-    // Обновляем график истории
     updateGarageChart();
 
     if (mData.garage.length > 0) {
