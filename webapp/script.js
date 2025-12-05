@@ -1,10 +1,15 @@
 const tg = window.Telegram.WebApp;
 tg.expand();
 
+// === 1. ПОЛУЧАЕМ ID ПОЛЬЗОВАТЕЛЯ (АВТОРИЗАЦИЯ) ===
+// Если открыто не в телеграме, будет 'guest'
+const userId = tg.initDataUnsafe?.user?.id || 'guest';
+const STORAGE_KEY = `azeroth_budget_${userId}`; // Уникальный ключ для сохранения
+
 let chartInstance = null;
 let currentTab = 'month';
 
-// Начальные категории
+// Начальные метки (если нет сохранений)
 let labelsMap = new Map([
     ['housing', 'Citadel'],
     ['food', 'Supplies'],
@@ -13,7 +18,7 @@ let labelsMap = new Map([
     ['gear', 'Gear']
 ]);
 
-// База данных
+// База данных (если нет сохранений)
 let db = {
     month: { 
         income: 0, 
@@ -25,7 +30,42 @@ let db = {
     }
 };
 
+// === ФУНКЦИИ СОХРАНЕНИЯ И ЗАГРУЗКИ ===
+
+function saveData() {
+    const dataToSave = {
+        db: db,
+        // Map нельзя сохранить напрямую в JSON, превращаем в массив
+        labels: Array.from(labelsMap.entries()) 
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+}
+
+function loadData() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) {
+        try {
+            const parsed = JSON.parse(saved);
+            
+            // Восстанавливаем базу данных
+            // (используем Object.assign, чтобы не сломать структуру, если мы добавим новые поля в будущем)
+            db = parsed.db;
+
+            // Восстанавливаем метки категорий
+            if (parsed.labels) {
+                labelsMap = new Map(parsed.labels);
+            }
+        } catch (e) {
+            console.error("Save file corrupted, starting fresh.");
+        }
+    }
+}
+
+// === ИНИЦИАЛИЗАЦИЯ ===
+
 function initChart() {
+    loadData(); // <--- ЗАГРУЖАЕМСЯ ПЕРЕД СТАРТОМ
+
     const ctx = document.getElementById('radarChart').getContext('2d');
     Chart.defaults.font.family = 'MedievalSharp';
     
@@ -76,6 +116,7 @@ function manualIncomeEdit() {
     let val = parseFloat(input.value);
     if (isNaN(val)) val = 0;
     db[currentTab].income = val;
+    saveData(); // <--- СОХРАНЯЕМ
     updateView();
 }
 
@@ -85,6 +126,7 @@ function addMoreIncome() {
         let val = parseFloat(amount);
         if (!isNaN(val) && val > 0) {
             db[currentTab].income += val;
+            saveData(); // <--- СОХРАНЯЕМ
             updateView();
         }
     }
@@ -101,6 +143,8 @@ function addExpense() {
     db[currentTab].expenses[catKey] += amount;
 
     document.getElementById('amount').value = '';
+    
+    saveData(); // <--- СОХРАНЯЕМ
     updateView();
 }
 
@@ -108,21 +152,19 @@ function manualExpenseEdit(key, inputElement) {
     let val = parseFloat(inputElement.value);
     if (isNaN(val)) val = 0;
     db[currentTab].expenses[key] = val;
+    
+    saveData(); // <--- СОХРАНЯЕМ
     updateView(false); 
 }
 
 // === УДАЛЕНИЕ КАТЕГОРИИ ===
 function removeCategory(key) {
-    // Спрашиваем подтверждение, чтобы случайно не удалить
     if(confirm("Delete this category permanently?")) {
-        // 1. Удаляем из списка меток
         labelsMap.delete(key);
-        
-        // 2. (Опционально) Можно почистить данные в БД, но не обязательно
         delete db.month.expenses[key];
         delete db.year.expenses[key];
 
-        // 3. Обновляем всё
+        saveData(); // <--- СОХРАНЯЕМ
         updateDropdown();
         updateView();
     }
@@ -141,7 +183,6 @@ function renderBreakdown() {
         let div = document.createElement('div');
         div.className = 'breakdown-item';
         
-        // Добавлен <div> edit-wrapper с инпутом и кнопкой удаления
         div.innerHTML = `
             <span class="breakdown-name">${name}</span>
             <div class="edit-wrapper">
@@ -166,7 +207,6 @@ function updateView(redrawBreakdown = true) {
         incInput.value = currentData.income === 0 ? '' : currentData.income;
     }
 
-    // Собираем данные ТОЛЬКО для тех категорий, которые остались в labelsMap
     let dataForChart = [];
     let totalSpent = 0;
     
@@ -176,7 +216,6 @@ function updateView(redrawBreakdown = true) {
         totalSpent += amount;
     }
 
-    // Обновляем график новыми метками и данными
     chartInstance.data.labels = Array.from(labelsMap.values());
     chartInstance.data.datasets[0].data = dataForChart;
     chartInstance.update();
@@ -202,6 +241,8 @@ function addNewCategory() {
         labelsMap.set(key, name);
         db.month.expenses[key] = 0;
         db.year.expenses[key] = 0;
+        
+        saveData(); // <--- СОХРАНЯЕМ
         updateDropdown();
         updateView();
     }
