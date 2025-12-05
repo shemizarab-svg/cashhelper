@@ -104,7 +104,7 @@ body {
 }
 .delete-cat-btn:active { color: #ff3333; transform: scale(1.2); }
 
-/* === КАРТОЧКИ ГАРАЖА (НОВОЕ) === */
+/* === КАРТОЧКИ ГАРАЖА === */
 .garage-card {
     background: rgba(30, 30, 30, 0.7);
     border: 1px solid #444;
@@ -149,7 +149,6 @@ body {
 .garage-arrow { color: #666; font-size: 10px; }
 .garage-next-km { color: #ffd700; font-weight: bold; text-shadow: 0 0 5px rgba(255, 215, 0, 0.3); }
 
-/* Кнопка удаления в углу карточки */
 .garage-delete-abs {
     position: absolute; top: 5px; right: -5px;
     width: 30px; height: 30px;
