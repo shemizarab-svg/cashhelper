@@ -73,7 +73,8 @@ body {
 
 .wow-input {
     background: #000; border: 1px solid #666; color: #1eff00; padding: 10px;
-    font-family: 'Cormorant SC', serif; font-weight: bold; font-size: 18px; flex: 1; border-radius: 4px;
+    font-family: 'Cormorant SC', serif; font-weight: bold; font-size: 18px; 
+    flex: 1; min-width: 0; border-radius: 4px;
     -webkit-appearance: none; appearance: none;
 }
 .wow-btn {
@@ -103,35 +104,57 @@ body {
 }
 .delete-cat-btn:active { color: #ff3333; transform: scale(1.2); }
 
-/* === ТАБЛИЦА ГАРАЖА === */
-.garage-header-row {
+/* === КАРТОЧКИ ГАРАЖА (НОВОЕ) === */
+.garage-card {
+    background: rgba(30, 30, 30, 0.7);
+    border: 1px solid #444;
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 10px;
     display: flex;
-    font-size: 12px;
-    color: #a38f56;
-    border-bottom: 1px solid #555;
-    padding-bottom: 5px;
-    margin-bottom: 5px;
-    text-transform: uppercase;
+    flex-direction: column;
+    gap: 5px;
+    position: relative;
 }
 
-.garage-item {
+.garage-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #333;
+    padding-bottom: 5px;
+    margin-bottom: 5px;
+}
+.garage-name-text { color: #fff; font-size: 16px; font-weight: bold; }
+.garage-price-text { color: #ff4e4e; font-size: 16px; font-weight: bold; }
+
+.garage-card-mid {
+    display: flex;
+    justify-content: space-between;
+    color: #aaa;
+    font-size: 12px;
+}
+.garage-type-badge {
+    background: #222; padding: 2px 6px; border-radius: 4px; border: 1px solid #555;
+}
+
+.garage-card-bot {
     display: flex;
     align-items: center;
-    padding: 8px 0;
-    border-bottom: 1px solid #333;
+    gap: 8px;
     font-size: 14px;
+    margin-top: 2px;
 }
-.garage-item span {
-    overflow: hidden; 
-    text-overflow: ellipsis; 
-    white-space: nowrap;
-    padding-right: 5px;
+.garage-fact-km { color: #ccc; font-weight: bold; }
+.garage-arrow { color: #666; font-size: 10px; }
+.garage-next-km { color: #ffd700; font-weight: bold; text-shadow: 0 0 5px rgba(255, 215, 0, 0.3); }
+
+/* Кнопка удаления в углу карточки */
+.garage-delete-abs {
+    position: absolute; top: 5px; right: -5px;
+    width: 30px; height: 30px;
+    background: transparent; border: none; color: #555; font-size: 16px;
 }
-.garage-col-name { flex: 2; color: #fff; font-weight: bold; }
-.garage-col-type { flex: 1; color: #aaa; font-size: 12px; }
-.garage-col-next { flex: 1; color: #ffd700; }
-.garage-col-fact { flex: 1; color: #555; }
-.garage-col-price { flex: 1; color: #ff4e4e; text-align: right; }
 
 /* === ВКЛАДКИ === */
 .bottom-nav {

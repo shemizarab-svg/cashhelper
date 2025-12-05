@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@400;700&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="styles.css?v=8.0">
+    <link rel="stylesheet" href="styles.css?v=9.0">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
@@ -134,10 +134,10 @@
                     </details>
 
                     <div class="control-panel-wrapper">
-                        <div class="panel-header">Добавить запчасть / ТО</div>
+                        <div class="panel-header">Добавить запись</div>
                         
                         <div class="input-row">
-                            <input type="text" id="car-part-name" class="wow-input" placeholder="Название (Масло, Колодки...)">
+                            <input type="text" id="car-part-name" class="wow-input" placeholder="Название (Shell 5w40...)">
                         </div>
 
                         <div class="input-row">
@@ -152,8 +152,8 @@
                         </div>
 
                         <div class="input-row">
-                            <input type="number" id="car-current-km" class="wow-input" placeholder="Текущий КМ">
-                            <input type="number" id="car-interval-km" class="wow-input" placeholder="Ресурс (КМ)">
+                            <input type="number" id="car-current-km" class="wow-input" placeholder="Пробег сейчас (км)">
+                            <input type="number" id="car-interval-km" class="wow-input" placeholder="Ресурс (км)">
                         </div>
 
                         <div class="input-row">
@@ -166,17 +166,7 @@
                     </div>
 
                     <div class="breakdown-panel">
-                        <div class="panel-header">Журнал Гаража</div>
-                        
-                        <div class="garage-header-row">
-                            <span style="flex:2">Деталь</span>
-                            <span style="flex:1">Тип</span>
-                            <span style="flex:1">След.КМ</span>
-                            <span style="flex:1">Факт.КМ</span>
-                            <span style="flex:1; text-align:right">Цена</span>
-                            <span style="width: 20px;"></span>
-                        </div>
-
+                        <div class="panel-header">Журнал Обслуживания</div>
                         <div id="garage-list"></div>
                     </div>
                 </div>
@@ -193,6 +183,6 @@
         </div>
     </div>
 
-    <script src="script.js?v=8.0"></script>
+    <script src="script.js?v=9.0"></script>
 </body>
 </html>

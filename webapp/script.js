@@ -192,7 +192,7 @@ function renderGarageSettings() {
     container.innerHTML = '';
 
     for (const [typeKey, typeName] of Object.entries(carPartTypes)) {
-        if (typeKey === 'other') continue; // Пропускаем "Прочее"
+        if (typeKey === 'other') continue; 
 
         const currentStd = db.garageStandards[typeKey] || 0;
         const div = document.createElement('div');
@@ -214,7 +214,6 @@ function updateGarageStandard(key, value) {
     if (isNaN(val)) db.garageStandards[key] = 0;
     else db.garageStandards[key] = val;
     saveData();
-    // Сразу пытаемся обновить текущее поле, если выбран этот тип
     autoFillMileage();
 }
 
@@ -223,12 +222,11 @@ function autoFillMileage() {
     const selectedType = typeSelect.value;
     const intervalInput = document.getElementById('car-interval-km');
     
-    // Берем стандарт из базы
     const std = db.garageStandards[selectedType];
     if (std && std > 0) {
         intervalInput.value = std;
     } else {
-        intervalInput.value = ''; // Если стандарта нет, очищаем или оставляем как есть
+        intervalInput.value = '';
     }
 }
 
@@ -263,27 +261,43 @@ function renderMonthlyView() {
     renderBreakdown(data);
 }
 
+// === ОТРИСОВКА ГАРАЖА (НОВАЯ) ===
 function renderGarageView() {
     const list = document.getElementById('garage-list');
     list.innerHTML = '';
     const mData = db.months[selectedMonth];
 
     if (!mData.garage) mData.garage = [];
-
-    // При открытии гаража сразу подставляем стандарт для текущего выбранного селекта
     autoFillMileage();
 
     if (mData.garage.length > 0) {
         mData.garage.forEach((item, index) => {
+            
+            // Если в старых записях нет интервала, вычисляем его
+            let itemInterval = item.interval;
+            if (!itemInterval) {
+                itemInterval = item.expected - item.fact;
+            }
+
             let div = document.createElement('div');
-            div.className = 'garage-item';
+            div.className = 'garage-card';
             div.innerHTML = `
-                <span class="garage-col-name">${item.name}</span>
-                <span class="garage-col-type">${item.type}</span>
-                <span class="garage-col-next">${item.expected}</span>
-                <span class="garage-col-fact">${item.fact}</span>
-                <span class="garage-col-price">${item.price}</span>
-                <button class="delete-cat-btn" onclick="removeCarItem(${index})">✖</button>
+                <div class="garage-card-top">
+                    <span class="garage-name-text">${item.name}</span>
+                    <span class="garage-price-text">-${item.price}</span>
+                    <button class="delete-cat-btn garage-delete-abs" onclick="removeCarItem(${index})">✖</button>
+                </div>
+                
+                <div class="garage-card-mid">
+                    <span class="garage-type-badge">${item.type}</span>
+                    <span>Стандарт: ${itemInterval} км</span>
+                </div>
+
+                <div class="garage-card-bot">
+                    <span class="garage-fact-km">🏁 ${item.fact}</span>
+                    <span class="garage-arrow">➤➤➤</span>
+                    <span class="garage-next-km">⚠️ ${item.expected}</span>
+                </div>
             `;
             list.appendChild(div);
         });
@@ -346,7 +360,6 @@ function renderYearlyView() {
 function addCarItem() {
     const name = document.getElementById('car-part-name').value.trim();
     const typeSelect = document.getElementById('car-part-type');
-    const typeKey = typeSelect.value;
     const typeText = typeSelect.options[typeSelect.selectedIndex].text;
     const factKm = parseFloat(document.getElementById('car-current-km').value);
     const intervalKm = parseFloat(document.getElementById('car-interval-km').value);
@@ -362,7 +375,15 @@ function addCarItem() {
     
     if (!mData.garage) mData.garage = [];
     
-    mData.garage.push({ name: name, type: typeText, fact: factKm, expected: expected, price: price });
+    // ВАЖНО: сохраняем intervalKm, чтобы потом показать его в истории
+    mData.garage.push({ 
+        name: name, 
+        type: typeText, 
+        fact: factKm, 
+        expected: expected, 
+        price: price, 
+        interval: intervalKm 
+    });
 
     const transKey = 'transport';
     if (!globalCategoryNames.has(transKey)) globalCategoryNames.set(transKey, 'Транспорт');
@@ -374,14 +395,12 @@ function addCarItem() {
 
     document.getElementById('car-part-name').value = '';
     document.getElementById('car-price').value = '';
-    // КМ не очищаем или очищаем выборочно, по желанию. Пока очистим.
     document.getElementById('car-current-km').value = '';
-    // Интервал восстанавливаем из стандарта
     autoFillMileage();
 
     saveData();
     renderGarageView();
-    tg.showAlert("Записано в Гараж и добавлено в Расходы!");
+    tg.showAlert("Записано в Гараж!");
 }
 
 function removeCarItem(index) {
@@ -406,7 +425,6 @@ function renderBreakdown(monthData) {
         const name = globalCategoryNames.get(key) || key;
         const amount = monthData.expenses[key] || 0;
         
-        // --- ПРОВЕРКА ДЕНЕЖНЫХ ЛИМИТОВ ---
         const limit = db.limits[key] || 0;
         let limitHtml = '';
         let nameClass = 'breakdown-name under-budget';
@@ -472,7 +490,23 @@ function removeCategory(key) {
         const index = mData.activeCategories.indexOf(key);
         if (index > -1) mData.activeCategories.splice(index, 1);
         delete mData.expenses[key];
-        saveData(); updateView();
+        
+        let isUsedAnywhere = false;
+        for (let m of monthsList) {
+            if (db.months[m].activeCategories.includes(key)) {
+                isUsedAnywhere = true;
+                break;
+            }
+        }
+
+        if (!isUsedAnywhere) {
+            globalCategoryNames.delete(key);
+            delete db.limits[key];
+        }
+
+        saveData(); 
+        renderLimitsPanel();
+        updateView();
     }
 }
 
