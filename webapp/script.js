@@ -10,9 +10,7 @@ const STORAGE_KEY = `azeroth_budget_v3_${userId}`;
 // ПЕРЕМЕННЫЕ
 let currentTab = 'month';
 let selectedMonth = 'Jan';
-// Технические названия месяцев для ключей базы (не менять на русские!)
 const monthsList = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-// Словарь для красивого отображения в отчетах (если понадобится)
 const monthsNamesRu = {
     'Jan': 'Январь', 'Feb': 'Февраль', 'Mar': 'Март', 'Apr': 'Апрель', 'May': 'Май', 'Jun': 'Июнь',
     'Jul': 'Июль', 'Aug': 'Август', 'Sep': 'Сентябрь', 'Oct': 'Октябрь', 'Nov': 'Ноябрь', 'Dec': 'Декабрь'
@@ -27,7 +25,12 @@ let globalCategoryNames = new Map();
 
 let db = {
     months: monthsList.reduce((acc, m) => {
-        acc[m] = { income: 0, expenses: {}, activeCategories: [] };
+        acc[m] = { 
+            income: 0, 
+            expenses: {}, 
+            activeCategories: [],
+            garage: [] 
+        };
         return acc;
     }, {})
 };
@@ -48,6 +51,8 @@ function loadData() {
                     if (parsed.db.months[m]) {
                         db.months[m] = parsed.db.months[m];
                         if (!db.months[m].activeCategories) db.months[m].activeCategories = [];
+                        // ВАЖНО: Если гаража нет в сохранении, создаем пустой массив
+                        if (!db.months[m].garage) db.months[m].garage = [];
                     }
                 }
             }
@@ -57,6 +62,7 @@ function loadData() {
 
 function init() {
     loadData();
+    if (!globalCategoryNames.has('transport')) globalCategoryNames.set('transport', 'Транспорт (Машина)');
     initCharts();
     updateView();
 }
@@ -66,16 +72,12 @@ function initCharts() {
     Chart.defaults.font.weight = 'bold';
     Chart.defaults.color = '#a38f56';
     
-    // ПЕРЕВОД НАЗВАНИЙ ГРАФИКОВ
     const ctxM = document.getElementById('radarChart').getContext('2d');
     chartMonthly = new Chart(ctxM, createRadarConfig('Траты за месяц'));
-    
     const ctxY1 = document.getElementById('yearRadarChart').getContext('2d');
     chartYearlyRadar = new Chart(ctxY1, createRadarConfig('Всего трат за год'));
-    
     const ctxY2 = document.getElementById('yearBarChartExpenses').getContext('2d');
     chartYearlyBarExpenses = new Chart(ctxY2, createBarConfig('Траты по месяцам', '#ff4e4e'));
-    
     const ctxY3 = document.getElementById('yearBarChartSavings').getContext('2d');
     chartYearlyBarSavings = new Chart(ctxY3, createBarConfig('Накопления по месяцам', '#ffd700'));
 }
@@ -88,7 +90,6 @@ function createRadarConfig(label) {
     };
 }
 function createBarConfig(label, color) {
-    // Для подписей оси X используем русские названия, но короткие
     const ruLabels = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
     return {
         type: 'bar',
@@ -97,13 +98,23 @@ function createBarConfig(label, color) {
     };
 }
 
+// === ЛОГИКА ПЕРЕКЛЮЧЕНИЯ ===
 function switchTab(tab) {
     currentTab = tab;
+    
+    // Переключаем классы кнопок (для красной подсветки)
     document.getElementById('tab-month').classList.toggle('active', tab === 'month');
     document.getElementById('tab-year').classList.toggle('active', tab === 'year');
+    document.getElementById('tab-garage').classList.toggle('active', tab === 'garage');
+    
+    // Переключаем видимость блоков
     document.getElementById('monthly-view').style.display = tab === 'month' ? 'block' : 'none';
-    document.getElementById('month-selector-panel').style.display = tab === 'month' ? 'flex' : 'none';
     document.getElementById('yearly-view').style.display = tab === 'year' ? 'block' : 'none';
+    document.getElementById('garage-view').style.display = tab === 'garage' ? 'block' : 'none';
+    
+    // Селектор месяца виден в Month и Garage
+    document.getElementById('month-selector-panel').style.display = (tab === 'month' || tab === 'garage') ? 'flex' : 'none';
+    
     updateView();
 }
 
@@ -114,6 +125,7 @@ function changeMonth() {
 
 function updateView() {
     if (currentTab === 'month') renderMonthlyView();
+    else if (currentTab === 'garage') renderGarageView();
     else renderYearlyView();
 }
 
@@ -147,6 +159,33 @@ function renderMonthlyView() {
     renderBreakdown(data);
 }
 
+function renderGarageView() {
+    const list = document.getElementById('garage-list');
+    list.innerHTML = '';
+    const mData = db.months[selectedMonth];
+
+    // Защита: если массив гаража не создан, создаем его
+    if (!mData.garage) mData.garage = [];
+
+    if (mData.garage.length > 0) {
+        mData.garage.forEach((item, index) => {
+            let div = document.createElement('div');
+            div.className = 'garage-item';
+            div.innerHTML = `
+                <span class="garage-col-name">${item.name}</span>
+                <span class="garage-col-type">${item.type}</span>
+                <span class="garage-col-next">${item.expected}</span>
+                <span class="garage-col-fact">${item.fact}</span>
+                <span class="garage-col-price">${item.price}</span>
+                <button class="delete-cat-btn" onclick="removeCarItem(${index})">✖</button>
+            `;
+            list.appendChild(div);
+        });
+    } else {
+        list.innerHTML = '<div style="color:#555; text-align:center; padding:20px;">Записей нет</div>';
+    }
+}
+
 function renderYearlyView() {
     let allYearKeys = new Set();
     for (let m of monthsList) db.months[m].activeCategories.forEach(key => allYearKeys.add(key));
@@ -176,7 +215,6 @@ function renderYearlyView() {
         savingsByMonth.push(mSavings);
         totalYearSavings += mSavings;
 
-        // Для отчета используем русское название месяца
         const ruName = monthsNamesRu[m];
         if (mSpent > maxExpenseMonth.val) maxExpenseMonth = { name: ruName, val: mSpent };
         if (mSavings > maxSavingsMonth.val) maxSavingsMonth = { name: ruName, val: mSavings };
@@ -193,11 +231,63 @@ function renderYearlyView() {
 
     document.getElementById('year-total-savings').innerText = totalYearSavings.toLocaleString();
     
-    // ПЕРЕВОД ОТЧЕТА
     document.getElementById('year-text-report').innerHTML = `
         <p>Самый затратный: <b style="color:#ff4e4e">${maxExpenseMonth.name}</b> (${maxExpenseMonth.val})</p>
         <p>Лучшие накопления: <b style="color:#ffd700">${maxSavingsMonth.name}</b> (${maxSavingsMonth.val})</p>
     `;
+}
+
+function addCarItem() {
+    const name = document.getElementById('car-part-name').value.trim();
+    const typeSelect = document.getElementById('car-part-type');
+    const type = typeSelect.options[typeSelect.selectedIndex].text;
+    const factKm = parseFloat(document.getElementById('car-current-km').value);
+    const intervalKm = parseFloat(document.getElementById('car-interval-km').value);
+    const price = parseFloat(document.getElementById('car-price').value);
+
+    if (!name || isNaN(factKm) || isNaN(intervalKm) || isNaN(price)) {
+        tg.showAlert("Заполните все поля!");
+        return;
+    }
+
+    const expected = factKm + intervalKm;
+    const mData = db.months[selectedMonth];
+    
+    if (!mData.garage) mData.garage = [];
+    
+    mData.garage.push({ name: name, type: type, fact: factKm, expected: expected, price: price });
+
+    const transKey = 'transport';
+    if (!globalCategoryNames.has(transKey)) globalCategoryNames.set(transKey, 'Транспорт');
+    if (!mData.activeCategories.includes(transKey)) {
+        mData.activeCategories.push(transKey);
+        mData.expenses[transKey] = 0;
+    }
+    mData.expenses[transKey] += price;
+
+    document.getElementById('car-part-name').value = '';
+    document.getElementById('car-current-km').value = '';
+    document.getElementById('car-interval-km').value = '';
+    document.getElementById('car-price').value = '';
+
+    saveData();
+    renderGarageView();
+    tg.showAlert("Записано в Гараж и добавлено в Расходы!");
+}
+
+function removeCarItem(index) {
+    if (confirm("Удалить запчасть?")) {
+        const mData = db.months[selectedMonth];
+        const item = mData.garage[index];
+
+        if (mData.expenses['transport']) {
+            mData.expenses['transport'] -= item.price;
+            if (mData.expenses['transport'] < 0) mData.expenses['transport'] = 0;
+        }
+        mData.garage.splice(index, 1);
+        saveData();
+        renderGarageView();
+    }
 }
 
 function renderBreakdown(monthData) {
@@ -230,10 +320,7 @@ function addNewCategory() {
         mData.activeCategories.push(key);
         if (!mData.expenses[key]) mData.expenses[key] = 0;
         saveData(); updateView();
-    } else {
-        // ПЕРЕВОД ALERT
-        tg.showAlert("Эта категория уже есть в текущем месяце!");
-    }
+    } else { tg.showAlert("Уже есть!"); }
     nameInput.value = '';
 }
 
@@ -250,8 +337,7 @@ function updateDropdown() {
 }
 
 function removeCategory(key) {
-    // ПЕРЕВОД ПОДТВЕРЖДЕНИЯ
-    if(confirm("Удалить категорию из ТЕКУЩЕГО месяца?")) {
+    if(confirm("Удалить категорию?")) {
         const mData = db.months[selectedMonth];
         const index = mData.activeCategories.indexOf(key);
         if (index > -1) mData.activeCategories.splice(index, 1);
@@ -266,8 +352,7 @@ function manualIncomeEdit() {
     saveData(); updateView();
 }
 function addMoreIncome() {
-    // ПЕРЕВОД PROMPT
-    let amount = prompt("Сколько золота добавить в казну?", "0");
+    let amount = prompt("Добавить золота:", "0");
     if (amount) {
         let val = parseFloat(amount) || 0;
         db.months[selectedMonth].income += val;
