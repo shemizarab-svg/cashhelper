@@ -6,7 +6,7 @@ TOKEN = "8394466695:AAG2yHnNh1NcTeJLKdfhvNOP3xeMdDLi0zA"
 
 # Ссылка на ваш размещенный HTML (например, на GitHub Pages или Vercel)
 # Если тестируете локально, это может быть ngrok ссылка https://xxxx.ngrok.io
-WEB_APP_URL = "https://your-site-url.com" 
+WEB_APP_URL = "https://shemizarab-svg.github.io/cashhelper/webapp/" 
 
 async def main():
     bot = Bot(token=TOKEN)
