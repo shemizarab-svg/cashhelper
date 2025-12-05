@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap');
 
-/* === УБИВАЕМ СТРЕЛКИ (АГРЕССИВНО) === */
+/* === УБИРАЕМ СТРЕЛКИ У ЦИФР (АГРЕССИВНО) === */
 input[type=number]::-webkit-inner-spin-button, 
 input[type=number]::-webkit-outer-spin-button { 
     -webkit-appearance: none; 
@@ -11,45 +11,46 @@ input[type=number] {
     appearance: none;
 }
 
+/* === ОСНОВНОЙ ФОН СТРАНИЦЫ (ЧЕРНЫЙ) === */
 body {
     margin: 0;
     padding: 0;
     height: 100vh;
     width: 100vw;
-    background: #050505; /* Черный фон вокруг приложения */
+    background: #000; 
     color: #f0e6d2;
     font-family: 'MedievalSharp', serif;
-    display: flex;
-    justify-content: center;
-    overflow: hidden; /* Убираем скролл самого браузера */
+    overflow: hidden; /* Запрещаем скролл самого тела страницы */
 }
 
-.main-frame-wrapper {
+/* === ОБЕРТКА ДЛЯ ПК (ЦЕНТРИРОВАНИЕ) === */
+.desktop-wrapper {
     width: 100%;
     height: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 0;
+    background: #050505;
 }
 
 /* === ГЛАВНОЕ ОКНО ПРИЛОЖЕНИЯ === */
 .main-frame {
     width: 100%;
-    max-width: 600px; /* Ограничение ширины на ПК */
-    height: 100%;     /* На мобиле во весь экран */
+    max-width: 500px; /* Ограничиваем ширину */
+    height: 100%;     /* На мобильном 100% высоты */
     
-    /* ФОН: Сначала ищет bg.jpg, если нет - берет из интернета */
-    background: url('bg.jpg'), url('https://upload.wikimedia.org/wikipedia/commons/2/23/Stormwind_Gate.jpg');
+    /* ФОН ВНУТРИ ПРИЛОЖЕНИЯ */
+    /* Сначала ищем локальный bg.jpg, если нет - черный градиент */
+    background: url('bg.jpg'), linear-gradient(to bottom, #1a1a1a, #000);
     background-size: cover;
     background-position: center;
     
-    position: relative; /* Чтобы вкладки позиционировались внутри */
-    box-shadow: 0 0 50px rgba(0,0,0,0.5);
-    border-left: 2px solid #333;
-    border-right: 2px solid #333;
+    position: relative; /* Чтобы позиционировать вкладки внутри */
     display: flex;
     flex-direction: column;
+    box-shadow: 0 0 50px rgba(0,0,0,0.8);
+    border-left: 1px solid #333;
+    border-right: 1px solid #333;
 }
 
 /* Затемнение фона внутри рамки */
@@ -57,23 +58,26 @@ body {
     content: "";
     position: absolute;
     top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.6); /* Темная вуаль */
+    background: rgba(0, 0, 0, 0.5); /* Полупрозрачная вуаль */
     z-index: 0;
-    pointer-events: none;
+    pointer-events: none; /* Пропускает клики */
 }
 
-/* Контейнер с прокруткой */
-.scrollable-content {
-    flex: 1;
-    overflow-y: auto;
+/* === ОБЛАСТЬ ПРОКРУТКИ === */
+.scrollable-area {
+    flex: 1; /* Занимает всё доступное место */
+    overflow-y: auto; /* Включает скролл если контента много */
     padding: 15px;
-    z-index: 1;
-    position: relative;
+    z-index: 1; /* Поверх вуали */
+    scrollbar-width: none; /* Скрыть скроллбар (Firefox) */
 }
+.scrollable-area::-webkit-scrollbar { display: none; } /* Скрыть скроллбар (Chrome) */
+
+.bottom-spacer { height: 70px; } /* Место под нижние кнопки */
 
 /* === СЕКЦИИ === */
 .gold-section {
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.6);
     padding: 10px;
     border-radius: 8px;
     border: 1px solid rgba(179, 154, 88, 0.4);
@@ -96,6 +100,14 @@ body {
     filter: drop-shadow(0 0 2px gold);
 }
 
+.gold-text {
+    font-size: 28px;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 0 0 10px #ffd700;
+}
+
+/* ИНПУТ БЕЗ СТРЕЛОК */
 .invisible-input {
     background: transparent;
     border: none;
@@ -115,25 +127,17 @@ body {
     color: #0f0;
     border: 1px solid #0f0;
     border-radius: 50%;
-    width: 32px; height: 32px;
-    font-size: 22px;
+    width: 30px; height: 30px;
+    font-size: 20px;
     cursor: pointer;
     font-family: 'MedievalSharp', serif;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
 }
 
+/* ГРАФИК */
 .chart-wrapper {
     min-height: 250px;
     margin-bottom: 20px;
-}
-
-.gold-text {
-    font-size: 32px;
-    font-weight: bold;
-    color: #fff;
-    text-shadow: 0 0 10px #ffd700;
 }
 
 /* === ПАНЕЛИ УПРАВЛЕНИЯ === */
@@ -175,12 +179,6 @@ body {
 .spend-btn { background: #7d0808; margin-left: 5px; }
 .small-btn { background: #333; color: #aaa; border-color: #666; margin-left: 5px; }
 
-.panel-header {
-    color: #a38f56;
-    margin-bottom: 8px;
-    font-size: 14px;
-    text-transform: uppercase;
-}
 .input-row { display: flex; margin-bottom: 8px; }
 
 /* === ИСТОРИЯ (LOG) === */
@@ -191,23 +189,30 @@ body {
     border: 1px solid #444;
 }
 
+.panel-header {
+    color: #a38f56;
+    margin-bottom: 8px;
+    font-size: 14px;
+    text-transform: uppercase;
+    text-align: center;
+}
+
 #history-list {
     list-style: none;
     padding: 0;
     margin: 0;
-    max-height: 150px;
-    overflow-y: auto;
 }
 
 .history-item {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px;
+    padding: 8px 0;
     border-bottom: 1px solid #333;
     font-size: 14px;
 }
-.history-item:last-child { border-bottom: none; }
+.history-item span { color: #ccc; }
+.history-item b { color: #ffd700; }
 
 .delete-btn {
     background: transparent;
@@ -215,13 +220,13 @@ body {
     color: #ff3333;
     font-weight: bold;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 18px;
     padding: 0 10px;
 }
 
-/* === ВНУТРЕННИЕ ВКЛАДКИ === */
+/* === НИЖНИЕ ВКЛАДКИ (АБСОЛЮТНОЕ ПОЗИЦИОНИРОВАНИЕ ВНУТРИ .main-frame) === */
 .bottom-nav {
-    position: absolute; /* Позиционируем относительно .main-frame */
+    position: absolute;
     bottom: 0; 
     left: 0; 
     width: 100%; 
@@ -246,5 +251,6 @@ body {
 .nav-btn.active {
     background: #4a0a0a;
     color: #ffd700;
-    border-top: 2px solid #ff3333;
+    border-top: 3px solid #ff3333;
+    text-shadow: 0 0 5px red;
 }

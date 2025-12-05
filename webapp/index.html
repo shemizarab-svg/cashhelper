@@ -11,10 +11,11 @@
 </head>
 <body>
 
-    <div class="main-frame-wrapper">
+    <div class="desktop-wrapper">
+        
         <div class="main-frame">
             
-            <div class="scrollable-content">
+            <div class="scrollable-area">
                 
                 <div class="gold-section top-section">
                     <span class="gold-label">Total Treasury:</span>
@@ -59,15 +60,14 @@
                 </div>
 
                 <div class="history-panel">
-                    <div class="panel-header">Recent Loot Log (Tap X to Undo)</div>
+                    <div class="panel-header">Loot Log (Tap X to Undo)</div>
                     <ul id="history-list">
                         </ul>
                 </div>
-                
-                <div style="height: 60px;"></div>
-            </div>
 
-            <div class="bottom-nav">
+                <div class="bottom-spacer"></div>
+
+            </div> <div class="bottom-nav">
                 <button id="tab-month" class="nav-btn active" onclick="switchTab('month')">Monthly Log</button>
                 <button id="tab-year" class="nav-btn" onclick="switchTab('year')">Yearly Log</button>
             </div>
