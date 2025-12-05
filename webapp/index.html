@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Azeroth Budget</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=3.0">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
@@ -37,7 +37,6 @@
                 </div>
 
                 <div class="control-panel-wrapper">
-                    
                     <div class="new-category-panel">
                         <div class="input-row">
                             <input type="text" id="new-cat-name" class="wow-input" placeholder="New Category...">
@@ -58,9 +57,12 @@
                 </div>
 
                 <div class="breakdown-panel">
-                    <div class="panel-header">Expenses Breakdown (Edit Totals)</div>
-                    <div id="breakdown-list">
-                        </div>
+                    <div class="panel-header">Expenses Breakdown</div>
+                    <div id="breakdown-list"></div>
+                </div>
+
+                <div id="user-id-display" style="text-align: center; color: #555; font-size: 10px; margin-top: 10px;">
+                    Loading ID...
                 </div>
 
                 <div class="bottom-spacer"></div>
@@ -70,10 +72,9 @@
                 <button id="tab-month" class="nav-btn active" onclick="switchTab('month')">Monthly</button>
                 <button id="tab-year" class="nav-btn" onclick="switchTab('year')">Yearly</button>
             </div>
-
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=3.0"></script>
 </body>
 </html>

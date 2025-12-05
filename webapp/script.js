@@ -1,15 +1,22 @@
 const tg = window.Telegram.WebApp;
 tg.expand();
 
-// === 1. ПОЛУЧАЕМ ID ПОЛЬЗОВАТЕЛЯ (АВТОРИЗАЦИЯ) ===
-// Если открыто не в телеграме, будет 'guest'
-const userId = tg.initDataUnsafe?.user?.id || 'guest';
-const STORAGE_KEY = `azeroth_budget_${userId}`; // Уникальный ключ для сохранения
+// === АВТОРИЗАЦИЯ И ИДЕНТИФИКАЦИЯ ===
+// Пытаемся получить ID. Если нет - guest.
+const user = tg.initDataUnsafe?.user;
+const userId = user?.id || 'guest';
+const username = user?.first_name || 'Guest';
+
+// Показываем ID внизу экрана для проверки
+document.getElementById('user-id-display').innerText = `ID: ${userId} (${username})`;
+
+// Уникальный ключ сохранения для этого пользователя
+const STORAGE_KEY = `azeroth_budget_v1_${userId}`;
 
 let chartInstance = null;
 let currentTab = 'month';
 
-// Начальные метки (если нет сохранений)
+// Стандартные данные
 let labelsMap = new Map([
     ['housing', 'Citadel'],
     ['food', 'Supplies'],
@@ -18,24 +25,17 @@ let labelsMap = new Map([
     ['gear', 'Gear']
 ]);
 
-// База данных (если нет сохранений)
 let db = {
-    month: { 
-        income: 0, 
-        expenses: { housing: 0, food: 0, transport: 0, fun: 0, gear: 0 }
-    },
-    year: { 
-        income: 0, 
-        expenses: { housing: 0, food: 0, transport: 0, fun: 0, gear: 0 }
-    }
+    month: { income: 0, expenses: { housing: 0, food: 0, transport: 0, fun: 0, gear: 0 } },
+    year: { income: 0, expenses: { housing: 0, food: 0, transport: 0, fun: 0, gear: 0 } }
 };
 
-// === ФУНКЦИИ СОХРАНЕНИЯ И ЗАГРУЗКИ ===
+// === ЗАГРУЗКА / СОХРАНЕНИЕ ===
 
 function saveData() {
     const dataToSave = {
         db: db,
-        // Map нельзя сохранить напрямую в JSON, превращаем в массив
+        // Превращаем Map в массив пар [ключ, значение] для сохранения
         labels: Array.from(labelsMap.entries()) 
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
@@ -47,24 +47,31 @@ function loadData() {
         try {
             const parsed = JSON.parse(saved);
             
-            // Восстанавливаем базу данных
-            // (используем Object.assign, чтобы не сломать структуру, если мы добавим новые поля в будущем)
-            db = parsed.db;
-
-            // Восстанавливаем метки категорий
-            if (parsed.labels) {
+            // Восстанавливаем метки
+            if (parsed.labels && Array.isArray(parsed.labels)) {
                 labelsMap = new Map(parsed.labels);
             }
+            
+            // Аккуратно восстанавливаем базу, не затирая структуру
+            if (parsed.db) {
+                // Если вдруг в сохранении не было какого-то поля, оставляем дефолтное
+                db.month = { ...db.month, ...parsed.db.month };
+                db.year = { ...db.year, ...parsed.db.year };
+                
+                // Восстанавливаем вложенные объекты расходов (важно!)
+                if (parsed.db.month.expenses) db.month.expenses = parsed.db.month.expenses;
+                if (parsed.db.year.expenses) db.year.expenses = parsed.db.year.expenses;
+            }
+            
         } catch (e) {
-            console.error("Save file corrupted, starting fresh.");
+            console.error("Save file corrupted or old version.", e);
         }
     }
 }
 
 // === ИНИЦИАЛИЗАЦИЯ ===
-
 function initChart() {
-    loadData(); // <--- ЗАГРУЖАЕМСЯ ПЕРЕД СТАРТОМ
+    loadData(); // <--- Сначала загружаем данные из памяти телефона!
 
     const ctx = document.getElementById('radarChart').getContext('2d');
     Chart.defaults.font.family = 'MedievalSharp';
@@ -116,7 +123,7 @@ function manualIncomeEdit() {
     let val = parseFloat(input.value);
     if (isNaN(val)) val = 0;
     db[currentTab].income = val;
-    saveData(); // <--- СОХРАНЯЕМ
+    saveData(); // Сохраняем
     updateView();
 }
 
@@ -126,7 +133,7 @@ function addMoreIncome() {
         let val = parseFloat(amount);
         if (!isNaN(val) && val > 0) {
             db[currentTab].income += val;
-            saveData(); // <--- СОХРАНЯЕМ
+            saveData(); // Сохраняем
             updateView();
         }
     }
@@ -144,33 +151,36 @@ function addExpense() {
 
     document.getElementById('amount').value = '';
     
-    saveData(); // <--- СОХРАНЯЕМ
+    saveData(); // Сохраняем
     updateView();
 }
 
+// Редактирование в списке
 function manualExpenseEdit(key, inputElement) {
     let val = parseFloat(inputElement.value);
     if (isNaN(val)) val = 0;
+    
     db[currentTab].expenses[key] = val;
     
-    saveData(); // <--- СОХРАНЯЕМ
-    updateView(false); 
+    saveData(); // Сохраняем
+    updateView(false); // false = не перерисовывать список, чтобы фокус не слетел
 }
 
-// === УДАЛЕНИЕ КАТЕГОРИИ ===
+// Удаление категории
 function removeCategory(key) {
-    if(confirm("Delete this category permanently?")) {
+    if(confirm("Delete this category?")) {
         labelsMap.delete(key);
-        delete db.month.expenses[key];
-        delete db.year.expenses[key];
+        // Чистим данные
+        if (db.month.expenses[key]) delete db.month.expenses[key];
+        if (db.year.expenses[key]) delete db.year.expenses[key];
 
-        saveData(); // <--- СОХРАНЯЕМ
+        saveData(); // Сохраняем
         updateDropdown();
         updateView();
     }
 }
 
-// === ОТРИСОВКА СПИСКА ===
+// === ОТРИСОВКА ===
 function renderBreakdown() {
     const list = document.getElementById('breakdown-list');
     list.innerHTML = '';
@@ -198,18 +208,20 @@ function renderBreakdown() {
     }
 }
 
-// === ОБНОВЛЕНИЕ ЭКРАНА ===
 function updateView(redrawBreakdown = true) {
     const currentData = db[currentTab];
 
+    // Доход
     const incInput = document.getElementById('income-input');
     if (document.activeElement !== incInput) {
         incInput.value = currentData.income === 0 ? '' : currentData.income;
     }
 
+    // Данные для графика (только существующие категории)
     let dataForChart = [];
     let totalSpent = 0;
     
+    // Итерируемся по labelsMap, чтобы соблюдать порядок
     for (let key of labelsMap.keys()) {
         const amount = currentData.expenses[key] || 0;
         dataForChart.push(amount);
@@ -220,6 +232,7 @@ function updateView(redrawBreakdown = true) {
     chartInstance.data.datasets[0].data = dataForChart;
     chartInstance.update();
 
+    // Остаток
     let remaining = currentData.income - totalSpent;
     const remEl = document.getElementById('remaining-amount');
     remEl.innerText = remaining.toLocaleString();
@@ -230,7 +243,7 @@ function updateView(redrawBreakdown = true) {
     }
 }
 
-// === НОВАЯ КАТЕГОРИЯ ===
+// Новая категория
 function addNewCategory() {
     const nameInput = document.getElementById('new-cat-name');
     const name = nameInput.value.trim();
@@ -239,10 +252,11 @@ function addNewCategory() {
     const key = name.toLowerCase().replace(/\s+/g, '_');
     if (!labelsMap.has(key)) {
         labelsMap.set(key, name);
-        db.month.expenses[key] = 0;
-        db.year.expenses[key] = 0;
+        // Нули, чтобы не было undefined
+        if (!db.month.expenses[key]) db.month.expenses[key] = 0;
+        if (!db.year.expenses[key]) db.year.expenses[key] = 0;
         
-        saveData(); // <--- СОХРАНЯЕМ
+        saveData(); // Сохраняем
         updateDropdown();
         updateView();
     }
@@ -260,4 +274,5 @@ function updateDropdown() {
     }
 }
 
+// СТАРТ
 initChart();
