@@ -4,31 +4,19 @@ tg.expand();
 let chartInstance = null;
 let currentTab = 'month';
 
-// Хранилище данных
 let db = {
-    month: {
-        income: 0, // Бюджет на месяц
-        expenses: { housing: 0, food: 0, transport: 0, fun: 0, gear: 0 }
-    },
-    year: {
-        income: 0, // Бюджет на год
-        expenses: { housing: 0, food: 0, transport: 0, fun: 0, gear: 0 }
-    }
+    month: { income: 0, expenses: { housing: 0, food: 0, transport: 0, fun: 0, gear: 0 } },
+    year: { income: 0, expenses: { housing: 0, food: 0, transport: 0, fun: 0, gear: 0 } }
 };
 
 const labelsMap = {
-    housing: 'Citadel',
-    food: 'Supplies',
-    transport: 'Mounts',
-    fun: 'Tavern',
-    gear: 'Gear'
+    housing: 'Citadel', food: 'Supplies', transport: 'Mounts', fun: 'Tavern', gear: 'Gear'
 };
 
 function initChart() {
     const ctx = document.getElementById('radarChart').getContext('2d');
     Chart.defaults.font.family = 'MedievalSharp';
-    Chart.defaults.color = '#a38f56';
-
+    
     chartInstance = new Chart(ctx, {
         type: 'radar',
         data: {
@@ -36,11 +24,11 @@ function initChart() {
             datasets: [{
                 label: 'Spent',
                 data: [0, 0, 0, 0, 0],
-                backgroundColor: 'rgba(255, 50, 50, 0.4)', // Красный оттенок (расходы)
-                borderColor: '#ff4e4e',
+                backgroundColor: 'rgba(255, 215, 0, 0.25)', // Золотая заливка
+                borderColor: '#ffd700',
                 borderWidth: 2,
                 pointBackgroundColor: '#fff',
-                pointBorderColor: '#ff4e4e'
+                pointBorderColor: '#ffd700'
             }]
         },
         options: {
@@ -50,73 +38,59 @@ function initChart() {
                 r: {
                     angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
                     grid: { color: 'rgba(255, 255, 255, 0.1)' },
-                    pointLabels: { color: '#f0e6d2', font: { size: 12 } },
+                    pointLabels: { color: '#e0e0e0', font: { size: 12 } },
                     ticks: { display: false, backdropColor: 'transparent' }
                 }
             },
             plugins: { legend: { display: false } }
         }
     });
-    
-    // Загрузка начальных нулей
     updateView();
 }
 
 function switchTab(tab) {
     currentTab = tab;
-    
-    // Визуал вкладок
     document.getElementById('tab-month').classList.toggle('active', tab === 'month');
     document.getElementById('tab-year').classList.toggle('active', tab === 'year');
     
-    // Подгружаем сохраненный доход для этой вкладки
-    document.getElementById('income-input').value = db[currentTab].income || '';
+    // При переключении меняем значение в инпуте дохода
+    const incInput = document.getElementById('income-input');
+    // Если доход 0, показываем пустоту (placeholder), иначе цифру
+    incInput.value = db[currentTab].income === 0 ? '' : db[currentTab].income;
     
     updateView();
 }
 
 function updateIncome() {
     const val = parseFloat(document.getElementById('income-input').value);
-    if (!isNaN(val)) {
-        db[currentTab].income = val;
-    }
+    db[currentTab].income = isNaN(val) ? 0 : val;
     updateView();
 }
 
 function updateView() {
     const currentData = db[currentTab];
-    const expensesObj = currentData.expenses;
     
-    // 1. Обновляем График (показываем расходы)
-    chartInstance.data.datasets[0].data = Object.values(expensesObj);
+    // Обновляем график
+    chartInstance.data.datasets[0].data = Object.values(currentData.expenses);
     chartInstance.update();
 
-    // 2. Считаем математику
-    let totalSpent = Object.values(expensesObj).reduce((a, b) => a + b, 0);
-    let totalIncome = currentData.income;
-    let remaining = totalIncome - totalSpent;
+    // Считаем остаток
+    let totalSpent = Object.values(currentData.expenses).reduce((a, b) => a + b, 0);
+    let remaining = currentData.income - totalSpent;
 
-    // 3. Выводим результат
-    const displayEl = document.getElementById('remaining-amount');
-    displayEl.innerText = remaining.toLocaleString();
-
-    // Если ушли в минус - красим в красный
-    if (remaining < 0) {
-        displayEl.style.color = '#ff3333';
-        displayEl.innerText = "⚠️ " + remaining.toLocaleString();
-    } else {
-        displayEl.style.color = '#fff';
-    }
+    const remEl = document.getElementById('remaining-amount');
+    remEl.innerText = remaining.toLocaleString();
+    
+    if (remaining < 0) remEl.style.color = '#ff3333';
+    else remEl.style.color = '#fff';
 }
 
 function addExpense() {
-    const category = document.getElementById('category').value;
+    const cat = document.getElementById('category').value;
     const amount = parseFloat(document.getElementById('amount').value);
-
     if (!amount) return;
 
-    db[currentTab].expenses[category] += amount;
-    
+    db[currentTab].expenses[cat] += amount;
     document.getElementById('amount').value = '';
     updateView();
 }
