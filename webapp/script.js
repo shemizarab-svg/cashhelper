@@ -90,7 +90,7 @@ function addMoreIncome() {
     }
 }
 
-// === РАСХОДЫ (ДОБАВИТЬ ИЗ ФОРМЫ) ===
+// === РАСХОДЫ ===
 function addExpense() {
     const catKey = document.getElementById('category-select').value;
     const amount = parseFloat(document.getElementById('amount').value);
@@ -98,89 +98,100 @@ function addExpense() {
     if (!amount || !catKey) return;
 
     if (!db[currentTab].expenses[catKey]) db[currentTab].expenses[catKey] = 0;
-    
-    // Просто прибавляем к общей куче
     db[currentTab].expenses[catKey] += amount;
 
     document.getElementById('amount').value = '';
     updateView();
 }
 
-// === РЕДАКТИРОВАНИЕ В СПИСКЕ (Breakdown) ===
 function manualExpenseEdit(key, inputElement) {
     let val = parseFloat(inputElement.value);
     if (isNaN(val)) val = 0;
-    
-    // Прямая запись нового значения
     db[currentTab].expenses[key] = val;
-    
-    // Обновляем всё (кроме самого инпута, чтоб фокус не слетел)
     updateView(false); 
 }
 
-// === ОТРИСОВКА СПИСКА КАТЕГОРИЙ ===
+// === УДАЛЕНИЕ КАТЕГОРИИ ===
+function removeCategory(key) {
+    // Спрашиваем подтверждение, чтобы случайно не удалить
+    if(confirm("Delete this category permanently?")) {
+        // 1. Удаляем из списка меток
+        labelsMap.delete(key);
+        
+        // 2. (Опционально) Можно почистить данные в БД, но не обязательно
+        delete db.month.expenses[key];
+        delete db.year.expenses[key];
+
+        // 3. Обновляем всё
+        updateDropdown();
+        updateView();
+    }
+}
+
+// === ОТРИСОВКА СПИСКА ===
 function renderBreakdown() {
     const list = document.getElementById('breakdown-list');
-    list.innerHTML = ''; // Очистить
+    list.innerHTML = '';
     
     const expenses = db[currentTab].expenses;
 
-    // Проходимся по карте меток, чтобы сохранить порядок
     for (let [key, name] of labelsMap.entries()) {
         const amount = expenses[key] || 0;
 
         let div = document.createElement('div');
         div.className = 'breakdown-item';
         
-        // Создаем HTML: Название слева, Инпут справа
+        // Добавлен <div> edit-wrapper с инпутом и кнопкой удаления
         div.innerHTML = `
             <span class="breakdown-name">${name}</span>
-            <input type="number" 
-                   class="edit-expense-input" 
-                   value="${amount}" 
-                   onchange="manualExpenseEdit('${key}', this)">
+            <div class="edit-wrapper">
+                <input type="number" 
+                       class="edit-expense-input" 
+                       value="${amount}" 
+                       onchange="manualExpenseEdit('${key}', this)">
+                
+                <button class="delete-cat-btn" onclick="removeCategory('${key}')">✖</button>
+            </div>
         `;
         list.appendChild(div);
     }
 }
 
-// === ОБЩЕЕ ОБНОВЛЕНИЕ ===
+// === ОБНОВЛЕНИЕ ЭКРАНА ===
 function updateView(redrawBreakdown = true) {
     const currentData = db[currentTab];
 
-    // 1. Доход
     const incInput = document.getElementById('income-input');
-    // Если фокус не на инпуте дохода, обновляем его (чтоб не мешать вводу)
     if (document.activeElement !== incInput) {
         incInput.value = currentData.income === 0 ? '' : currentData.income;
     }
 
-    // 2. График
+    // Собираем данные ТОЛЬКО для тех категорий, которые остались в labelsMap
     let dataForChart = [];
     let totalSpent = 0;
+    
     for (let key of labelsMap.keys()) {
         const amount = currentData.expenses[key] || 0;
         dataForChart.push(amount);
         totalSpent += amount;
     }
 
+    // Обновляем график новыми метками и данными
     chartInstance.data.labels = Array.from(labelsMap.values());
     chartInstance.data.datasets[0].data = dataForChart;
     chartInstance.update();
 
-    // 3. Остаток
     let remaining = currentData.income - totalSpent;
     const remEl = document.getElementById('remaining-amount');
     remEl.innerText = remaining.toLocaleString();
     remEl.style.color = remaining < 0 ? '#ff3333' : '#fff';
 
-    // 4. Список категорий (перерисовываем, если нужно)
     if (redrawBreakdown) {
         renderBreakdown();
     }
 }
 
-// === КАТЕГОРИИ ===
+// === НОВАЯ КАТЕГОРИЯ ===
 function addNewCategory() {
     const nameInput = document.getElementById('new-cat-name');
     const name = nameInput.value.trim();
@@ -189,10 +200,8 @@ function addNewCategory() {
     const key = name.toLowerCase().replace(/\s+/g, '_');
     if (!labelsMap.has(key)) {
         labelsMap.set(key, name);
-        // Инициализируем нулями
         db.month.expenses[key] = 0;
         db.year.expenses[key] = 0;
-        
         updateDropdown();
         updateView();
     }
