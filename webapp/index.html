@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Бюджет Азерота</title>
+    <title>Azeroth Budget</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@400;700&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="styles.css?v=5.0">
+    <link rel="stylesheet" href="styles.css?v=6.0">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
@@ -38,7 +38,7 @@
 
                 <div id="monthly-view">
                     <div class="gold-section">
-                        <span class="gold-label">Казна месяца (Доход):</span>
+                        <span class="gold-label">Казна месяца:</span>
                         <div class="gold-value-container">
                             <span class="gold-icon-big"></span>
                             <input type="number" id="income-input" class="invisible-input" placeholder="0" onchange="manualIncomeEdit()">
@@ -51,7 +51,7 @@
                     </div>
 
                     <div class="gold-section remaining-section">
-                        <span class="gold-label">Остаток золота:</span>
+                        <span class="gold-label">Остаток:</span>
                         <div class="gold-value-container">
                             <span class="gold-icon-big"></span>
                             <span id="remaining-amount" class="gold-text">0</span>
@@ -67,7 +67,7 @@
                         </div>
 
                         <div class="spend-panel">
-                            <div class="panel-header">Добавить расход</div>
+                            <div class="panel-header">Быстрый расход</div>
                             <div class="input-row">
                                 <select id="category-select" class="wow-input"></select>
                             </div>
@@ -83,7 +83,7 @@
                         <div id="breakdown-list"></div>
                     </div>
                 </div>
-                
+
                 <div id="yearly-view" style="display: none;">
                     <div class="gold-section">
                         <span class="gold-label">Накопления за год:</span>
@@ -92,25 +92,72 @@
                             <span id="year-total-savings" class="gold-text">0</span>
                         </div>
                     </div>
-
                     <div class="chart-box">
-                        <div class="panel-header">Траты по категориям (Год)</div>
+                        <div class="panel-header">Траты по категориям</div>
                         <div class="chart-wrapper"><canvas id="yearRadarChart"></canvas></div>
                     </div>
-
                     <div class="chart-box">
                         <div class="panel-header">Самый затратный месяц</div>
                         <div class="chart-wrapper"><canvas id="yearBarChartExpenses"></canvas></div>
                     </div>
-
                     <div class="chart-box">
                         <div class="panel-header">Тренд накоплений</div>
                         <div class="chart-wrapper"><canvas id="yearBarChartSavings"></canvas></div>
                     </div>
-
                     <div class="breakdown-panel">
                         <div class="panel-header">Отчет Оракула</div>
                         <div id="year-text-report" style="color: #ccc; font-size: 16px; padding: 10px;"></div>
+                    </div>
+                </div>
+
+                <div id="garage-view" style="display: none;">
+                    
+                    <div class="control-panel-wrapper">
+                        <div class="panel-header">Добавить запчасть / ТО</div>
+                        
+                        <div class="input-row">
+                            <input type="text" id="car-part-name" class="wow-input" placeholder="Название (Масло, Колодки...)">
+                        </div>
+
+                        <div class="input-row">
+                            <select id="car-part-type" class="wow-input">
+                                <option value="oil">Масло/Жидкости</option>
+                                <option value="filter">Фильтры</option>
+                                <option value="brakes">Тормоза</option>
+                                <option value="engine">Двигатель/ГРМ</option>
+                                <option value="wheels">Колеса/Подвеска</option>
+                                <option value="other">Прочее</option>
+                            </select>
+                        </div>
+
+                        <div class="input-row">
+                            <input type="number" id="car-current-km" class="wow-input" placeholder="Текущий КМ">
+                            <input type="number" id="car-interval-km" class="wow-input" placeholder="Ресурс (КМ)">
+                        </div>
+
+                        <div class="input-row">
+                            <input type="number" id="car-price" class="wow-input" placeholder="Цена (Золото)">
+                            <button onclick="addCarItem()" class="wow-btn spend-btn">Записать</button>
+                        </div>
+                        <div style="font-size: 10px; color: #777; text-align: center; margin-top: 5px;">
+                            * Цена автоматически добавится в бюджет (Транспорт)
+                        </div>
+                    </div>
+
+                    <div class="breakdown-panel">
+                        <div class="panel-header">Журнал Гаража (Garage Log)</div>
+                        
+                        <div class="garage-header-row">
+                            <span style="flex:2">Деталь</span>
+                            <span style="flex:1">Тип</span>
+                            <span style="flex:1">След.КМ</span>
+                            <span style="flex:1">Факт.КМ</span>
+                            <span style="flex:1; text-align:right">Цена</span>
+                            <span style="width: 20px;"></span>
+                        </div>
+
+                        <div id="garage-list">
+                            </div>
                     </div>
                 </div>
 
@@ -119,12 +166,13 @@
             </div>
 
             <div class="bottom-nav">
-                <button id="tab-month" class="nav-btn active" onclick="switchTab('month')">Текущий месяц</button>
-                <button id="tab-year" class="nav-btn" onclick="switchTab('year')">Статистика года</button>
+                <button id="tab-month" class="nav-btn active" onclick="switchTab('month')">Бюджет</button>
+                <button id="tab-garage" class="nav-btn" onclick="switchTab('garage')">Гараж</button>
+                <button id="tab-year" class="nav-btn" onclick="switchTab('year')">Год</button>
             </div>
         </div>
     </div>
 
-    <script src="script.js?v=5.0"></script>
+    <script src="script.js?v=6.0"></script>
 </body>
 </html>

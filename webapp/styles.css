@@ -1,6 +1,6 @@
-/* ИМПОРТ НЕ НУЖЕН, МЫ ПОДКЛЮЧИЛИ В HTML, НО ДЛЯ СТРАХОВКИ ОСТАВИМ ПУСТЫМ ИЛИ УДАЛИМ */
+@import url('https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap');
 
-/* === УБИРАЕМ СТРЕЛКИ === */
+/* === СБРОС СТРЕЛОК === */
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none !important; margin: 0 !important; display: none !important; }
 input[type="number"] { -moz-appearance: textfield !important; appearance: none !important; }
@@ -8,11 +8,7 @@ input[type="number"] { -moz-appearance: textfield !important; appearance: none !
 /* === ОСНОВА === */
 body { 
     margin: 0; padding: 0; height: 100vh; width: 100vw; background: #000; color: #f0e6d2; 
-    /* НОВЫЙ ШРИФТ */
-    font-family: 'Cormorant SC', serif; 
-    font-weight: 700; /* Делаем жирным, чтобы было похоже на WoW */
-    letter-spacing: 1px; /* Чуть разрядим буквы */
-    overflow: hidden; 
+    font-family: 'Cormorant SC', serif; font-weight: 700; letter-spacing: 1px; overflow: hidden; 
 }
 
 .desktop-wrapper { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background: #050505; }
@@ -54,7 +50,6 @@ body {
     font-family: 'Cormorant SC', serif; display: flex; align-items: center; justify-content: center;
 }
 
-/* === СЕЛЕКТОР МЕСЯЦА === */
 #month-selector-panel { border-color: #ffd700; background: rgba(20, 10, 0, 0.8); }
 #month-select {
     background: #000; color: #ffd700; border: 1px solid #a38f56;
@@ -62,14 +57,12 @@ body {
     width: 100%; margin-top: 5px; cursor: pointer;
 }
 
-/* === ГРАФИКИ === */
 .chart-wrapper { min-height: 250px; margin-bottom: 10px; }
 .chart-box {
     background: rgba(0,0,0,0.4); border: 1px solid #333; padding: 10px;
     border-radius: 6px; margin-bottom: 20px;
 }
 
-/* === УПРАВЛЕНИЕ === */
 .control-panel-wrapper {
     background: rgba(20, 20, 25, 0.9); padding: 15px; border-radius: 6px;
     border: 1px solid #555; margin-bottom: 20px;
@@ -90,7 +83,7 @@ body {
 .spend-btn { background: #7d0808; margin-left: 5px; }
 .small-btn { background: #333; color: #aaa; border-color: #666; margin-left: 5px; }
 
-/* === СПИСОК === */
+/* === СПИСОК РАСХОДОВ === */
 .breakdown-panel { background: rgba(0,0,0,0.8); padding: 10px; border-radius: 6px; border: 1px solid #444; }
 .breakdown-item {
     display: flex; justify-content: space-between; align-items: center;
@@ -103,11 +96,43 @@ body {
     font-family: 'Cormorant SC', serif; font-weight: bold; font-size: 20px; width: 80px; text-align: right; outline: none;
     -moz-appearance: textfield !important; appearance: none !important;
 }
+
+/* Кнопка удаления (крестик) */
 .delete-cat-btn {
     background: transparent; border: none; color: #555; font-size: 20px;
     cursor: pointer; padding: 0 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; height: 100%;
 }
 .delete-cat-btn:active { color: #ff3333; transform: scale(1.2); }
+
+/* === ТАБЛИЦА ГАРАЖА === */
+.garage-header-row {
+    display: flex;
+    font-size: 12px;
+    color: #a38f56;
+    border-bottom: 1px solid #555;
+    padding-bottom: 5px;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+}
+
+.garage-item {
+    display: flex;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #333;
+    font-size: 14px;
+}
+.garage-item span {
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    white-space: nowrap;
+    padding-right: 5px;
+}
+.garage-col-name { flex: 2; color: #fff; font-weight: bold; }
+.garage-col-type { flex: 1; color: #aaa; font-size: 12px; }
+.garage-col-next { flex: 1; color: #ffd700; }
+.garage-col-fact { flex: 1; color: #555; }
+.garage-col-price { flex: 1; color: #ff4e4e; text-align: right; }
 
 /* === ВКЛАДКИ === */
 .bottom-nav {
@@ -116,7 +141,7 @@ body {
 }
 .nav-btn {
     flex: 1; background: #1a1a1a; border: none; color: #666; font-family: 'Cormorant SC', serif;
-    font-weight: bold; font-size: 18px; text-transform: uppercase; cursor: pointer; border-right: 1px solid #333;
+    font-weight: bold; font-size: 16px; text-transform: uppercase; cursor: pointer; border-right: 1px solid #333;
 }
 .nav-btn.active {
     background: #4a0a0a; color: #ffd700; border-top: 3px solid #ff3333; text-shadow: 0 0 5px red;
