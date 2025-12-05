@@ -251,16 +251,25 @@ function renderGarageTypeSelect() {
     const savedVal = select.value; 
     select.innerHTML = '';
     
+    let firstKey = null;
+
     for (const [key, name] of Object.entries(db.garageTypes)) {
+        if (!firstKey) firstKey = key;
         let opt = document.createElement('option');
         opt.value = key;
         opt.innerText = name;
         select.appendChild(opt);
     }
     
+    // Восстанавливаем выбор или ставим первый
     if (db.garageTypes[savedVal]) {
         select.value = savedVal;
+    } else if (firstKey) {
+        select.value = firstKey;
     }
+    
+    // ВАЖНО: Принудительно вызываем автозаполнение после рендера списка
+    autoFillMileage();
 }
 
 function addGarageType() {
@@ -279,7 +288,48 @@ function addGarageType() {
     }
 }
 
-// === НОВАЯ ФУНКЦИЯ УДАЛЕНИЯ ===
+// === НОВАЯ ФУНКЦИЯ РЕДАКТИРОВАНИЯ ===
+function editGarageType() {
+    const select = document.getElementById('car-part-type');
+    const key = select.value;
+    const oldName = db.garageTypes[key];
+
+    // Разрешаем редактировать даже стандартные типы (чтобы исправить перевод, если что), но ключи останутся прежними.
+    // Если хотите запретить редактировать стандартные: раскомментируйте проверку ниже.
+    /*
+    const protected = ['oil', 'filter', 'brakes', 'engine', 'wheels', 'other'];
+    if (protected.includes(key)) {
+        tg.showAlert("Нельзя переименовать стандартный тип!");
+        return;
+    }
+    */
+
+    const newName = prompt("Исправить название:", oldName);
+    if (newName && newName !== oldName) {
+        // 1. Обновляем в словаре типов
+        db.garageTypes[key] = newName;
+        
+        // 2. Ищем и обновляем ВСЕ старые записи в истории (проходим по всем месяцам)
+        for (let m of monthsList) {
+            if (db.months[m].garage) {
+                db.months[m].garage.forEach(item => {
+                    if (item.type === oldName) {
+                        item.type = newName;
+                    }
+                });
+            }
+        }
+        
+        saveData();
+        renderGarageTypeSelect();
+        renderGarageSettings();
+        updateGarageChart();
+        renderGarageView(); // Обновить текущий список
+        
+        tg.showAlert("Успешно переименовано!");
+    }
+}
+
 function deleteGarageType() {
     const select = document.getElementById('car-part-type');
     const key = select.value;
@@ -299,8 +349,8 @@ function deleteGarageType() {
         renderGarageTypeSelect();
         renderGarageSettings();
         
-        // Сбрасываем выбор на масло
-        select.value = 'oil';
+        // Сбрасываем выбор на масло (если оно есть) или первый элемент
+        select.selectedIndex = 0; 
         autoFillMileage();
     }
 }
@@ -369,14 +419,22 @@ function updateGarageStandard(key, value) {
 
 function autoFillMileage() {
     const typeSelect = document.getElementById('car-part-type');
+    if (!typeSelect) return;
+    
     const selectedType = typeSelect.value;
     const intervalInput = document.getElementById('car-interval-km');
+    
+    // Защита от пустого выбора
+    if (!selectedType) {
+        intervalInput.value = '';
+        return;
+    }
     
     const std = db.garageStandards[selectedType];
     if (std && std > 0) {
         intervalInput.value = std;
     } else {
-        intervalInput.value = '';
+        intervalInput.value = ''; // Очищаем, если стандарта нет или он 0
     }
 }
 
@@ -418,6 +476,8 @@ function renderGarageView() {
     const mData = db.months[selectedMonth];
 
     if (!mData.garage) mData.garage = [];
+    
+    // При открытии вкладки обновляем автозаполнение и график
     autoFillMileage();
     updateGarageChart();
 
