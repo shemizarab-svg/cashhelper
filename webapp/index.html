@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@400;700&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="styles.css?v=7.0">
+    <link rel="stylesheet" href="styles.css?v=8.0">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
@@ -36,18 +36,18 @@
                     </select>
                 </div>
 
-                <details class="gold-section settings-section" style="margin-bottom: 15px;">
-                    <summary class="settings-summary">⚙️ Настройка Лимитов</summary>
-                    <div class="settings-content">
-                        <p style="font-size: 12px; color: #aaa; text-align: center; margin: 5px 0;">
-                            Установи лимит. Если потратишь больше — сумма станет красной во всех месяцах.
-                        </p>
-                        <div id="limits-list-container">
-                            </div>
-                    </div>
-                </details>
-
                 <div id="monthly-view">
+                    
+                    <details class="gold-section settings-section" style="margin-bottom: 15px;">
+                        <summary class="settings-summary">⚙️ Лимиты бюджета (Золото)</summary>
+                        <div class="settings-content">
+                            <p style="font-size: 12px; color: #aaa; text-align: center; margin: 5px 0;">
+                                Если траты превысят лимит — они станут красными.
+                            </p>
+                            <div id="limits-list-container"></div>
+                        </div>
+                    </details>
+
                     <div class="gold-section">
                         <span class="gold-label">Казна месяца:</span>
                         <div class="gold-value-container">
@@ -123,6 +123,16 @@
 
                 <div id="garage-view" style="display: none;">
                     
+                    <details class="gold-section settings-section" style="margin-bottom: 20px;">
+                        <summary class="settings-summary">⚙️ Стандарты ТО (КМ)</summary>
+                        <div class="settings-content">
+                            <p style="font-size: 12px; color: #aaa; text-align: center; margin: 5px 0;">
+                                Настрой интервалы, чтобы они подставлялись автоматически.
+                            </p>
+                            <div id="garage-standards-container"></div>
+                        </div>
+                    </details>
+
                     <div class="control-panel-wrapper">
                         <div class="panel-header">Добавить запчасть / ТО</div>
                         
@@ -131,7 +141,7 @@
                         </div>
 
                         <div class="input-row">
-                            <select id="car-part-type" class="wow-input">
+                            <select id="car-part-type" class="wow-input" onchange="autoFillMileage()">
                                 <option value="oil">Масло/Жидкости</option>
                                 <option value="filter">Фильтры</option>
                                 <option value="brakes">Тормоза</option>
@@ -151,12 +161,12 @@
                             <button onclick="addCarItem()" class="wow-btn spend-btn">Записать</button>
                         </div>
                         <div style="font-size: 10px; color: #777; text-align: center; margin-top: 5px;">
-                            * Цена автоматически добавится в бюджет (Транспорт)
+                            * Цена добавится в бюджет "Транспорт"
                         </div>
                     </div>
 
                     <div class="breakdown-panel">
-                        <div class="panel-header">Журнал Гаража (Garage Log)</div>
+                        <div class="panel-header">Журнал Гаража</div>
                         
                         <div class="garage-header-row">
                             <span style="flex:2">Деталь</span>
@@ -167,8 +177,7 @@
                             <span style="width: 20px;"></span>
                         </div>
 
-                        <div id="garage-list">
-                            </div>
+                        <div id="garage-list"></div>
                     </div>
                 </div>
 
@@ -184,6 +193,6 @@
         </div>
     </div>
 
-    <script src="script.js?v=7.0"></script>
+    <script src="script.js?v=8.0"></script>
 </body>
 </html>

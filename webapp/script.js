@@ -16,6 +16,15 @@ const monthsNamesRu = {
     'Jul': 'Июль', 'Aug': 'Август', 'Sep': 'Сентябрь', 'Oct': 'Октябрь', 'Nov': 'Ноябрь', 'Dec': 'Декабрь'
 };
 
+const carPartTypes = {
+    'oil': 'Масло/Жидкости',
+    'filter': 'Фильтры',
+    'brakes': 'Тормоза',
+    'engine': 'Двигатель/ГРМ',
+    'wheels': 'Колеса/Подвеска',
+    'other': 'Прочее'
+};
+
 let chartMonthly = null;
 let chartYearlyRadar = null;
 let chartYearlyBarExpenses = null;
@@ -24,7 +33,8 @@ let chartYearlyBarSavings = null;
 let globalCategoryNames = new Map(); 
 
 let db = {
-    limits: {}, // Глобальные лимиты (стандарты)
+    limits: {}, // Денежные лимиты
+    garageStandards: {}, // Стандарты пробега (КМ)
     months: monthsList.reduce((acc, m) => {
         acc[m] = { 
             income: 0, 
@@ -48,10 +58,9 @@ function loadData() {
             const parsed = JSON.parse(saved);
             if (parsed.names) globalCategoryNames = new Map(parsed.names);
             if (parsed.db) {
-                // Восстановление лимитов
                 if (parsed.db.limits) db.limits = parsed.db.limits;
+                if (parsed.db.garageStandards) db.garageStandards = parsed.db.garageStandards;
                 
-                // Восстановление месяцев
                 if (parsed.db.months) {
                     for (let m of monthsList) {
                         if (parsed.db.months[m]) {
@@ -64,6 +73,17 @@ function loadData() {
             }
         } catch (e) { console.error(e); }
     }
+    
+    // Инициализация дефолтных стандартов гаража, если их нет
+    if (Object.keys(db.garageStandards).length === 0) {
+        db.garageStandards = {
+            'oil': 7500,
+            'filter': 10000,
+            'brakes': 30000,
+            'engine': 60000,
+            'wheels': 50000
+        };
+    }
 }
 
 function init() {
@@ -71,8 +91,8 @@ function init() {
     if (!globalCategoryNames.has('transport')) globalCategoryNames.set('transport', 'Транспорт (Машина)');
     initCharts();
     
-    // Отрисовка настроек
     renderLimitsPanel();
+    renderGarageSettings();
     
     updateView();
 }
@@ -108,7 +128,6 @@ function createBarConfig(label, color) {
     };
 }
 
-// === ЛОГИКА ПЕРЕКЛЮЧЕНИЯ ===
 function switchTab(tab) {
     currentTab = tab;
     
@@ -136,7 +155,7 @@ function updateView() {
     else renderYearlyView();
 }
 
-// === ЛОГИКА ЛИМИТОВ (СТАНДАРТОВ) ===
+// === НАСТРОЙКИ БЮДЖЕТА (ЛИМИТЫ) ===
 function renderLimitsPanel() {
     const container = document.getElementById('limits-list-container');
     if (!container) return;
@@ -160,16 +179,60 @@ function renderLimitsPanel() {
 
 function updateLimit(key, value) {
     const val = parseFloat(value);
-    if (isNaN(val) || val === 0) {
-        delete db.limits[key];
-    } else {
-        db.limits[key] = val;
-    }
+    if (isNaN(val) || val === 0) delete db.limits[key];
+    else db.limits[key] = val;
     saveData();
     renderMonthlyView();
 }
 
-// === ОТРИСОВКА МЕСЯЦА С УЧЕТОМ ЛИМИТОВ ===
+// === НАСТРОЙКИ ГАРАЖА (КМ) ===
+function renderGarageSettings() {
+    const container = document.getElementById('garage-standards-container');
+    if (!container) return;
+    container.innerHTML = '';
+
+    for (const [typeKey, typeName] of Object.entries(carPartTypes)) {
+        if (typeKey === 'other') continue; // Пропускаем "Прочее"
+
+        const currentStd = db.garageStandards[typeKey] || 0;
+        const div = document.createElement('div');
+        div.className = 'limit-row';
+        div.innerHTML = `
+            <span class="limit-label">${typeName}</span>
+            <input type="number" 
+                   class="limit-input" 
+                   placeholder="КМ" 
+                   value="${currentStd === 0 ? '' : currentStd}" 
+                   onchange="updateGarageStandard('${typeKey}', this.value)">
+        `;
+        container.appendChild(div);
+    }
+}
+
+function updateGarageStandard(key, value) {
+    const val = parseFloat(value);
+    if (isNaN(val)) db.garageStandards[key] = 0;
+    else db.garageStandards[key] = val;
+    saveData();
+    // Сразу пытаемся обновить текущее поле, если выбран этот тип
+    autoFillMileage();
+}
+
+function autoFillMileage() {
+    const typeSelect = document.getElementById('car-part-type');
+    const selectedType = typeSelect.value;
+    const intervalInput = document.getElementById('car-interval-km');
+    
+    // Берем стандарт из базы
+    const std = db.garageStandards[selectedType];
+    if (std && std > 0) {
+        intervalInput.value = std;
+    } else {
+        intervalInput.value = ''; // Если стандарта нет, очищаем или оставляем как есть
+    }
+}
+
+// === ОТРИСОВКА БЮДЖЕТА ===
 function renderMonthlyView() {
     const data = db.months[selectedMonth];
     const incInput = document.getElementById('income-input');
@@ -206,6 +269,9 @@ function renderGarageView() {
     const mData = db.months[selectedMonth];
 
     if (!mData.garage) mData.garage = [];
+
+    // При открытии гаража сразу подставляем стандарт для текущего выбранного селекта
+    autoFillMileage();
 
     if (mData.garage.length > 0) {
         mData.garage.forEach((item, index) => {
@@ -280,7 +346,8 @@ function renderYearlyView() {
 function addCarItem() {
     const name = document.getElementById('car-part-name').value.trim();
     const typeSelect = document.getElementById('car-part-type');
-    const type = typeSelect.options[typeSelect.selectedIndex].text;
+    const typeKey = typeSelect.value;
+    const typeText = typeSelect.options[typeSelect.selectedIndex].text;
     const factKm = parseFloat(document.getElementById('car-current-km').value);
     const intervalKm = parseFloat(document.getElementById('car-interval-km').value);
     const price = parseFloat(document.getElementById('car-price').value);
@@ -295,7 +362,7 @@ function addCarItem() {
     
     if (!mData.garage) mData.garage = [];
     
-    mData.garage.push({ name: name, type: type, fact: factKm, expected: expected, price: price });
+    mData.garage.push({ name: name, type: typeText, fact: factKm, expected: expected, price: price });
 
     const transKey = 'transport';
     if (!globalCategoryNames.has(transKey)) globalCategoryNames.set(transKey, 'Транспорт');
@@ -306,9 +373,11 @@ function addCarItem() {
     mData.expenses[transKey] += price;
 
     document.getElementById('car-part-name').value = '';
-    document.getElementById('car-current-km').value = '';
-    document.getElementById('car-interval-km').value = '';
     document.getElementById('car-price').value = '';
+    // КМ не очищаем или очищаем выборочно, по желанию. Пока очистим.
+    document.getElementById('car-current-km').value = '';
+    // Интервал восстанавливаем из стандарта
+    autoFillMileage();
 
     saveData();
     renderGarageView();
@@ -337,14 +406,14 @@ function renderBreakdown(monthData) {
         const name = globalCategoryNames.get(key) || key;
         const amount = monthData.expenses[key] || 0;
         
-        // --- ПРОВЕРКА ЛИМИТОВ ---
+        // --- ПРОВЕРКА ДЕНЕЖНЫХ ЛИМИТОВ ---
         const limit = db.limits[key] || 0;
         let limitHtml = '';
         let nameClass = 'breakdown-name under-budget';
         
         if (limit > 0) {
             if (amount > limit) {
-                nameClass = 'breakdown-name over-budget'; // Красный
+                nameClass = 'breakdown-name over-budget';
                 limitHtml = `<span style="font-size:10px; color:#ff3333; display:block;">(Лимит: ${limit})</span>`;
             } else {
                  limitHtml = `<span style="font-size:10px; color:#555; display:block;">(из ${limit})</span>`;
@@ -379,7 +448,7 @@ function addNewCategory() {
         if (!mData.expenses[key]) mData.expenses[key] = 0;
         saveData(); 
         
-        renderLimitsPanel(); // Обновляем список настроек
+        renderLimitsPanel();
         updateView();
     } else { tg.showAlert("Уже есть!"); }
     nameInput.value = '';

@@ -97,7 +97,6 @@ body {
     -moz-appearance: textfield !important; appearance: none !important;
 }
 
-/* Кнопка удаления (крестик) */
 .delete-cat-btn {
     background: transparent; border: none; color: #555; font-size: 20px;
     cursor: pointer; padding: 0 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; height: 100%;
@@ -164,7 +163,7 @@ details.settings-section[open] {
     font-size: 16px;
     color: #ffd700;
     font-weight: bold;
-    list-style: none; /* Убирает стандартный треугольник в некоторых браузерах */
+    list-style: none;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -177,7 +176,6 @@ details.settings-section[open] {
     padding-top: 10px;
 }
 
-/* Строка настройки лимита */
 .limit-row {
     display: flex;
     justify-content: space-between;
@@ -204,11 +202,5 @@ details.settings-section[open] {
     font-weight: bold;
 }
 
-/* Индикация перерасхода в списке трат */
-.over-budget {
-    color: #ff3333 !important; /* Красный текст */
-    text-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
-}
-.under-budget {
-    color: #ccc; /* Обычный цвет */
-}
+.over-budget { color: #ff3333 !important; text-shadow: 0 0 5px rgba(255, 0, 0, 0.5); }
+.under-budget { color: #ccc; }
