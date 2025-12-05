@@ -24,6 +24,7 @@ let chartYearlyBarSavings = null;
 let globalCategoryNames = new Map(); 
 
 let db = {
+    limits: {}, // Глобальные лимиты (стандарты)
     months: monthsList.reduce((acc, m) => {
         acc[m] = { 
             income: 0, 
@@ -46,13 +47,18 @@ function loadData() {
         try {
             const parsed = JSON.parse(saved);
             if (parsed.names) globalCategoryNames = new Map(parsed.names);
-            if (parsed.db && parsed.db.months) {
-                for (let m of monthsList) {
-                    if (parsed.db.months[m]) {
-                        db.months[m] = parsed.db.months[m];
-                        if (!db.months[m].activeCategories) db.months[m].activeCategories = [];
-                        // ВАЖНО: Если гаража нет в сохранении, создаем пустой массив
-                        if (!db.months[m].garage) db.months[m].garage = [];
+            if (parsed.db) {
+                // Восстановление лимитов
+                if (parsed.db.limits) db.limits = parsed.db.limits;
+                
+                // Восстановление месяцев
+                if (parsed.db.months) {
+                    for (let m of monthsList) {
+                        if (parsed.db.months[m]) {
+                            db.months[m] = parsed.db.months[m];
+                            if (!db.months[m].activeCategories) db.months[m].activeCategories = [];
+                            if (!db.months[m].garage) db.months[m].garage = [];
+                        }
                     }
                 }
             }
@@ -64,6 +70,10 @@ function init() {
     loadData();
     if (!globalCategoryNames.has('transport')) globalCategoryNames.set('transport', 'Транспорт (Машина)');
     initCharts();
+    
+    // Отрисовка настроек
+    renderLimitsPanel();
+    
     updateView();
 }
 
@@ -102,17 +112,14 @@ function createBarConfig(label, color) {
 function switchTab(tab) {
     currentTab = tab;
     
-    // Переключаем классы кнопок (для красной подсветки)
     document.getElementById('tab-month').classList.toggle('active', tab === 'month');
     document.getElementById('tab-year').classList.toggle('active', tab === 'year');
     document.getElementById('tab-garage').classList.toggle('active', tab === 'garage');
     
-    // Переключаем видимость блоков
     document.getElementById('monthly-view').style.display = tab === 'month' ? 'block' : 'none';
     document.getElementById('yearly-view').style.display = tab === 'year' ? 'block' : 'none';
     document.getElementById('garage-view').style.display = tab === 'garage' ? 'block' : 'none';
     
-    // Селектор месяца виден в Month и Garage
     document.getElementById('month-selector-panel').style.display = (tab === 'month' || tab === 'garage') ? 'flex' : 'none';
     
     updateView();
@@ -129,6 +136,40 @@ function updateView() {
     else renderYearlyView();
 }
 
+// === ЛОГИКА ЛИМИТОВ (СТАНДАРТОВ) ===
+function renderLimitsPanel() {
+    const container = document.getElementById('limits-list-container');
+    if (!container) return;
+    container.innerHTML = '';
+
+    globalCategoryNames.forEach((name, key) => {
+        const currentLimit = db.limits[key] || 0; 
+        const div = document.createElement('div');
+        div.className = 'limit-row';
+        div.innerHTML = `
+            <span class="limit-label">${name}</span>
+            <input type="number" 
+                   class="limit-input" 
+                   placeholder="∞" 
+                   value="${currentLimit === 0 ? '' : currentLimit}" 
+                   onchange="updateLimit('${key}', this.value)">
+        `;
+        container.appendChild(div);
+    });
+}
+
+function updateLimit(key, value) {
+    const val = parseFloat(value);
+    if (isNaN(val) || val === 0) {
+        delete db.limits[key];
+    } else {
+        db.limits[key] = val;
+    }
+    saveData();
+    renderMonthlyView();
+}
+
+// === ОТРИСОВКА МЕСЯЦА С УЧЕТОМ ЛИМИТОВ ===
 function renderMonthlyView() {
     const data = db.months[selectedMonth];
     const incInput = document.getElementById('income-input');
@@ -164,7 +205,6 @@ function renderGarageView() {
     list.innerHTML = '';
     const mData = db.months[selectedMonth];
 
-    // Защита: если массив гаража не создан, создаем его
     if (!mData.garage) mData.garage = [];
 
     if (mData.garage.length > 0) {
@@ -296,10 +336,28 @@ function renderBreakdown(monthData) {
     monthData.activeCategories.forEach(key => {
         const name = globalCategoryNames.get(key) || key;
         const amount = monthData.expenses[key] || 0;
+        
+        // --- ПРОВЕРКА ЛИМИТОВ ---
+        const limit = db.limits[key] || 0;
+        let limitHtml = '';
+        let nameClass = 'breakdown-name under-budget';
+        
+        if (limit > 0) {
+            if (amount > limit) {
+                nameClass = 'breakdown-name over-budget'; // Красный
+                limitHtml = `<span style="font-size:10px; color:#ff3333; display:block;">(Лимит: ${limit})</span>`;
+            } else {
+                 limitHtml = `<span style="font-size:10px; color:#555; display:block;">(из ${limit})</span>`;
+            }
+        }
+        
         let div = document.createElement('div');
         div.className = 'breakdown-item';
         div.innerHTML = `
-            <span class="breakdown-name">${name}</span>
+            <div style="flex:1">
+                <span class="${nameClass}">${name}</span>
+                ${limitHtml}
+            </div>
             <div class="edit-wrapper">
                 <input type="number" class="edit-expense-input" value="${amount}" onchange="manualExpenseEdit('${key}', this)">
                 <button class="delete-cat-btn" onclick="removeCategory('${key}')">✖</button>
@@ -319,7 +377,10 @@ function addNewCategory() {
     if (!mData.activeCategories.includes(key)) {
         mData.activeCategories.push(key);
         if (!mData.expenses[key]) mData.expenses[key] = 0;
-        saveData(); updateView();
+        saveData(); 
+        
+        renderLimitsPanel(); // Обновляем список настроек
+        updateView();
     } else { tg.showAlert("Уже есть!"); }
     nameInput.value = '';
 }

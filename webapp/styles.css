@@ -146,3 +146,69 @@ body {
 .nav-btn.active {
     background: #4a0a0a; color: #ffd700; border-top: 3px solid #ff3333; text-shadow: 0 0 5px red;
 }
+
+/* === НАСТРОЙКИ (DETAILS/SUMMARY) === */
+details.settings-section {
+    background: rgba(10, 10, 10, 0.9);
+    border: 1px solid #555;
+    transition: all 0.3s ease;
+}
+
+details.settings-section[open] {
+    border-color: #ffd700;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.1);
+}
+
+.settings-summary {
+    cursor: pointer;
+    font-size: 16px;
+    color: #ffd700;
+    font-weight: bold;
+    list-style: none; /* Убирает стандартный треугольник в некоторых браузерах */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.settings-summary::-webkit-details-marker { display: none; }
+
+.settings-content {
+    margin-top: 15px;
+    border-top: 1px dashed #333;
+    padding-top: 10px;
+}
+
+/* Строка настройки лимита */
+.limit-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    padding: 5px;
+    border-bottom: 1px solid #222;
+}
+
+.limit-label {
+    color: #ccc;
+    font-size: 14px;
+    flex: 1;
+}
+
+.limit-input {
+    background: #000;
+    border: 1px solid #444;
+    color: #ffd700;
+    width: 80px;
+    padding: 5px;
+    text-align: right;
+    font-family: 'Cormorant SC', serif;
+    font-weight: bold;
+}
+
+/* Индикация перерасхода в списке трат */
+.over-budget {
+    color: #ff3333 !important; /* Красный текст */
+    text-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+}
+.under-budget {
+    color: #ccc; /* Обычный цвет */
+}
