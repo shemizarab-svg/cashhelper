@@ -1,130 +1,96 @@
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Roboto:wght@400;500&display=swap');
-
 body {
-    background-color: #121212; /* Глубокий черный/серый */
-    color: #c4c4c4;
-    font-family: 'Roboto', sans-serif;
+    background-color: #0b0d10;
+    font-family: 'MedievalSharp', cursive;
+    color: #ffd700;
     margin: 0;
-    padding: 20px;
-    background-image: linear-gradient(to bottom, #1b1e23, #0d0e10);
-    min-height: 100vh;
+    padding: 10px;
+    background-image: url('https://www.transparenttextures.com/patterns/black-scales.png'); /* Текстура */
 }
 
-h1, h3, .mode-btn {
-    font-family: 'Cinzel', serif; /* Похоже на шрифт Dota 2 */
-    text-transform: uppercase;
-    letter-spacing: 2px;
+/* Рамка как в меню персонажа */
+.main-frame {
+    border: 2px solid #4a3b2a;
+    border-radius: 8px;
+    padding: 15px;
+    background: #15171e;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(0,0,0,0.8);
+    max-width: 400px;
+    margin: 0 auto;
 }
 
 h1 {
-    color: #bd3b3b; /* Dire Red */
-    text-shadow: 0 0 10px rgba(189, 59, 59, 0.5);
     text-align: center;
-    margin-bottom: 5px;
-}
-
-.subtitle {
-    text-align: center;
-    color: #586069;
-    font-size: 12px;
+    color: #e5cc80;
+    text-shadow: 2px 2px 0 #000;
+    letter-spacing: 2px;
     margin-top: 0;
+    border-bottom: 1px solid #4a3b2a;
+    padding-bottom: 10px;
 }
 
 /* График */
-.chart-wrapper {
+.chart-container {
     position: relative;
     height: 300px;
     width: 100%;
-    margin: 20px 0;
-}
-
-.center-text {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-    pointer-events: none;
-}
-
-#total-amount {
-    display: block;
-    font-size: 24px;
-    color: #e8d282; /* Gold */
-    font-weight: bold;
-}
-
-/* Кнопки и инпуты */
-.toggle-container {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
     margin-bottom: 20px;
 }
 
-.mode-btn {
-    background: #26292e;
-    border: 1px solid #3f444b;
-    color: #888;
-    padding: 10px 20px;
-    cursor: pointer;
-    transition: 0.3s;
-}
-
-.mode-btn.active {
-    background: linear-gradient(45deg, #2c0808, #5a1e1e);
-    border-color: #bd3b3b;
+/* Золото */
+.gold-display {
+    text-align: center;
+    font-size: 28px;
     color: #fff;
-    box-shadow: 0 0 10px #bd3b3b66;
+    text-shadow: 0 0 5px #ffd700;
+    margin-bottom: 20px;
+}
+.gold-icon::after {
+    content: "📀"; /* Можно заменить на картинку */
+    margin-right: 5px;
 }
 
-.input-group {
-    display: flex;
-    gap: 5px;
-}
-
-select, input {
-    background: #1c1f24;
-    border: 1px solid #3f444b;
-    color: #fff;
-    padding: 10px;
+/* Кнопки и инпуты WoW */
+.wow-input {
+    background: #000;
+    border: 1px solid #5c5c5c;
+    color: #1eff00; /* Зеленый текст как у предметов */
+    padding: 8px;
+    font-family: 'MedievalSharp', cursive;
+    font-size: 16px;
     width: 100%;
+    box-sizing: border-box;
 }
 
-button {
-    background: #3d5843; /* Radiant Greenish */
-    color: white;
-    border: none;
-    padding: 0 20px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-/* Список */
-ul {
-    list-style: none;
-    padding: 0;
-}
-
-li {
-    background: rgba(255, 255, 255, 0.05);
-    margin-bottom: 5px;
-    padding: 10px;
+.mode-switch {
     display: flex;
-    justify-content: space-between;
-    border-left: 3px solid #bd3b3b;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 15px;
 }
 
-/* Советы */
-.tips-section {
-    background: #151922;
-    border: 1px solid #344861;
-    padding: 15px;
-    margin-top: 20px;
-    border-radius: 4px;
+.wow-btn {
+    background: linear-gradient(to bottom, #7d0808, #3d0303); /* Horde Red */
+    border: 1px solid #d4af37;
+    color: #d4af37;
+    padding: 8px 20px;
+    font-family: 'MedievalSharp', cursive;
+    cursor: pointer;
+    text-transform: uppercase;
+    box-shadow: 0 0 5px #000;
 }
 
-.tips-section h3 {
-    color: #5c8dff; /* Mana Blue */
-    margin-top: 0;
+.wow-btn.active {
+    background: linear-gradient(to bottom, #1d4bba, #091d4f); /* Alliance Blue */
+    color: white;
+    box-shadow: 0 0 10px #1d4bba;
+}
+
+.input-row {
+    margin-bottom: 10px;
+}
+
+.add-btn {
+    width: 100%;
+    margin-top: 5px;
+    font-size: 18px;
 }

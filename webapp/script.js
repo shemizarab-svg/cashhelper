@@ -1,48 +1,67 @@
-let expenses = { month: [], year: [] };
-let currentMode = 'month';
-let chartInstance = null;
-
-// Инициализация Telegram WebApp
 const tg = window.Telegram.WebApp;
-tg.expand(); // Раскрыть на весь экран
+tg.expand();
 
-// Цвета для графика (Dota style)
-const chartColors = {
-    housing: '#A63535', // Red (Strength)
-    food: '#488536',    // Green (Agility)
-    transport: '#386FA4', // Blue (Intelligence)
-    fun: '#D4AF37',     // Gold
-    other: '#6D717A'    // Grey
+let chartInstance = null;
+let currentMode = 'month';
+
+// Данные по 5 углам (как на скрине из доты)
+let stats = {
+    month: { housing: 10, food: 10, transport: 10, fun: 10, gear: 10 },
+    year: { housing: 10, food: 10, transport: 10, fun: 10, gear: 10 }
+};
+
+// Соответствие категорий и названий
+const labelsMap = {
+    housing: 'Citadel',
+    food: 'Supplies',
+    transport: 'Mounts',
+    fun: 'Tavern',
+    gear: 'Gear'
 };
 
 function initChart() {
-    const ctx = document.getElementById('expenseChart').getContext('2d');
+    const ctx = document.getElementById('radarChart').getContext('2d');
+    
     chartInstance = new Chart(ctx, {
-        type: 'doughnut',
+        type: 'radar', // ТИП ГРАФИКА: ПАУТИНА
         data: {
-            labels: [],
+            labels: Object.values(labelsMap), // Названия углов
             datasets: [{
-                data: [],
-                backgroundColor: [],
-                borderColor: '#121212',
-                borderWidth: 2,
-                hoverOffset: 10
+                label: 'Spending Stats',
+                data: [10, 10, 10, 10, 10],
+                backgroundColor: 'rgba(255, 215, 0, 0.4)', // Золотая заливка
+                borderColor: '#FFD700', // Золотая линия
+                pointBackgroundColor: '#fff',
+                pointBorderColor: '#FFD700',
+                borderWidth: 2
             }]
         },
         options: {
-            cutout: '70%', // Делает кольцо тонким
-            plugins: {
-                legend: { display: false }
-            }
+            scales: {
+                r: {
+                    angleLines: { color: 'rgba(255, 255, 255, 0.2)' }, // Лучи паутины
+                    grid: { color: 'rgba(255, 255, 255, 0.2)' },      // Круги паутины
+                    pointLabels: {
+                        color: '#d4af37', // Цвет подписей углов
+                        font: { size: 14, family: 'MedievalSharp' }
+                    },
+                    ticks: { display: false } // Скрыть цифры на осях
+                }
+            },
+            plugins: { legend: { display: false } }
         }
     });
 }
 
-function setMode(mode) {
-    currentMode = mode;
-    document.getElementById('btn-month').classList.toggle('active', mode === 'month');
-    document.getElementById('btn-year').classList.toggle('active', mode === 'year');
-    updateUI();
+function updateChart() {
+    const dataObj = stats[currentMode];
+    // Обновляем данные графика
+    chartInstance.data.datasets[0].data = Object.values(dataObj);
+    chartInstance.update();
+
+    // Считаем общую сумму
+    let total = Object.values(dataObj).reduce((a, b) => a + b, 0) - 50; // вычитаем начальные 10*5
+    document.getElementById('total-amount').innerText = total > 0 ? total : 0;
 }
 
 function addExpense() {
@@ -51,71 +70,18 @@ function addExpense() {
 
     if (!amount) return;
 
-    expenses[currentMode].push({ category, amount });
-    document.getElementById('amount').value = ''; // Очистить поле
-    updateUI();
-}
-
-function updateUI() {
-    const data = expenses[currentMode];
-    const list = document.getElementById('expense-list');
-    list.innerHTML = '';
-
-    // Группировка для графика
-    let totals = { housing: 0, food: 0, transport: 0, fun: 0, other: 0 };
-    let totalSum = 0;
-
-    data.forEach(item => {
-        totals[item.category] += item.amount;
-        totalSum += item.amount;
-
-        // Добавление в список
-        let li = document.createElement('li');
-        li.innerHTML = `<span>${getCategoryName(item.category)}</span> <span>${item.amount}</span>`;
-        li.style.borderLeftColor = chartColors[item.category];
-        list.appendChild(li);
-    });
-
-    // Обновление графика
-    chartInstance.data.labels = Object.keys(totals).map(getCategoryName);
-    chartInstance.data.datasets[0].data = Object.values(totals);
-    chartInstance.data.datasets[0].backgroundColor = Object.keys(totals).map(k => chartColors[k]);
-    chartInstance.update();
-
-    // Обновление цифры в центре
-    document.getElementById('total-amount').innerText = totalSum.toLocaleString();
-
-    // Генерация советов
-    generateTips(totals, totalSum);
-}
-
-function getCategoryName(key) {
-    const map = { housing: 'Tower (Home)', food: 'Tango (Food)', transport: 'TP (Travel)', fun: 'Skins (Fun)', other: 'Other' };
-    return map[key];
-}
-
-function generateTips(totals, sum) {
-    const tipsBox = document.getElementById('tips-box');
-    const tipText = document.getElementById('tip-text');
+    // Добавляем к текущему значению
+    stats[currentMode][category] += amount;
     
-    if (sum === 0) {
-        tipsBox.style.display = 'none';
-        return;
-    }
-
-    tipsBox.style.display = 'block';
-    
-    // Логика советов (Правило 50/30/20 адаптированное)
-    if (totals.food / sum > 0.3) {
-        tipText.innerText = "⚠️ Расходы на Tango (Еду) превышают 30%. Попробуй готовить дома и не покупать 'расходники' в кафе.";
-    } else if (totals.fun / sum > 0.2) {
-        tipText.innerText = "⚠️ Слишком много золота уходит на скины (Развлечения). Отмени подписки, которыми не пользуешься.";
-    } else if (totals.transport / sum > 0.15) {
-        tipText.innerText = "⚠️ Свитки телепортации (Транспорт) слишком дороги. Проверь проездные или карпулинг.";
-    } else {
-        tipText.innerText = "✅ Баланс золота в норме. Инвестируй излишки в Buyback (Сбережения).";
-    }
+    document.getElementById('amount').value = '';
+    updateChart();
 }
 
-// Запуск
+function setMode(mode) {
+    currentMode = mode;
+    document.getElementById('btn-month').classList.toggle('active', mode === 'month');
+    document.getElementById('btn-year').classList.toggle('active', mode === 'year');
+    updateChart();
+}
+
 initChart();
