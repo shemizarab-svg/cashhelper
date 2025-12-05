@@ -12,59 +12,67 @@
 <body>
 
     <div class="main-frame-wrapper">
-    <div class="main-frame">
-        
-        <div class="gold-section top-section">
-            <span class="gold-label">Total Income (Treasury):</span>
-            <div class="gold-value-container">
-                <span class="gold-icon-big"></span>
-                
-                <input type="number" id="income-input" class="invisible-input" placeholder="0" onchange="manualIncomeEdit()">
-                
-                <button class="add-income-btn" onclick="addMoreIncome()">+</button>
-            </div>
-        </div>
-
-        <div class="chart-wrapper">
-            <canvas id="radarChart"></canvas>
-        </div>
-
-        <div class="gold-section remaining-section">
-            <span class="gold-label">Remaining Gold:</span>
-            <div class="gold-value-container">
-                 <span class="gold-icon-big"></span>
-                 <span id="remaining-amount" class="gold-text">0</span>
-            </div>
-        </div>
-
-        <div class="control-panel-wrapper">
+        <div class="main-frame">
             
-            <div class="new-category-panel">
-                 <div class="panel-header small-header">New Category Line</div>
-                 <div class="input-row">
-                    <input type="text" id="new-cat-name" class="wow-input" placeholder="Name (e.g. Car)...">
-                    <button onclick="addNewCategory()" class="wow-btn small-btn">Add Line</button>
+            <div class="scrollable-content">
+                
+                <div class="gold-section top-section">
+                    <span class="gold-label">Total Treasury:</span>
+                    <div class="gold-value-container">
+                        <span class="gold-icon-big"></span>
+                        <input type="number" id="income-input" class="invisible-input" placeholder="0" onchange="manualIncomeEdit()">
+                        <button class="add-income-btn" onclick="addMoreIncome()">+</button>
+                    </div>
                 </div>
+
+                <div class="chart-wrapper">
+                    <canvas id="radarChart"></canvas>
+                </div>
+
+                <div class="gold-section remaining-section">
+                    <span class="gold-label">Remaining Gold:</span>
+                    <div class="gold-value-container">
+                        <span class="gold-icon-big"></span>
+                        <span id="remaining-amount" class="gold-text">0</span>
+                    </div>
+                </div>
+
+                <div class="control-panel-wrapper">
+                    
+                    <div class="new-category-panel">
+                        <div class="input-row">
+                            <input type="text" id="new-cat-name" class="wow-input" placeholder="New Category Name...">
+                            <button onclick="addNewCategory()" class="wow-btn small-btn">Add Line</button>
+                        </div>
+                    </div>
+
+                    <div class="spend-panel">
+                        <div class="panel-header">Add Expense</div>
+                        <div class="input-row">
+                            <select id="category-select" class="wow-input"></select>
+                        </div>
+                        <div class="input-row">
+                            <input type="number" id="amount" class="wow-input" placeholder="Cost...">
+                            <button onclick="addExpense()" class="wow-btn spend-btn">SPEND</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="history-panel">
+                    <div class="panel-header">Recent Loot Log (Tap X to Undo)</div>
+                    <ul id="history-list">
+                        </ul>
+                </div>
+                
+                <div style="height: 60px;"></div>
             </div>
 
-            <div class="spend-panel">
-                <div class="panel-header">Add Expense</div>
-                <div class="input-row">
-                    <select id="category-select" class="wow-input"></select>
-                </div>
-                <div class="input-row">
-                    <input type="number" id="amount" class="wow-input" placeholder="Cost...">
-                    <button onclick="addExpense()" class="wow-btn spend-btn">SPEND</button>
-                </div>
+            <div class="bottom-nav">
+                <button id="tab-month" class="nav-btn active" onclick="switchTab('month')">Monthly Log</button>
+                <button id="tab-year" class="nav-btn" onclick="switchTab('year')">Yearly Log</button>
             </div>
+
         </div>
-
-    </div>
-    </div>
-
-    <div class="bottom-nav">
-        <button id="tab-month" class="nav-btn active" onclick="switchTab('month')">Monthly</button>
-        <button id="tab-year" class="nav-btn" onclick="switchTab('year')">Yearly</button>
     </div>
 
     <script src="script.js"></script>
