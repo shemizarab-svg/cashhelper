@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap');
+/* ИМПОРТ НЕ НУЖЕН, МЫ ПОДКЛЮЧИЛИ В HTML, НО ДЛЯ СТРАХОВКИ ОСТАВИМ ПУСТЫМ ИЛИ УДАЛИМ */
 
 /* === УБИРАЕМ СТРЕЛКИ === */
 input[type="number"]::-webkit-outer-spin-button,
@@ -6,7 +6,15 @@ input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none !impo
 input[type="number"] { -moz-appearance: textfield !important; appearance: none !important; }
 
 /* === ОСНОВА === */
-body { margin: 0; padding: 0; height: 100vh; width: 100vw; background: #000; color: #f0e6d2; font-family: 'MedievalSharp', serif; overflow: hidden; }
+body { 
+    margin: 0; padding: 0; height: 100vh; width: 100vw; background: #000; color: #f0e6d2; 
+    /* НОВЫЙ ШРИФТ */
+    font-family: 'Cormorant SC', serif; 
+    font-weight: 700; /* Делаем жирным, чтобы было похоже на WoW */
+    letter-spacing: 1px; /* Чуть разрядим буквы */
+    overflow: hidden; 
+}
+
 .desktop-wrapper { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background: #050505; }
 
 .main-frame {
@@ -31,11 +39,11 @@ body { margin: 0; padding: 0; height: 100vh; width: 100vw; background: #000; col
 }
 .gold-value-container { display: flex; align-items: center; gap: 10px; }
 .gold-icon-big::after { content: "💰"; font-size: 24px; filter: drop-shadow(0 0 2px gold); }
-.gold-text { font-size: 28px; font-weight: bold; color: #fff; text-shadow: 0 0 10px #ffd700; }
+.gold-text { font-size: 32px; font-weight: bold; color: #fff; text-shadow: 0 0 10px #ffd700; }
 
 .invisible-input {
-    background: transparent; border: none; outline: none; font-family: 'MedievalSharp', serif;
-    font-size: 28px; color: #fff; width: 140px; text-shadow: 0 0 10px #ffd700;
+    background: transparent; border: none; outline: none; font-family: 'Cormorant SC', serif;
+    font-size: 32px; font-weight: bold; color: #fff; width: 160px; text-shadow: 0 0 10px #ffd700;
     border-bottom: 1px dashed rgba(255, 255, 255, 0.2); text-align: center;
 }
 .invisible-input:focus { border-bottom: 1px solid #ffd700; }
@@ -43,14 +51,14 @@ body { margin: 0; padding: 0; height: 100vh; width: 100vw; background: #000; col
 .add-income-btn {
     background: #1a4a1a; color: #0f0; border: 1px solid #0f0; border-radius: 50%;
     width: 30px; height: 30px; font-size: 20px; cursor: pointer;
-    font-family: 'MedievalSharp', serif; display: flex; align-items: center; justify-content: center;
+    font-family: 'Cormorant SC', serif; display: flex; align-items: center; justify-content: center;
 }
 
 /* === СЕЛЕКТОР МЕСЯЦА === */
 #month-selector-panel { border-color: #ffd700; background: rgba(20, 10, 0, 0.8); }
 #month-select {
     background: #000; color: #ffd700; border: 1px solid #a38f56;
-    font-family: 'MedievalSharp', serif; font-size: 18px; padding: 5px; text-align: center;
+    font-family: 'Cormorant SC', serif; font-weight: bold; font-size: 20px; padding: 5px; text-align: center;
     width: 100%; margin-top: 5px; cursor: pointer;
 }
 
@@ -67,16 +75,16 @@ body { margin: 0; padding: 0; height: 100vh; width: 100vw; background: #000; col
     border: 1px solid #555; margin-bottom: 20px;
 }
 .new-category-panel { border-bottom: 1px dashed #444; padding-bottom: 15px; margin-bottom: 15px; }
-.panel-header { color: #a38f56; margin-bottom: 8px; font-size: 14px; text-transform: uppercase; text-align: center; }
+.panel-header { color: #a38f56; margin-bottom: 8px; font-size: 16px; font-weight: bold; text-transform: uppercase; text-align: center; }
 .input-row { display: flex; gap: 8px; margin-bottom: 8px; }
 
 .wow-input {
     background: #000; border: 1px solid #666; color: #1eff00; padding: 10px;
-    font-family: 'MedievalSharp', serif; font-size: 16px; flex: 1; border-radius: 4px;
+    font-family: 'Cormorant SC', serif; font-weight: bold; font-size: 18px; flex: 1; border-radius: 4px;
     -webkit-appearance: none; appearance: none;
 }
 .wow-btn {
-    font-family: 'MedievalSharp', serif; cursor: pointer; padding: 0 15px; font-size: 14px;
+    font-family: 'Cormorant SC', serif; font-weight: bold; cursor: pointer; padding: 0 15px; font-size: 16px;
     text-transform: uppercase; border: 1px solid #ffd700; color: #ffd700; border-radius: 4px;
 }
 .spend-btn { background: #7d0808; margin-left: 5px; }
@@ -88,11 +96,11 @@ body { margin: 0; padding: 0; height: 100vh; width: 100vw; background: #000; col
     display: flex; justify-content: space-between; align-items: center;
     padding: 8px 0; border-bottom: 1px solid #333;
 }
-.breakdown-name { color: #ccc; font-size: 16px; flex: 1; }
+.breakdown-name { color: #ccc; font-size: 18px; flex: 1; font-weight: bold; }
 .edit-wrapper { display: flex; align-items: center; gap: 10px; }
 .edit-expense-input {
     background: transparent; border: none; border-bottom: 1px dashed #555; color: #ffd700;
-    font-family: 'MedievalSharp', serif; font-size: 18px; width: 70px; text-align: right; outline: none;
+    font-family: 'Cormorant SC', serif; font-weight: bold; font-size: 20px; width: 80px; text-align: right; outline: none;
     -moz-appearance: textfield !important; appearance: none !important;
 }
 .delete-cat-btn {
@@ -107,8 +115,8 @@ body { margin: 0; padding: 0; height: 100vh; width: 100vw; background: #000; col
     background: #111; display: flex; border-top: 2px solid #b39a58; z-index: 10;
 }
 .nav-btn {
-    flex: 1; background: #1a1a1a; border: none; color: #666; font-family: 'MedievalSharp', serif;
-    font-size: 16px; text-transform: uppercase; cursor: pointer; border-right: 1px solid #333;
+    flex: 1; background: #1a1a1a; border: none; color: #666; font-family: 'Cormorant SC', serif;
+    font-weight: bold; font-size: 18px; text-transform: uppercase; cursor: pointer; border-right: 1px solid #333;
 }
 .nav-btn.active {
     background: #4a0a0a; color: #ffd700; border-top: 3px solid #ff3333; text-shadow: 0 0 5px red;

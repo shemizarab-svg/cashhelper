@@ -4,10 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Azeroth Budget</title>
-    <link rel="stylesheet" href="styles.css?v=4.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@400;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="styles.css?v=5.0">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -34,7 +37,6 @@
                 </div>
 
                 <div id="monthly-view">
-                    
                     <div class="gold-section">
                         <span class="gold-label">Month Treasury:</span>
                         <div class="gold-value-container">
@@ -83,7 +85,6 @@
                 </div>
                 
                 <div id="yearly-view" style="display: none;">
-                    
                     <div class="gold-section">
                         <span class="gold-label">Total Year Savings:</span>
                         <div class="gold-value-container">
@@ -94,30 +95,23 @@
 
                     <div class="chart-box">
                         <div class="panel-header">Expenses by Category (Year)</div>
-                        <div class="chart-wrapper">
-                            <canvas id="yearRadarChart"></canvas>
-                        </div>
+                        <div class="chart-wrapper"><canvas id="yearRadarChart"></canvas></div>
                     </div>
 
                     <div class="chart-box">
                         <div class="panel-header">Most Expensive Month</div>
-                        <div class="chart-wrapper">
-                            <canvas id="yearBarChartExpenses"></canvas>
-                        </div>
+                        <div class="chart-wrapper"><canvas id="yearBarChartExpenses"></canvas></div>
                     </div>
 
                     <div class="chart-box">
                         <div class="panel-header">Savings Trend (Remaining)</div>
-                        <div class="chart-wrapper">
-                            <canvas id="yearBarChartSavings"></canvas>
-                        </div>
+                        <div class="chart-wrapper"><canvas id="yearBarChartSavings"></canvas></div>
                     </div>
 
                     <div class="breakdown-panel">
                         <div class="panel-header">Oracle's Report</div>
-                        <div id="year-text-report" style="color: #ccc; font-size: 14px; padding: 10px;"></div>
+                        <div id="year-text-report" style="color: #ccc; font-size: 16px; padding: 10px;"></div>
                     </div>
-
                 </div>
 
                 <div id="user-id-display" style="text-align: center; color: #555; font-size: 10px; margin-top: 10px;">Loading...</div>

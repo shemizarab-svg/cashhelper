@@ -81,12 +81,13 @@ function init() {
 }
 
 function initCharts() {
-    Chart.defaults.font.family = 'MedievalSharp';
+    Chart.defaults.font.family = 'Cormorant SC'; 
+    Chart.defaults.font.weight = 'bold'; // Делаем жирнее
     Chart.defaults.color = '#a38f56';
+    Chart.defaults.font.size = 14;
 
     const ctxM = document.getElementById('radarChart').getContext('2d');
     chartMonthly = new Chart(ctxM, createRadarConfig('Monthly Spent'));
-
     const ctxY1 = document.getElementById('yearRadarChart').getContext('2d');
     chartYearlyRadar = new Chart(ctxY1, createRadarConfig('Total Year Spent'));
 
