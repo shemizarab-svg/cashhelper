@@ -1,301 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap');
 
-/* ==============================================
-   ЯДЕРНЫЙ БЛОК: УБИВАЕМ СТРЕЛКИ (SPINNERS)
-   ============================================== */
-
-/* 1. Для Chrome, Safari, Edge, Opera */
+/* === УБИРАЕМ СТРЕЛКИ === */
 input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button {
-    -webkit-appearance: none !important;
-    margin: 0 !important;
-    display: none !important;
-}
-
-/* 2. Для Firefox */
-input[type="number"] {
-    -moz-appearance: textfield !important;
-}
-
-/* 3. Общий сброс для всех */
-input[type="number"] {
-    appearance: none !important;
-    -webkit-appearance: none !important;
-}
-
-/* ==============================================
-   ОСНОВНЫЕ СТИЛИ
-   ============================================== */
-
-body {
-    margin: 0;
-    padding: 0;
-    height: 100vh;
-    width: 100vw;
-    background: #000; 
-    color: #f0e6d2;
-    font-family: 'MedievalSharp', serif;
-    overflow: hidden;
-}
-
-.desktop-wrapper {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background: #050505;
-}
-
-/* === ГЛАВНОЕ ОКНО === */
-.main-frame {
-    width: 100%;
-    max-width: 500px;
-    height: 100%;
-    
-    /* ФОН */
-    background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('bg.jpg');
-    background-size: cover;
-    background-position: center;
-    
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 0 50px rgba(0,0,0,0.8);
-    border-left: 2px solid #333;
-    border-right: 2px solid #333;
-}
-
-.main-frame::before {
-    content: "";
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 0;
-    pointer-events: none;
-}
-
-/* === СКРОЛЛ === */
-.scrollable-area {
-    flex: 1;
-    overflow-y: auto;
-    padding: 15px;
-    z-index: 1;
-    scrollbar-width: none; /* Firefox */
-}
-.scrollable-area::-webkit-scrollbar { display: none; } /* Chrome */
-
-.bottom-spacer { height: 80px; }
-
-/* === ВЕРХНЯЯ СЕКЦИЯ (ДОХОД) === */
-.gold-section {
-    background: rgba(0, 0, 0, 0.6);
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid rgba(179, 154, 88, 0.4);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-bottom: 15px;
-}
-
-.gold-value-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-}
-
-.gold-icon-big::after {
-    content: "💰";
-    font-size: 24px;
-    filter: drop-shadow(0 0 2px gold);
-}
-
-.gold-text {
-    font-size: 28px;
-    font-weight: bold;
-    color: #fff;
-    text-shadow: 0 0 10px #ffd700;
-}
-
-/* ИНПУТ ДОХОДА */
-.invisible-input {
-    background: transparent;
-    border: none;
-    outline: none;
-    font-family: 'MedievalSharp', serif;
-    font-size: 28px;
-    color: #fff;
-    width: 140px;
-    text-shadow: 0 0 10px #ffd700;
-    border-bottom: 1px dashed rgba(255, 255, 255, 0.2);
-    text-align: center;
-}
-.invisible-input:focus { border-bottom: 1px solid #ffd700; }
-
-.add-income-btn {
-    background: #1a4a1a;
-    color: #0f0;
-    border: 1px solid #0f0;
-    border-radius: 50%;
-    width: 30px; height: 30px;
-    font-size: 20px;
-    cursor: pointer;
-    font-family: 'MedievalSharp', serif;
-    display: flex; align-items: center; justify-content: center;
-}
-
-/* === ГРАФИК === */
-.chart-wrapper {
-    min-height: 250px;
-    margin-bottom: 20px;
-}
-
-/* === УПРАВЛЕНИЕ === */
-.control-panel-wrapper {
-    background: rgba(20, 20, 25, 0.9);
-    padding: 15px;
-    border-radius: 6px;
-    border: 1px solid #555;
-    margin-bottom: 20px;
-}
-.new-category-panel { border-bottom: 1px dashed #444; padding-bottom: 15px; margin-bottom: 15px; }
-.panel-header { color: #a38f56; margin-bottom: 8px; font-size: 14px; text-transform: uppercase; text-align: center; }
-
-.input-row { display: flex; gap: 8px; margin-bottom: 8px; }
-
-/* Общий стиль для всех инпутов */
-.wow-input {
-    background: #000;
-    border: 1px solid #666;
-    color: #1eff00;
-    padding: 10px;
-    font-family: 'MedievalSharp', serif;
-    font-size: 16px;
-    flex: 1;
-    border-radius: 4px;
-    /* Убираем стандартные стили браузера */
-    -webkit-appearance: none; 
-    -moz-appearance: none;
-    appearance: none;
-}
-
-.wow-btn {
-    font-family: 'MedievalSharp', serif;
-    cursor: pointer;
-    padding: 0 15px;
-    font-size: 14px;
-    text-transform: uppercase;
-    border: 1px solid #ffd700;
-    color: #ffd700;
-    border-radius: 4px;
-}
-.spend-btn { background: #7d0808; margin-left: 5px; }
-.small-btn { background: #333; color: #aaa; border-color: #666; margin-left: 5px; }
-
-/* === СПИСОК РАСХОДОВ (Breakdown) === */
-.breakdown-panel {
-    background: rgba(0,0,0,0.8);
-    padding: 10px;
-    border-radius: 6px;
-    border: 1px solid #444;
-}
-
-.breakdown-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 0;
-    border-bottom: 1px solid #333;
-}
-.breakdown-name {
-    color: #ccc;
-    font-size: 16px;
-}
-
-/* ИНПУТ РЕДАКТИРОВАНИЯ (Без стрелок) */
-.edit-expense-input {
-    background: transparent;
-    border: none;
-    border-bottom: 1px dashed #555;
-    color: #ffd700; /* Золотой цвет */
-    font-family: 'MedievalSharp', serif;
-    font-size: 18px;
-    width: 80px;
-    text-align: right;
-    outline: none;
-    /* Принудительно убираем стрелки здесь тоже */
-    -moz-appearance: textfield !important;
-    appearance: none !important;
-    -webkit-appearance: none !important;
-}
-.edit-expense-input::-webkit-outer-spin-button,
-.edit-expense-input::-webkit-inner-spin-button {
-    -webkit-appearance: none !important;
-    margin: 0 !important;
-}
-
-.edit-expense-input:focus {
-    border-bottom: 1px solid #ffd700;
-    background: rgba(255, 215, 0, 0.1);
-}
-
-/* === ВКЛАДКИ ВНИЗУ === */
-.bottom-nav {
-    position: absolute;
-    bottom: 0; left: 0; width: 100%; height: 60px;
-    background: #111;
-    display: flex;
-    border-top: 2px solid #b39a58;
-    z-index: 10;
-}
-.nav-btn {
-    flex: 1;
-    background: #1a1a1a;
-    border: none;
-    color: #666;
-    font-family: 'MedievalSharp', serif;
-    font-size: 18px;
-    text-transform: uppercase;
-    cursor: pointer;
-    border-right: 1px solid #333;
-}
-.nav-btn.active {
-    background: #4a0a0a;
-    color: #ffd700;
-    border-top: 3px solid #ff3333;
-    text-shadow: 0 0 5px red;
-}
-
-@import url('https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap');
-
-/* === УБИРАЕМ СТРЕЛКИ (SPINNERS) === */
-input[type="number"]::-webkit-outer-spin-button,
-input[type="number"]::-webkit-inner-spin-button {
-    -webkit-appearance: none !important;
-    margin: 0 !important;
-    display: none !important;
-}
-input[type="number"] {
-    -moz-appearance: textfield !important;
-    appearance: none !important;
-}
+input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none !important; margin: 0 !important; display: none !important; }
+input[type="number"] { -moz-appearance: textfield !important; appearance: none !important; }
 
 /* === ОСНОВА === */
-body {
-    margin: 0; padding: 0;
-    height: 100vh; width: 100vw;
-    background: #000; color: #f0e6d2;
-    font-family: 'MedievalSharp', serif;
-    overflow: hidden;
-}
-
-.desktop-wrapper {
-    width: 100%; height: 100%;
-    display: flex; justify-content: center; align-items: center;
-    background: #050505;
-}
+body { margin: 0; padding: 0; height: 100vh; width: 100vw; background: #000; color: #f0e6d2; font-family: 'MedievalSharp', serif; overflow: hidden; }
+.desktop-wrapper { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background: #050505; }
 
 .main-frame {
     width: 100%; max-width: 500px; height: 100%;
@@ -305,95 +17,89 @@ body {
     box-shadow: 0 0 50px rgba(0,0,0,0.8);
     border-left: 2px solid #333; border-right: 2px solid #333;
 }
-.main-frame::before {
-    content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.5); z-index: 0; pointer-events: none;
-}
+.main-frame::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 0; pointer-events: none; }
 
-.scrollable-area {
-    flex: 1; overflow-y: auto; padding: 15px; z-index: 1;
-    scrollbar-width: none;
-}
+.scrollable-area { flex: 1; overflow-y: auto; padding: 15px; z-index: 1; scrollbar-width: none; }
 .scrollable-area::-webkit-scrollbar { display: none; }
 .bottom-spacer { height: 80px; }
 
 /* === СЕКЦИИ === */
 .gold-section {
-    background: rgba(0, 0, 0, 0.6); padding: 10px;
-    border-radius: 8px; border: 1px solid rgba(179, 154, 88, 0.4);
-    display: flex; flex-direction: column; align-items: center; margin-bottom: 15px;
+    background: rgba(0, 0, 0, 0.6); padding: 10px; border-radius: 8px;
+    border: 1px solid rgba(179, 154, 88, 0.4); display: flex; flex-direction: column;
+    align-items: center; margin-bottom: 15px;
 }
 .gold-value-container { display: flex; align-items: center; gap: 10px; }
 .gold-icon-big::after { content: "💰"; font-size: 24px; filter: drop-shadow(0 0 2px gold); }
 .gold-text { font-size: 28px; font-weight: bold; color: #fff; text-shadow: 0 0 10px #ffd700; }
 
 .invisible-input {
-    background: transparent; border: none; outline: none;
-    font-family: 'MedievalSharp', serif; font-size: 28px; color: #fff;
-    width: 140px; text-shadow: 0 0 10px #ffd700;
+    background: transparent; border: none; outline: none; font-family: 'MedievalSharp', serif;
+    font-size: 28px; color: #fff; width: 140px; text-shadow: 0 0 10px #ffd700;
     border-bottom: 1px dashed rgba(255, 255, 255, 0.2); text-align: center;
 }
 .invisible-input:focus { border-bottom: 1px solid #ffd700; }
 
 .add-income-btn {
-    background: #1a4a1a; color: #0f0; border: 1px solid #0f0;
-    border-radius: 50%; width: 30px; height: 30px; font-size: 20px;
-    cursor: pointer; font-family: 'MedievalSharp', serif;
-    display: flex; align-items: center; justify-content: center;
+    background: #1a4a1a; color: #0f0; border: 1px solid #0f0; border-radius: 50%;
+    width: 30px; height: 30px; font-size: 20px; cursor: pointer;
+    font-family: 'MedievalSharp', serif; display: flex; align-items: center; justify-content: center;
 }
 
-.chart-wrapper { min-height: 250px; margin-bottom: 20px; }
+/* === СЕЛЕКТОР МЕСЯЦА === */
+#month-selector-panel { border-color: #ffd700; background: rgba(20, 10, 0, 0.8); }
+#month-select {
+    background: #000; color: #ffd700; border: 1px solid #a38f56;
+    font-family: 'MedievalSharp', serif; font-size: 18px; padding: 5px; text-align: center;
+    width: 100%; margin-top: 5px; cursor: pointer;
+}
 
+/* === ГРАФИКИ === */
+.chart-wrapper { min-height: 250px; margin-bottom: 10px; }
+.chart-box {
+    background: rgba(0,0,0,0.4); border: 1px solid #333; padding: 10px;
+    border-radius: 6px; margin-bottom: 20px;
+}
+
+/* === УПРАВЛЕНИЕ === */
 .control-panel-wrapper {
-    background: rgba(20, 20, 25, 0.9); padding: 15px;
-    border-radius: 6px; border: 1px solid #555; margin-bottom: 20px;
+    background: rgba(20, 20, 25, 0.9); padding: 15px; border-radius: 6px;
+    border: 1px solid #555; margin-bottom: 20px;
 }
 .new-category-panel { border-bottom: 1px dashed #444; padding-bottom: 15px; margin-bottom: 15px; }
 .panel-header { color: #a38f56; margin-bottom: 8px; font-size: 14px; text-transform: uppercase; text-align: center; }
 .input-row { display: flex; gap: 8px; margin-bottom: 8px; }
 
 .wow-input {
-    background: #000; border: 1px solid #666; color: #1eff00;
-    padding: 10px; font-family: 'MedievalSharp', serif; font-size: 16px;
-    flex: 1; border-radius: 4px;
+    background: #000; border: 1px solid #666; color: #1eff00; padding: 10px;
+    font-family: 'MedievalSharp', serif; font-size: 16px; flex: 1; border-radius: 4px;
+    -webkit-appearance: none; appearance: none;
 }
 .wow-btn {
-    font-family: 'MedievalSharp', serif; cursor: pointer; padding: 0 15px;
-    font-size: 14px; text-transform: uppercase; border: 1px solid #ffd700;
-    color: #ffd700; border-radius: 4px;
+    font-family: 'MedievalSharp', serif; cursor: pointer; padding: 0 15px; font-size: 14px;
+    text-transform: uppercase; border: 1px solid #ffd700; color: #ffd700; border-radius: 4px;
 }
 .spend-btn { background: #7d0808; margin-left: 5px; }
 .small-btn { background: #333; color: #aaa; border-color: #666; margin-left: 5px; }
 
-/* === СПИСОК (Breakdown) === */
-.breakdown-panel {
-    background: rgba(0,0,0,0.8); padding: 10px;
-    border-radius: 6px; border: 1px solid #444;
-}
+/* === СПИСОК === */
+.breakdown-panel { background: rgba(0,0,0,0.8); padding: 10px; border-radius: 6px; border: 1px solid #444; }
 .breakdown-item {
     display: flex; justify-content: space-between; align-items: center;
     padding: 8px 0; border-bottom: 1px solid #333;
 }
 .breakdown-name { color: #ccc; font-size: 16px; flex: 1; }
-
-.edit-wrapper {
-    display: flex; align-items: center; gap: 10px;
-}
-
+.edit-wrapper { display: flex; align-items: center; gap: 10px; }
 .edit-expense-input {
-    background: transparent; border: none; border-bottom: 1px dashed #555;
-    color: #ffd700; font-family: 'MedievalSharp', serif; font-size: 18px;
-    width: 70px; text-align: right; outline: none;
+    background: transparent; border: none; border-bottom: 1px dashed #555; color: #ffd700;
+    font-family: 'MedievalSharp', serif; font-size: 18px; width: 70px; text-align: right; outline: none;
+    -moz-appearance: textfield !important; appearance: none !important;
 }
-.edit-expense-input:focus { border-bottom: 1px solid #ffd700; background: rgba(255, 215, 0, 0.1); }
-
-/* КНОПКА УДАЛЕНИЯ КАТЕГОРИИ */
 .delete-cat-btn {
-    background: transparent; border: none; color: #555;
-    font-size: 16px; cursor: pointer; padding: 5px;
-    transition: 0.2s;
+    background: transparent; border: none; color: #555; font-size: 20px;
+    cursor: pointer; padding: 0 10px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; height: 100%;
 }
-.delete-cat-btn:hover { color: #ff3333; transform: scale(1.2); }
+.delete-cat-btn:active { color: #ff3333; transform: scale(1.2); }
 
 /* === ВКЛАДКИ === */
 .bottom-nav {
@@ -401,11 +107,9 @@ body {
     background: #111; display: flex; border-top: 2px solid #b39a58; z-index: 10;
 }
 .nav-btn {
-    flex: 1; background: #1a1a1a; border: none; color: #666;
-    font-family: 'MedievalSharp', serif; font-size: 18px; text-transform: uppercase;
-    cursor: pointer; border-right: 1px solid #333;
+    flex: 1; background: #1a1a1a; border: none; color: #666; font-family: 'MedievalSharp', serif;
+    font-size: 16px; text-transform: uppercase; cursor: pointer; border-right: 1px solid #333;
 }
 .nav-btn.active {
-    background: #4a0a0a; color: #ffd700; border-top: 3px solid #ff3333;
-    text-shadow: 0 0 5px red;
+    background: #4a0a0a; color: #ffd700; border-top: 3px solid #ff3333; text-shadow: 0 0 5px red;
 }

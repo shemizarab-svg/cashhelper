@@ -1,22 +1,24 @@
 const tg = window.Telegram.WebApp;
 tg.expand();
 
-// === АВТОРИЗАЦИЯ И ИДЕНТИФИКАЦИЯ ===
-// Пытаемся получить ID. Если нет - guest.
+// === АВТОРИЗАЦИЯ ===
 const user = tg.initDataUnsafe?.user;
 const userId = user?.id || 'guest';
-const username = user?.first_name || 'Guest';
+document.getElementById('user-id-display').innerText = `ID: ${userId}`;
+const STORAGE_KEY = `azeroth_budget_v2_${userId}`; // v2 - новая версия базы
 
-// Показываем ID внизу экрана для проверки
-document.getElementById('user-id-display').innerText = `ID: ${userId} (${username})`;
-
-// Уникальный ключ сохранения для этого пользователя
-const STORAGE_KEY = `azeroth_budget_v1_${userId}`;
-
-let chartInstance = null;
+// === ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ ===
 let currentTab = 'month';
+let selectedMonth = 'Jan'; // Текущий выбранный месяц
+const monthsList = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-// Стандартные данные
+// Графики
+let chartMonthly = null;
+let chartYearlyRadar = null;
+let chartYearlyBarExpenses = null;
+let chartYearlyBarSavings = null;
+
+// Категории
 let labelsMap = new Map([
     ['housing', 'Citadel'],
     ['food', 'Supplies'],
@@ -25,20 +27,22 @@ let labelsMap = new Map([
     ['gear', 'Gear']
 ]);
 
+// БАЗА ДАННЫХ (Теперь хранит 12 месяцев)
 let db = {
-    month: { income: 0, expenses: { housing: 0, food: 0, transport: 0, fun: 0, gear: 0 } },
-    year: { income: 0, expenses: { housing: 0, food: 0, transport: 0, fun: 0, gear: 0 } }
+    // Генерируем объект: { Jan: {income:0, expenses:{}}, Feb: ... }
+    months: monthsList.reduce((acc, m) => {
+        acc[m] = { income: 0, expenses: {} };
+        return acc;
+    }, {})
 };
 
-// === ЗАГРУЗКА / СОХРАНЕНИЕ ===
-
+// === СОХРАНЕНИЕ / ЗАГРУЗКА ===
 function saveData() {
-    const dataToSave = {
+    const data = {
         db: db,
-        // Превращаем Map в массив пар [ключ, значение] для сохранения
-        labels: Array.from(labelsMap.entries()) 
+        labels: Array.from(labelsMap.entries())
     };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
 function loadData() {
@@ -46,161 +50,248 @@ function loadData() {
     if (saved) {
         try {
             const parsed = JSON.parse(saved);
-            
-            // Восстанавливаем метки
-            if (parsed.labels && Array.isArray(parsed.labels)) {
-                labelsMap = new Map(parsed.labels);
+            if (parsed.labels) labelsMap = new Map(parsed.labels);
+            if (parsed.db && parsed.db.months) {
+                // Объединяем сохраненные данные с текущей структурой
+                for (let m of monthsList) {
+                    if (parsed.db.months[m]) {
+                        db.months[m] = parsed.db.months[m];
+                    }
+                }
             }
-            
-            // Аккуратно восстанавливаем базу, не затирая структуру
-            if (parsed.db) {
-                // Если вдруг в сохранении не было какого-то поля, оставляем дефолтное
-                db.month = { ...db.month, ...parsed.db.month };
-                db.year = { ...db.year, ...parsed.db.year };
-                
-                // Восстанавливаем вложенные объекты расходов (важно!)
-                if (parsed.db.month.expenses) db.month.expenses = parsed.db.month.expenses;
-                if (parsed.db.year.expenses) db.year.expenses = parsed.db.year.expenses;
-            }
-            
-        } catch (e) {
-            console.error("Save file corrupted or old version.", e);
-        }
+        } catch (e) { console.error("Data load error", e); }
     }
 }
 
 // === ИНИЦИАЛИЗАЦИЯ ===
-function initChart() {
-    loadData(); // <--- Сначала загружаем данные из памяти телефона!
+function init() {
+    loadData();
+    initCharts(); // Создаем пустые графики
+    updateView(); // Заполняем данными
+}
 
-    const ctx = document.getElementById('radarChart').getContext('2d');
+// Создаем инстансы всех 4-х графиков
+function initCharts() {
     Chart.defaults.font.family = 'MedievalSharp';
-    
-    chartInstance = new Chart(ctx, {
+    Chart.defaults.color = '#a38f56';
+
+    // 1. Месячный Радар
+    const ctxM = document.getElementById('radarChart').getContext('2d');
+    chartMonthly = new Chart(ctxM, createRadarConfig('Monthly Spent'));
+
+    // 2. Годовой Радар (Сумма)
+    const ctxY1 = document.getElementById('yearRadarChart').getContext('2d');
+    chartYearlyRadar = new Chart(ctxY1, createRadarConfig('Total Year Spent'));
+
+    // 3. Годовые Столбцы (Траты по месяцам)
+    const ctxY2 = document.getElementById('yearBarChartExpenses').getContext('2d');
+    chartYearlyBarExpenses = new Chart(ctxY2, createBarConfig('Expenses by Month', '#ff4e4e'));
+
+    // 4. Годовые Столбцы (Остаток по месяцам)
+    const ctxY3 = document.getElementById('yearBarChartSavings').getContext('2d');
+    chartYearlyBarSavings = new Chart(ctxY3, createBarConfig('Savings by Month', '#ffd700'));
+}
+
+// Конфиг для Радара
+function createRadarConfig(label) {
+    return {
         type: 'radar',
         data: {
-            labels: Array.from(labelsMap.values()),
+            labels: [],
             datasets: [{
-                label: 'Spent',
+                label: label,
                 data: [],
                 backgroundColor: 'rgba(255, 215, 0, 0.25)',
                 borderColor: '#ffd700',
                 borderWidth: 2,
                 pointBackgroundColor: '#fff',
-                pointBorderColor: '#ffd700',
-                pointRadius: 4
+                pointBorderColor: '#ffd700'
             }]
         },
         options: {
-            responsive: true,
             maintainAspectRatio: false,
             scales: {
                 r: {
-                    angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
-                    grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                    angleLines: { color: 'rgba(255,255,255,0.1)' },
+                    grid: { color: 'rgba(255,255,255,0.1)' },
                     pointLabels: { color: '#e0e0e0', font: { size: 12 } },
                     ticks: { display: false, backdropColor: 'transparent' }
                 }
             },
             plugins: { legend: { display: false } }
         }
-    });
-    
-    updateDropdown();
-    updateView();
+    };
 }
+
+// Конфиг для Столбцов
+function createBarConfig(label, color) {
+    return {
+        type: 'bar',
+        data: {
+            labels: monthsList, // Jan, Feb...
+            datasets: [{
+                label: label,
+                data: [],
+                backgroundColor: color,
+                borderColor: '#fff',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true, grid: { color: '#333' } },
+                x: { grid: { display: false } }
+            },
+            plugins: { legend: { display: false } }
+        }
+    };
+}
+
+// === ЛОГИКА ПЕРЕКЛЮЧЕНИЯ ===
 
 function switchTab(tab) {
     currentTab = tab;
     document.getElementById('tab-month').classList.toggle('active', tab === 'month');
     document.getElementById('tab-year').classList.toggle('active', tab === 'year');
+
+    // Показываем/скрываем блоки
+    document.getElementById('monthly-view').style.display = tab === 'month' ? 'block' : 'none';
+    document.getElementById('month-selector-panel').style.display = tab === 'month' ? 'flex' : 'none'; // Селектор только в месяце
+    document.getElementById('yearly-view').style.display = tab === 'year' ? 'block' : 'none';
+
     updateView();
 }
 
-// === ДОХОД ===
-function manualIncomeEdit() {
-    const input = document.getElementById('income-input');
-    let val = parseFloat(input.value);
-    if (isNaN(val)) val = 0;
-    db[currentTab].income = val;
-    saveData(); // Сохраняем
+function changeMonth() {
+    selectedMonth = document.getElementById('month-select').value;
     updateView();
 }
 
-function addMoreIncome() {
-    let amount = prompt("Add gold to treasury:", "0");
-    if (amount !== null) {
-        let val = parseFloat(amount);
-        if (!isNaN(val) && val > 0) {
-            db[currentTab].income += val;
-            saveData(); // Сохраняем
-            updateView();
+// === ОБНОВЛЕНИЕ ВСЕГО ===
+
+function updateView() {
+    if (currentTab === 'month') {
+        renderMonthlyView();
+    } else {
+        renderYearlyView();
+    }
+}
+
+// Рендер вкладки МЕСЯЦ
+function renderMonthlyView() {
+    const data = db.months[selectedMonth];
+    
+    // 1. Доход
+    const incInput = document.getElementById('income-input');
+    if (document.activeElement !== incInput) {
+        incInput.value = data.income === 0 ? '' : data.income;
+    }
+
+    // 2. Расчет данных для графика и остатка
+    let chartData = [];
+    let totalSpent = 0;
+    
+    for (let key of labelsMap.keys()) {
+        const amount = data.expenses[key] || 0;
+        chartData.push(amount);
+        totalSpent += amount;
+    }
+
+    // 3. Обновляем Радар
+    chartMonthly.data.labels = Array.from(labelsMap.values());
+    chartMonthly.data.datasets[0].data = chartData;
+    chartMonthly.update();
+
+    // 4. Остаток
+    let remaining = data.income - totalSpent;
+    const remEl = document.getElementById('remaining-amount');
+    remEl.innerText = remaining.toLocaleString();
+    remEl.style.color = remaining < 0 ? '#ff3333' : '#fff';
+
+    // 5. Список расходов
+    renderBreakdown(data.expenses);
+}
+
+// Рендер вкладки ГОД
+function renderYearlyView() {
+    // Нам нужно собрать данные со всех месяцев
+    
+    // А. Для Радара (Сумма по категориям)
+    let totalExpensesByCategory = new Map();
+    for (let key of labelsMap.keys()) totalExpensesByCategory.set(key, 0);
+
+    // Б. Для Столбцов (По месяцам)
+    let expensesByMonth = [];
+    let savingsByMonth = [];
+    let totalYearSavings = 0;
+    
+    let maxExpenseMonth = { name: '-', val: 0 };
+    let maxSavingsMonth = { name: '-', val: -Infinity };
+
+    // Пробегаем по всем 12 месяцам
+    for (let m of monthsList) {
+        const mData = db.months[m];
+        
+        // Считаем расход за месяц
+        let mSpent = 0;
+        for (let key of labelsMap.keys()) {
+            const val = mData.expenses[key] || 0;
+            mSpent += val;
+            // Добавляем в общую кучу категорий
+            totalExpensesByCategory.set(key, totalExpensesByCategory.get(key) + val);
         }
+
+        let mSavings = mData.income - mSpent;
+        
+        expensesByMonth.push(mSpent);
+        savingsByMonth.push(mSavings);
+        totalYearSavings += mSavings;
+
+        // Ищем рекорды
+        if (mSpent > maxExpenseMonth.val) maxExpenseMonth = { name: m, val: mSpent };
+        if (mSavings > maxSavingsMonth.val) maxSavingsMonth = { name: m, val: mSavings };
     }
+
+    // 1. Обновляем Годовой Радар
+    chartYearlyRadar.data.labels = Array.from(labelsMap.values());
+    chartYearlyRadar.data.datasets[0].data = Array.from(totalExpensesByCategory.values());
+    chartYearlyRadar.update();
+
+    // 2. Обновляем График Трат
+    chartYearlyBarExpenses.data.datasets[0].data = expensesByMonth;
+    chartYearlyBarExpenses.update();
+
+    // 3. Обновляем График Накоплений
+    chartYearlyBarSavings.data.datasets[0].data = savingsByMonth;
+    // Подкрасим отрицательные месяцы в красный
+    chartYearlyBarSavings.data.datasets[0].backgroundColor = savingsByMonth.map(v => v < 0 ? '#ff4e4e' : '#ffd700');
+    chartYearlyBarSavings.update();
+
+    // 4. Текстовый отчет
+    document.getElementById('year-total-savings').innerText = totalYearSavings.toLocaleString();
+    
+    const reportHTML = `
+        <p>Most expensive month: <b style="color:#ff4e4e">${maxExpenseMonth.name}</b> (${maxExpenseMonth.val})</p>
+        <p>Best savings month: <b style="color:#ffd700">${maxSavingsMonth.name}</b> (${maxSavingsMonth.val})</p>
+    `;
+    document.getElementById('year-text-report').innerHTML = reportHTML;
 }
 
-// === РАСХОДЫ ===
-function addExpense() {
-    const catKey = document.getElementById('category-select').value;
-    const amount = parseFloat(document.getElementById('amount').value);
-    
-    if (!amount || !catKey) return;
+// === УТИЛИТЫ (Ввод данных) ===
 
-    if (!db[currentTab].expenses[catKey]) db[currentTab].expenses[catKey] = 0;
-    db[currentTab].expenses[catKey] += amount;
-
-    document.getElementById('amount').value = '';
-    
-    saveData(); // Сохраняем
-    updateView();
-}
-
-// Редактирование в списке
-function manualExpenseEdit(key, inputElement) {
-    let val = parseFloat(inputElement.value);
-    if (isNaN(val)) val = 0;
-    
-    db[currentTab].expenses[key] = val;
-    
-    saveData(); // Сохраняем
-    updateView(false); // false = не перерисовывать список, чтобы фокус не слетел
-}
-
-// Удаление категории
-function removeCategory(key) {
-    if(confirm("Delete this category?")) {
-        labelsMap.delete(key);
-        // Чистим данные
-        if (db.month.expenses[key]) delete db.month.expenses[key];
-        if (db.year.expenses[key]) delete db.year.expenses[key];
-
-        saveData(); // Сохраняем
-        updateDropdown();
-        updateView();
-    }
-}
-
-// === ОТРИСОВКА ===
-function renderBreakdown() {
+function renderBreakdown(expensesObj) {
     const list = document.getElementById('breakdown-list');
     list.innerHTML = '';
     
-    const expenses = db[currentTab].expenses;
-
     for (let [key, name] of labelsMap.entries()) {
-        const amount = expenses[key] || 0;
-
+        const amount = expensesObj[key] || 0;
         let div = document.createElement('div');
         div.className = 'breakdown-item';
-        
         div.innerHTML = `
             <span class="breakdown-name">${name}</span>
             <div class="edit-wrapper">
-                <input type="number" 
-                       class="edit-expense-input" 
-                       value="${amount}" 
-                       onchange="manualExpenseEdit('${key}', this)">
-                
+                <input type="number" class="edit-expense-input" value="${amount}" onchange="manualExpenseEdit('${key}', this)">
                 <button class="delete-cat-btn" onclick="removeCategory('${key}')">✖</button>
             </div>
         `;
@@ -208,55 +299,66 @@ function renderBreakdown() {
     }
 }
 
-function updateView(redrawBreakdown = true) {
-    const currentData = db[currentTab];
+function manualIncomeEdit() {
+    const val = parseFloat(document.getElementById('income-input').value) || 0;
+    db.months[selectedMonth].income = val;
+    saveData();
+    updateView();
+}
 
-    // Доход
-    const incInput = document.getElementById('income-input');
-    if (document.activeElement !== incInput) {
-        incInput.value = currentData.income === 0 ? '' : currentData.income;
-    }
-
-    // Данные для графика (только существующие категории)
-    let dataForChart = [];
-    let totalSpent = 0;
-    
-    // Итерируемся по labelsMap, чтобы соблюдать порядок
-    for (let key of labelsMap.keys()) {
-        const amount = currentData.expenses[key] || 0;
-        dataForChart.push(amount);
-        totalSpent += amount;
-    }
-
-    chartInstance.data.labels = Array.from(labelsMap.values());
-    chartInstance.data.datasets[0].data = dataForChart;
-    chartInstance.update();
-
-    // Остаток
-    let remaining = currentData.income - totalSpent;
-    const remEl = document.getElementById('remaining-amount');
-    remEl.innerText = remaining.toLocaleString();
-    remEl.style.color = remaining < 0 ? '#ff3333' : '#fff';
-
-    if (redrawBreakdown) {
-        renderBreakdown();
+function addMoreIncome() {
+    let amount = prompt("Add gold to treasury:", "0");
+    if (amount) {
+        let val = parseFloat(amount) || 0;
+        db.months[selectedMonth].income += val;
+        saveData();
+        updateView();
     }
 }
 
-// Новая категория
+function addExpense() {
+    const catKey = document.getElementById('category-select').value;
+    const amount = parseFloat(document.getElementById('amount').value);
+    if (!amount || !catKey) return;
+
+    const mData = db.months[selectedMonth];
+    if (!mData.expenses[catKey]) mData.expenses[catKey] = 0;
+    mData.expenses[catKey] += amount;
+
+    document.getElementById('amount').value = '';
+    saveData();
+    updateView();
+}
+
+function manualExpenseEdit(key, el) {
+    const val = parseFloat(el.value) || 0;
+    db.months[selectedMonth].expenses[key] = val;
+    saveData();
+    updateView(false);
+}
+
+function removeCategory(key) {
+    if(confirm("Delete this category from ALL months?")) {
+        labelsMap.delete(key);
+        // Чистим во всех месяцах
+        for(let m of monthsList) {
+            delete db.months[m].expenses[key];
+        }
+        saveData();
+        updateDropdown();
+        updateView();
+    }
+}
+
 function addNewCategory() {
     const nameInput = document.getElementById('new-cat-name');
     const name = nameInput.value.trim();
     if (!name) return;
-
     const key = name.toLowerCase().replace(/\s+/g, '_');
+    
     if (!labelsMap.has(key)) {
         labelsMap.set(key, name);
-        // Нули, чтобы не было undefined
-        if (!db.month.expenses[key]) db.month.expenses[key] = 0;
-        if (!db.year.expenses[key]) db.year.expenses[key] = 0;
-        
-        saveData(); // Сохраняем
+        saveData();
         updateDropdown();
         updateView();
     }
@@ -274,5 +376,4 @@ function updateDropdown() {
     }
 }
 
-// СТАРТ
-initChart();
+init();
