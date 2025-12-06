@@ -263,7 +263,7 @@ body.minimal-theme.tab-garage .main-frame {
 
 body.minimal-theme .main-frame::before {
     /* Прозрачность пелены: 0.1 - картинку видно очень хорошо */
-    background: rgba(255, 255, 255, 0.25); 
+    background: rgba(255, 255, 255, 0.35); 
 }
 
 /* Секции - делаем их еще прозрачнее */
