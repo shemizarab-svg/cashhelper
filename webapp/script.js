@@ -369,6 +369,9 @@ function switchTab(tab) {
 function changeMonth() {
     selectedMonth = document.getElementById('month-select').value;
     localStorage.setItem(MONTH_KEY, selectedMonth);
+    
+    // Обновляем лимиты, так как месяц сменился
+    renderLimitsPanel();
     updateView();
 }
 
@@ -467,14 +470,25 @@ function deleteGarageType() {
     }
 }
 
-// === ОБНОВЛЕННАЯ ФУНКЦИЯ ДЛЯ ЛИМИТОВ С УДАЛЕНИЕМ ===
+// === НОВАЯ ЛОГИКА ЛИМИТОВ: ТОЛЬКО АКТИВНЫЕ КАТЕГОРИИ ===
 function renderLimitsPanel() {
     const container = document.getElementById('limits-list-container');
     if (!container) return;
     container.innerHTML = '';
 
-    globalCategoryNames.forEach((name, key) => {
+    const mData = db.months[selectedMonth];
+    
+    // Если категорий нет
+    if (!mData.activeCategories || mData.activeCategories.length === 0) {
+        container.innerHTML = '<div style="color:#777; text-align:center; font-size:12px;">Нет расходов в этом месяце</div>';
+        return;
+    }
+
+    // Проходимся ТОЛЬКО по категориям этого месяца
+    mData.activeCategories.forEach(key => {
+        const name = globalCategoryNames.get(key) || key;
         const currentLimit = db.limits[key] || 0; 
+
         const div = document.createElement('div');
         div.className = 'limit-row';
         div.innerHTML = `
@@ -485,36 +499,10 @@ function renderLimitsPanel() {
                        placeholder="∞" 
                        value="${currentLimit === 0 ? '' : currentLimit}" 
                        onchange="updateLimit('${key}', this.value)">
-                <button class="delete-limit-btn" onclick="removeLimit('${key}')">✖</button>
             </div>
         `;
         container.appendChild(div);
     });
-}
-
-// === НОВАЯ ФУНКЦИЯ УДАЛЕНИЯ ЛИМИТА ===
-function removeLimit(key) {
-    if (confirm("Удалить лимит и категорию (если она пустая)?")) {
-        delete db.limits[key];
-        
-        // Проверяем, используется ли категория хоть где-то
-        let isUsedAnywhere = false;
-        for (let m of monthsList) {
-            if (db.months[m].activeCategories.includes(key)) {
-                isUsedAnywhere = true;
-                break;
-            }
-        }
-        
-        // Если нет, удаляем глобально
-        if (!isUsedAnywhere) {
-            globalCategoryNames.delete(key);
-        }
-        
-        saveData();
-        renderLimitsPanel();
-        updateView();
-    }
 }
 
 function updateLimit(key, value) {
@@ -818,7 +806,7 @@ function addNewCategory() {
         if (!mData.expenses[key]) mData.expenses[key] = 0;
         saveData(); 
         
-        renderLimitsPanel();
+        renderLimitsPanel(); // Обновим панель лимитов сразу
         updateView();
     } else { tg.showAlert("Уже есть!"); }
     nameInput.value = '';
@@ -882,7 +870,9 @@ function addExpense() {
     const mData = db.months[selectedMonth];
     mData.expenses[catKey] = (mData.expenses[catKey] || 0) + amount;
     document.getElementById('amount').value = '';
-    saveData(); updateView();
+    saveData(); 
+    renderLimitsPanel(); // Обновим лимиты (вдруг появилась новая категория)
+    updateView();
 }
 function manualExpenseEdit(key, el) {
     const val = parseFloat(el.value) || 0;

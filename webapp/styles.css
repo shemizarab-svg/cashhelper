@@ -29,13 +29,12 @@ body {
 }
 .main-frame::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 0; pointer-events: none; }
 
-/* === ИСПРАВЛЕНИЕ: БОЛЬШОЙ ОТСТУП СВЕРХУ === */
+/* === ИСПРАВЛЕНИЕ: ОЧЕНЬ БОЛЬШОЙ ОТСТУП СВЕРХУ (85px) === */
 .scrollable-area { 
     flex: 1; 
     overflow-y: auto; 
-    /* Было padding: 15px; Стало: */
     padding: 15px;
-    padding-top: 60px; /* <--- ЭТО СПУСТИТ ВЕСЬ КОНТЕНТ НИЖЕ КНОПОК TELEGRAM */
+    padding-top: 60px; /* <--- УВЕЛИЧИЛ ДО 85px */
     z-index: 1; 
     scrollbar-width: none; 
 }
