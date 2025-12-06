@@ -1,11 +1,20 @@
 const tg = window.Telegram.WebApp;
-tg.expand();
-tg.ready();
+
+// === АГРЕССИВНОЕ РАЗВЕРТЫВАНИЕ НА ВЕСЬ ЭКРАН ===
+tg.expand(); // 1. Попытка сразу
+tg.ready();  // Сообщаем, что готовы
+
+// 2. Страховка: пробуем развернуть еще раз через 50мс и 100мс
+// Это помогает на старых айфонах или при плохом интернете
+setTimeout(() => { tg.expand(); }, 50);
+setTimeout(() => { tg.expand(); }, 100);
 
 // АВТОРИЗАЦИЯ
 const user = tg.initDataUnsafe?.user;
 const userId = user?.id || 'guest';
-document.getElementById('user-id-display').innerText = `ID: ${userId}`;
+if (document.getElementById('user-id-display')) {
+    document.getElementById('user-id-display').innerText = `ID: ${userId}`;
+}
 const STORAGE_KEY = `azeroth_budget_v3_${userId}`;
 const THEME_KEY = `azeroth_theme_pref_${userId}`;
 const MONTH_KEY = `azeroth_month_pref_${userId}`; 
@@ -189,6 +198,9 @@ function init() {
     applyTheme(); 
     document.body.classList.add('tab-' + currentTab);
     
+    // === ГАРАНТИЯ РАЗВЕРТЫВАНИЯ ===
+    tg.expand();
+
     const monthSelect = document.getElementById('month-select');
     if (monthSelect) {
         monthSelect.value = selectedMonth;
@@ -371,7 +383,6 @@ function changeMonth() {
     selectedMonth = document.getElementById('month-select').value;
     localStorage.setItem(MONTH_KEY, selectedMonth);
     
-    // Обновляем лимиты, так как месяц сменился
     renderLimitsPanel();
     updateView();
 }
@@ -471,7 +482,6 @@ function deleteGarageType() {
     }
 }
 
-// === НОВАЯ ЛОГИКА ЛИМИТОВ: ТОЛЬКО АКТИВНЫЕ КАТЕГОРИИ ===
 function renderLimitsPanel() {
     const container = document.getElementById('limits-list-container');
     if (!container) return;
@@ -479,13 +489,11 @@ function renderLimitsPanel() {
 
     const mData = db.months[selectedMonth];
     
-    // Если категорий нет
     if (!mData.activeCategories || mData.activeCategories.length === 0) {
         container.innerHTML = '<div style="color:#777; text-align:center; font-size:12px;">Нет расходов в этом месяце</div>';
         return;
     }
 
-    // Проходимся ТОЛЬКО по категориям этого месяца
     mData.activeCategories.forEach(key => {
         const name = globalCategoryNames.get(key) || key;
         const currentLimit = db.limits[key] || 0; 
@@ -686,7 +694,6 @@ function renderYearlyView() {
 
     document.getElementById('year-total-savings').innerText = totalYearSavings.toLocaleString();
     
-    // === ОБНОВЛЕННЫЕ ЦВЕТА ===
     document.getElementById('year-text-report').innerHTML = `
         <p style="color: ${c.textColor}">
             Самый затратный: <b style="color:${c.danger}">${maxExpenseMonth.name}</b> (${maxExpenseMonth.val})
