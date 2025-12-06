@@ -1,5 +1,6 @@
 const tg = window.Telegram.WebApp;
 tg.expand();
+tg.ready();
 
 // АВТОРИЗАЦИЯ
 const user = tg.initDataUnsafe?.user;
@@ -685,6 +686,7 @@ function renderYearlyView() {
 
     document.getElementById('year-total-savings').innerText = totalYearSavings.toLocaleString();
     
+    // === ОБНОВЛЕННЫЕ ЦВЕТА ===
     document.getElementById('year-text-report').innerHTML = `
         <p style="color: ${c.textColor}">
             Самый затратный: <b style="color:${c.danger}">${maxExpenseMonth.name}</b> (${maxExpenseMonth.val})
