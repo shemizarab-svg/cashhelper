@@ -247,11 +247,17 @@ body.minimal-theme {
 }
 
 body.minimal-theme .main-frame {
-    /* Фон для минимализма */
+    /* Фон для минимализма по умолчанию (Бюджет/Год) */
     background: url('bg1.png');
     background-size: cover; background-position: center;
     border: none;
     box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+
+/* === НОВОЕ: Фон для ГАРАЖА в минимализме === */
+body.minimal-theme.tab-garage .main-frame {
+    background: url('bgarage.png');
+    background-size: cover; background-position: center;
 }
 
 body.minimal-theme .main-frame::before {

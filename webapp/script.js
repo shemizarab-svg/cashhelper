@@ -113,6 +113,10 @@ function toggleTheme() {
 
 function init() {
     applyTheme(); // Применяем тему до отрисовки
+    
+    // Устанавливаем начальный класс вкладки для правильного фона
+    document.body.classList.add('tab-' + currentTab);
+
     loadData();
     if (!globalCategoryNames.has('transport')) globalCategoryNames.set('transport', 'Транспорт (Машина)');
     initCharts();
@@ -267,6 +271,10 @@ function createBarConfig(label, color) {
 
 function switchTab(tab) {
     currentTab = tab;
+    
+    // === НОВОЕ: Переключение классов на BODY для фона ===
+    document.body.classList.remove('tab-month', 'tab-garage', 'tab-year');
+    document.body.classList.add('tab-' + tab);
     
     document.getElementById('tab-month').classList.toggle('active', tab === 'month');
     document.getElementById('tab-year').classList.toggle('active', tab === 'year');
