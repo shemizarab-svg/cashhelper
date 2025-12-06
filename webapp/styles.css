@@ -382,3 +382,23 @@ body.minimal-theme .garage-name-text { color: #000; }
 body.minimal-theme .garage-fact-km { color: #333; }
 body.minimal-theme .garage-next-km { color: #007bff; text-shadow: none; }
 body.minimal-theme .garage-type-badge { background: #eee; color: #333; border: 1px solid #ccc; }
+
+/* === МОДАЛЬНОЕ ОКНО (ВЫБОР ФОНА) === */
+.modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.6); /* Темный фон сзади */
+    z-index: 1000;
+    display: flex; justify-content: center; align-items: center;
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    width: 80%;
+    max-width: 300px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+    font-family: 'Roboto', sans-serif; /* Всегда шрифт минимализма */
+}

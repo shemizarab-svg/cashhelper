@@ -116,32 +116,92 @@ function toggleTheme() {
 }
 
 // === НОВАЯ ФУНКЦИЯ ДЛЯ СМЕНЫ ФОНА ===
-function changeBackgroundConfig() {
-    // Сократили текст, чтобы влезал на iPhone
-    const choice = prompt("1 — Главный экран\n2 — Гараж\n(Напиши 1 или 2)");
-    
-    if (!choice) return;
+// === ЛОГИКА ЗАГРУЗКИ ФОНОВ ИЗ ГАЛЕРЕИ ===
 
-    if (choice === '1') {
-        const url = prompt("Ссылка на картинку (Главная):");
-        if (url) {
-            localStorage.setItem(BG_MAIN_KEY, url);
-            document.documentElement.style.setProperty('--bg-custom-main', `url('${url}')`);
-        } else {
-            localStorage.removeItem(BG_MAIN_KEY);
-            document.documentElement.style.setProperty('--bg-custom-main', "url('bg1.png')");
-        }
-    } else if (choice === '2') {
-        const url = prompt("Ссылка на картинку (Гараж):");
-        if (url) {
-            localStorage.setItem(BG_GARAGE_KEY, url);
-            document.documentElement.style.setProperty('--bg-custom-garage', `url('${url}')`);
-        } else {
-            localStorage.removeItem(BG_GARAGE_KEY);
-            document.documentElement.style.setProperty('--bg-custom-garage', "url('bgarage.png')");
-        }
+// 1. Открыть окно выбора
+function changeBackgroundConfig() {
+    document.getElementById('bg-modal').style.display = 'flex';
+}
+
+// 2. Закрыть окно
+function closeBgModal() {
+    document.getElementById('bg-modal').style.display = 'none';
+}
+
+// 3. Нажатие на кнопку вызывает скрытый input
+function triggerFile(type) {
+    if (type === 'main') document.getElementById('file-input-main').click();
+    if (type === 'garage') document.getElementById('file-input-garage').click();
+}
+
+// 4. Обработка выбранного файла (Сжатие + Сохранение)
+function handleFileUpload(input, type) {
+    const file = input.files[0];
+    if (!file) return;
+
+    // Показываем, что процесс идет
+    const btnText = type === 'main' ? 'Главный...' : 'Гараж...';
+    tg.showAlert(`Обработка фото: ${btnText}`);
+    closeBgModal();
+
+    const reader = new FileReader();
+    reader.onload = function(event) {
+        const img = new Image();
+        img.onload = function() {
+            // СЖАТИЕ КАРТИНКИ (Чтобы влезла в память)
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Максимальный размер стороны (настройка качества)
+            const MAX_SIZE = 800; 
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+                if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; }
+            } else {
+                if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            ctx.drawImage(img, 0, 0, width, height);
+
+            // Получаем строку Base64 (формат JPEG, качество 0.7)
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+
+            try {
+                if (type === 'main') {
+                    localStorage.setItem(BG_MAIN_KEY, dataUrl);
+                    document.documentElement.style.setProperty('--bg-custom-main', `url('${dataUrl}')`);
+                } else {
+                    localStorage.setItem(BG_GARAGE_KEY, dataUrl);
+                    document.documentElement.style.setProperty('--bg-custom-garage', `url('${dataUrl}')`);
+                }
+                tg.showAlert("Фон успешно обновлен!");
+            } catch (e) {
+                tg.showAlert("Ошибка: Фото слишком большое даже после сжатия!");
+                console.error(e);
+            }
+        };
+        img.src = event.target.result;
+    };
+    reader.readAsDataURL(file);
+    
+    // Сбрасываем input, чтобы можно было выбрать тот же файл снова
+    input.value = ''; 
+}
+
+// 5. Сброс на стандартные картинки
+function resetBackgrounds() {
+    if(confirm("Вернуть стандартные фоны?")) {
+        localStorage.removeItem(BG_MAIN_KEY);
+        localStorage.removeItem(BG_GARAGE_KEY);
+        document.documentElement.style.setProperty('--bg-custom-main', "url('bg1.png')");
+        document.documentElement.style.setProperty('--bg-custom-garage', "url('bgarage.png')");
+        closeBgModal();
+        tg.showAlert("Фоны сброшены.");
     }
-    // Убрал алерт, чтобы не раздражал лишним кликом
 }
 
 function init() {
