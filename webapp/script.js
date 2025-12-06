@@ -117,11 +117,13 @@ function toggleTheme() {
 
 // === НОВАЯ ФУНКЦИЯ ДЛЯ СМЕНЫ ФОНА ===
 function changeBackgroundConfig() {
-    const choice = prompt("Что меняем?\n1 - Главный фон\n2 - Фон Гаража\n\n(Введите 1 или 2)");
+    // Сократили текст, чтобы влезал на iPhone
+    const choice = prompt("1 — Главный экран\n2 — Гараж\n(Напиши 1 или 2)");
+    
     if (!choice) return;
 
     if (choice === '1') {
-        const url = prompt("Введите ссылку на картинку для ГЛАВНОГО экрана (или оставьте пустым для сброса):");
+        const url = prompt("Ссылка на картинку (Главная):");
         if (url) {
             localStorage.setItem(BG_MAIN_KEY, url);
             document.documentElement.style.setProperty('--bg-custom-main', `url('${url}')`);
@@ -130,7 +132,7 @@ function changeBackgroundConfig() {
             document.documentElement.style.setProperty('--bg-custom-main', "url('bg1.png')");
         }
     } else if (choice === '2') {
-        const url = prompt("Введите ссылку на картинку для ГАРАЖА (или оставьте пустым для сброса):");
+        const url = prompt("Ссылка на картинку (Гараж):");
         if (url) {
             localStorage.setItem(BG_GARAGE_KEY, url);
             document.documentElement.style.setProperty('--bg-custom-garage', `url('${url}')`);
@@ -139,7 +141,7 @@ function changeBackgroundConfig() {
             document.documentElement.style.setProperty('--bg-custom-garage', "url('bgarage.png')");
         }
     }
-    tg.showAlert("Фон обновлен!");
+    // Убрал алерт, чтобы не раздражал лишним кликом
 }
 
 function init() {
