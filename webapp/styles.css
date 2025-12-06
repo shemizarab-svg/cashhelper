@@ -1,5 +1,11 @@
 @import url('https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap');
 
+/* === CSS ПЕРЕМЕННЫЕ ДЛЯ ФОНОВ (ПО УМОЛЧАНИЮ) === */
+:root {
+    --bg-custom-main: url('bg1.png');
+    --bg-custom-garage: url('bgarage.png');
+}
+
 /* === СБРОС СТРЕЛОК === */
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none !important; margin: 0 !important; display: none !important; }
@@ -247,41 +253,41 @@ body.minimal-theme {
 }
 
 body.minimal-theme .main-frame {
-    /* Фон для минимализма по умолчанию */
-    background: url('bg1.png');
-    background-size: cover; background-position: center;
+    /* ИСПОЛЬЗУЕМ ПЕРЕМЕННУЮ ВМЕСТО ЖЕСТКОЙ ССЫЛКИ */
+    background: var(--bg-custom-main) !important;
+    background-size: cover !important;
+    background-position: center !important;
     border: none;
-    box-shadow: 0 0 20px rgba(0,0,0,0.25);
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
 }
 
-/* Фон для ГАРАЖА в минимализме (принудительно) */
+/* Фон для ГАРАЖА в минимализме */
 body.minimal-theme.tab-garage .main-frame {
-    background: url('bgarage.png') !important;
+    /* ИСПОЛЬЗУЕМ ПЕРЕМЕННУЮ ВМЕСТО ЖЕСТКОЙ ССЫЛКИ */
+    background: var(--bg-custom-garage) !important;
     background-size: cover !important;
     background-position: center !important;
 }
 
 body.minimal-theme .main-frame::before {
-    /* Прозрачность пелены: 0.1 - картинку видно очень хорошо */
-    background: rgba(255, 255, 255, 0.35); 
+    background: rgba(255, 255, 255, 0.25); 
 }
 
-/* Секции - делаем их еще прозрачнее */
+/* Секции */
 body.minimal-theme .gold-section,
 body.minimal-theme .control-panel-wrapper,
 body.minimal-theme .breakdown-panel,
 body.minimal-theme .chart-box,
 body.minimal-theme details.settings-section,
 body.minimal-theme #month-selector-panel {
-    /* 0.55 - хорошая прозрачность */
-    background: rgba(255, 255, 255, 0.35); 
-    backdrop-filter: blur(4px); /* Блюр сильнее, чтобы текст читался */
+    background: rgba(255, 255, 255, 0.55); 
+    backdrop-filter: blur(10px); 
     border: 1px solid rgba(255,255,255,0.4);
     box-shadow: 0 4px 10px rgba(0,0,0,0.05);
     border-radius: 12px;
 }
 
-/* Тексты и заголовки */
+/* Тексты */
 body.minimal-theme .gold-label, 
 body.minimal-theme .limit-label,
 body.minimal-theme .panel-header,
@@ -295,10 +301,10 @@ body.minimal-theme .panel-header { color: #333; }
 body.minimal-theme .gold-icon-big::after { content: "💵"; filter: none; }
 body.minimal-theme .gold-text { color: #222; }
 
-/* Инпуты и СПИСОК МЕСЯЦЕВ */
+/* Инпуты */
 body.minimal-theme .wow-input,
 body.minimal-theme .limit-input,
-body.minimal-theme #month-select { /* ID селектор для перебивания */
+body.minimal-theme #month-select { 
     background: rgba(255, 255, 255, 0.8) !important;
     border: 1px solid #999 !important;
     color: #000 !important;
@@ -339,7 +345,7 @@ body.minimal-theme .add-income-btn {
     background: #28a745; border: none; color: #fff;
 }
 
-/* Вкладки внизу */
+/* Вкладки */
 body.minimal-theme .bottom-nav {
     background: rgba(255, 255, 255, 0.8);
     backdrop-filter: blur(10px);

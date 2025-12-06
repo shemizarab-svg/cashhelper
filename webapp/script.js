@@ -7,12 +7,14 @@ const userId = user?.id || 'guest';
 document.getElementById('user-id-display').innerText = `ID: ${userId}`;
 const STORAGE_KEY = `azeroth_budget_v3_${userId}`;
 const THEME_KEY = `azeroth_theme_pref_${userId}`;
-const MONTH_KEY = `azeroth_month_pref_${userId}`; // Ключ для месяца
+const MONTH_KEY = `azeroth_month_pref_${userId}`; 
+// Ключи для фонов
+const BG_MAIN_KEY = `azeroth_bg_main_${userId}`;
+const BG_GARAGE_KEY = `azeroth_bg_garage_${userId}`;
 
 // ПЕРЕМЕННЫЕ
 let currentTheme = localStorage.getItem(THEME_KEY) || 'gaming';
 let currentTab = 'month';
-// Пытаемся загрузить месяц
 let selectedMonth = localStorage.getItem(MONTH_KEY) || 'Jan'; 
 
 const monthsList = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -99,8 +101,11 @@ function loadData() {
 function applyTheme() {
     if (currentTheme === 'minimal') {
         document.body.classList.add('minimal-theme');
+        // Показываем кнопку фона только в минимализме
+        document.getElementById('bg-change-btn').style.display = 'inline-block';
     } else {
         document.body.classList.remove('minimal-theme');
+        document.getElementById('bg-change-btn').style.display = 'none';
     }
 }
 
@@ -110,14 +115,52 @@ function toggleTheme() {
     window.location.reload();
 }
 
+// === НОВАЯ ФУНКЦИЯ ДЛЯ СМЕНЫ ФОНА ===
+function changeBackgroundConfig() {
+    const choice = prompt("Что меняем?\n1 - Главный фон\n2 - Фон Гаража\n\n(Введите 1 или 2)");
+    if (!choice) return;
+
+    if (choice === '1') {
+        const url = prompt("Введите ссылку на картинку для ГЛАВНОГО экрана (или оставьте пустым для сброса):");
+        if (url) {
+            localStorage.setItem(BG_MAIN_KEY, url);
+            document.documentElement.style.setProperty('--bg-custom-main', `url('${url}')`);
+        } else {
+            localStorage.removeItem(BG_MAIN_KEY);
+            document.documentElement.style.setProperty('--bg-custom-main', "url('bg1.png')");
+        }
+    } else if (choice === '2') {
+        const url = prompt("Введите ссылку на картинку для ГАРАЖА (или оставьте пустым для сброса):");
+        if (url) {
+            localStorage.setItem(BG_GARAGE_KEY, url);
+            document.documentElement.style.setProperty('--bg-custom-garage', `url('${url}')`);
+        } else {
+            localStorage.removeItem(BG_GARAGE_KEY);
+            document.documentElement.style.setProperty('--bg-custom-garage', "url('bgarage.png')");
+        }
+    }
+    tg.showAlert("Фон обновлен!");
+}
+
 function init() {
     applyTheme(); 
     document.body.classList.add('tab-' + currentTab);
     
-    // === ВАЖНО: Восстанавливаем месяц в выпадающем списке ===
+    // Восстанавливаем месяц
     const monthSelect = document.getElementById('month-select');
     if (monthSelect) {
         monthSelect.value = selectedMonth;
+    }
+
+    // === ВОССТАНОВЛЕНИЕ ФОНОВ ИЗ ПАМЯТИ ===
+    const savedMain = localStorage.getItem(BG_MAIN_KEY);
+    const savedGarage = localStorage.getItem(BG_GARAGE_KEY);
+    
+    if (savedMain) {
+        document.documentElement.style.setProperty('--bg-custom-main', `url('${savedMain}')`);
+    }
+    if (savedGarage) {
+        document.documentElement.style.setProperty('--bg-custom-garage', `url('${savedGarage}')`);
     }
 
     loadData();
@@ -136,7 +179,7 @@ function getChartColors() {
     if (currentTheme === 'minimal') {
         return {
             font: 'Roboto',
-            textColor: '#333',
+            textColor: '#1f1d1dff',
             gridColor: '#ddd',
             primary: '#007bff',
             secondary: '#6c757d',
@@ -290,7 +333,6 @@ function switchTab(tab) {
 
 function changeMonth() {
     selectedMonth = document.getElementById('month-select').value;
-    // === СОХРАНЕНИЕ МЕСЯЦА ===
     localStorage.setItem(MONTH_KEY, selectedMonth);
     updateView();
 }
