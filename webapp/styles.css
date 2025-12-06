@@ -58,6 +58,7 @@ body {
 }
 
 #month-selector-panel { border-color: #ffd700; background: rgba(20, 10, 0, 0.8); }
+/* Основной стиль селектора (Игровой) */
 #month-select {
     background: #000; color: #ffd700; border: 1px solid #a38f56;
     font-family: 'Cormorant SC', serif; font-weight: bold; font-size: 20px; padding: 5px; text-align: center;
@@ -254,30 +255,32 @@ body.minimal-theme .main-frame {
     box-shadow: 0 0 20px rgba(0,0,0,0.1);
 }
 
-/* === ВАЖНО: Фон для ГАРАЖА в минимализме === */
-/* !important обеспечивает, что это правило перебьет предыдущее */
+/* Фон для ГАРАЖА в минимализме */
+/* !important перебивает основное правило */
 body.minimal-theme.tab-garage .main-frame {
     background: url('bgarage.png') !important;
     background-size: cover !important;
     background-position: center !important;
 }
 
+/* Прозрачность фона (белая пелена) */
 body.minimal-theme .main-frame::before {
-    /* 0.4 - это 60% прозрачности, чтобы картинка была видна */
-    background: rgba(255, 255, 255, 0.4); 
+    /* УМЕНЬШИЛ с 0.85 до 0.25, чтобы картинка была яркой */
+    background: rgba(255, 255, 255, 0.25); 
 }
 
-/* Секции - делаем их полупрозрачными и размытыми */
+/* Секции - делаем их прозрачнее */
 body.minimal-theme .gold-section,
 body.minimal-theme .control-panel-wrapper,
 body.minimal-theme .breakdown-panel,
 body.minimal-theme .chart-box,
 body.minimal-theme details.settings-section,
 body.minimal-theme #month-selector-panel {
-    background: rgba(255, 255, 255, 0.75); /* Полупрозрачный белый */
-    backdrop-filter: blur(8px); /* Размытие фона под блоком (Glassmorphism) */
-    border: 1px solid rgba(255,255,255,0.6);
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    /* 0.65 - прозрачность блоков */
+    background: rgba(255, 255, 255, 0.65); 
+    backdrop-filter: blur(5px); /* Эффект матового стекла */
+    border: 1px solid rgba(255,255,255,0.4);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
     border-radius: 12px;
 }
 
@@ -286,24 +289,24 @@ body.minimal-theme .gold-label,
 body.minimal-theme .limit-label,
 body.minimal-theme .panel-header,
 body.minimal-theme .gold-text {
-    color: #222; /* Чуть темнее для контраста */
+    color: #111; /* Максимально черный для контраста на прозрачном */
     text-shadow: none;
     font-weight: 700;
 }
-body.minimal-theme .panel-header { color: #444; }
+body.minimal-theme .panel-header { color: #333; }
 
 body.minimal-theme .gold-icon-big::after { content: "💵"; filter: none; }
 body.minimal-theme .gold-text { color: #222; }
 
-/* Инпуты */
+/* Инпуты и ИСПРАВЛЕНИЕ ВЫПАДАЮЩЕГО СПИСКА */
 body.minimal-theme .wow-input,
 body.minimal-theme .limit-input,
 body.minimal-theme #month-select {
-    background: rgba(255, 255, 255, 0.9);
-    border: 1px solid #ccc;
-    color: #333;
+    background: rgba(255, 255, 255, 0.8) !important; /* !important перебьет черный фон */
+    border: 1px solid #ccc !important;
+    color: #333 !important;
     border-radius: 8px;
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Roboto', sans-serif !important;
     font-weight: normal;
     text-shadow: none;
 }
@@ -318,7 +321,7 @@ body.minimal-theme .invisible-input {
 /* Кнопки */
 body.minimal-theme .wow-btn, 
 body.minimal-theme .theme-btn {
-    background: #fff;
+    background: rgba(255,255,255,0.9);
     border: 1px solid #007bff;
     color: #007bff;
     border-radius: 8px;
@@ -331,7 +334,7 @@ body.minimal-theme .spend-btn {
     border: none;
 }
 body.minimal-theme .small-btn {
-    background: rgba(255,255,255,0.9);
+    background: rgba(255,255,255,0.8);
     color: #333;
     border: 1px solid #ccc;
 }
@@ -341,7 +344,8 @@ body.minimal-theme .add-income-btn {
 
 /* Вкладки внизу */
 body.minimal-theme .bottom-nav {
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(5px);
     border-top: 1px solid #eee;
 }
 body.minimal-theme .nav-btn {
@@ -367,8 +371,8 @@ body.minimal-theme details.settings-section[open] { border-color: #007bff; box-s
 
 /* Гараж Карточки */
 body.minimal-theme .garage-card {
-    background: rgba(255, 255, 255, 0.85);
-    border: 1px solid #ddd;
+    background: rgba(255, 255, 255, 0.75);
+    border: 1px solid #ccc;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 body.minimal-theme .garage-name-text { color: #333; }

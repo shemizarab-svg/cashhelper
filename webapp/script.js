@@ -774,4 +774,3 @@ function manualExpenseEdit(key, el) {
 }
 
 init();
-}
