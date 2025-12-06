@@ -7,11 +7,10 @@ const userId = user?.id || 'guest';
 document.getElementById('user-id-display').innerText = `ID: ${userId}`;
 const STORAGE_KEY = `azeroth_budget_v3_${userId}`;
 const THEME_KEY = `azeroth_theme_pref_${userId}`;
-const MONTH_KEY = `azeroth_month_pref_${userId}`; // <--- НОВЫЙ КЛЮЧ ДЛЯ МЕСЯЦА
+const MONTH_KEY = `azeroth_month_pref_${userId}`; 
 
 // ПЕРЕМЕННЫЕ
 let currentTheme = localStorage.getItem(THEME_KEY) || 'gaming';
-// Пытаемся загрузить месяц из памяти, иначе ставим Январь
 let currentTab = 'month';
 let selectedMonth = localStorage.getItem(MONTH_KEY) || 'Jan'; 
 
@@ -74,7 +73,6 @@ function loadData() {
         } catch (e) { console.error(e); }
     }
     
-    // Дефолтные типы
     if (!db.garageTypes || Object.keys(db.garageTypes).length === 0) {
         db.garageTypes = {
             'oil': 'Масло/Жидкости',
@@ -86,7 +84,6 @@ function loadData() {
         };
     }
 
-    // Дефолтные стандарты
     if (Object.keys(db.garageStandards).length === 0) {
         db.garageStandards = {
             'oil': 7500,
@@ -98,7 +95,6 @@ function loadData() {
     }
 }
 
-// === УПРАВЛЕНИЕ ТЕМОЙ ===
 function applyTheme() {
     if (currentTheme === 'minimal') {
         document.body.classList.add('minimal-theme');
@@ -115,11 +111,7 @@ function toggleTheme() {
 
 function init() {
     applyTheme(); 
-    
-    // Устанавливаем класс вкладки
     document.body.classList.add('tab-' + currentTab);
-
-    // Устанавливаем правильный месяц в селекторе (визуально)
     document.getElementById('month-select').value = selectedMonth;
 
     loadData();
@@ -134,7 +126,6 @@ function init() {
     updateView();
 }
 
-// Настройка цветов графиков
 function getChartColors() {
     if (currentTheme === 'minimal') {
         return {
@@ -293,10 +284,7 @@ function switchTab(tab) {
 
 function changeMonth() {
     selectedMonth = document.getElementById('month-select').value;
-    
-    // === СОХРАНЯЕМ ВЫБРАННЫЙ МЕСЯЦ ===
     localStorage.setItem(MONTH_KEY, selectedMonth);
-    
     updateView();
 }
 
@@ -786,3 +774,4 @@ function manualExpenseEdit(key, el) {
 }
 
 init();
+}

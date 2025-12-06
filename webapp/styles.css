@@ -254,26 +254,30 @@ body.minimal-theme .main-frame {
     box-shadow: 0 0 20px rgba(0,0,0,0.1);
 }
 
-/* Фон для ГАРАЖА в минимализме */
+/* === ВАЖНО: Фон для ГАРАЖА в минимализме === */
+/* !important обеспечивает, что это правило перебьет предыдущее */
 body.minimal-theme.tab-garage .main-frame {
-    background: url('bgarage.png');
-    background-size: cover; background-position: center;
+    background: url('bgarage.png') !important;
+    background-size: cover !important;
+    background-position: center !important;
 }
 
 body.minimal-theme .main-frame::before {
-    background: rgba(255, 255, 255, 0.85);
+    /* 0.4 - это 60% прозрачности, чтобы картинка была видна */
+    background: rgba(255, 255, 255, 0.4); 
 }
 
-/* Секции */
+/* Секции - делаем их полупрозрачными и размытыми */
 body.minimal-theme .gold-section,
 body.minimal-theme .control-panel-wrapper,
 body.minimal-theme .breakdown-panel,
 body.minimal-theme .chart-box,
 body.minimal-theme details.settings-section,
 body.minimal-theme #month-selector-panel {
-    background: #fff;
-    border: 1px solid #ddd;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    background: rgba(255, 255, 255, 0.75); /* Полупрозрачный белый */
+    backdrop-filter: blur(8px); /* Размытие фона под блоком (Glassmorphism) */
+    border: 1px solid rgba(255,255,255,0.6);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
     border-radius: 12px;
 }
 
@@ -282,20 +286,20 @@ body.minimal-theme .gold-label,
 body.minimal-theme .limit-label,
 body.minimal-theme .panel-header,
 body.minimal-theme .gold-text {
-    color: #333;
+    color: #222; /* Чуть темнее для контраста */
     text-shadow: none;
-    font-weight: 600;
+    font-weight: 700;
 }
-body.minimal-theme .panel-header { color: #555; }
+body.minimal-theme .panel-header { color: #444; }
 
 body.minimal-theme .gold-icon-big::after { content: "💵"; filter: none; }
-body.minimal-theme .gold-text { color: #333; }
+body.minimal-theme .gold-text { color: #222; }
 
-/* Инпуты и ВЫПАДАЮЩИЙ СПИСОК (Исправлено) */
+/* Инпуты */
 body.minimal-theme .wow-input,
 body.minimal-theme .limit-input,
-body.minimal-theme #month-select { /* <--- Добавлено это правило */
-    background: #f9f9f9;
+body.minimal-theme #month-select {
+    background: rgba(255, 255, 255, 0.9);
     border: 1px solid #ccc;
     color: #333;
     border-radius: 8px;
@@ -314,7 +318,7 @@ body.minimal-theme .invisible-input {
 /* Кнопки */
 body.minimal-theme .wow-btn, 
 body.minimal-theme .theme-btn {
-    background: #fff; /* Белый фон для кнопок */
+    background: #fff;
     border: 1px solid #007bff;
     color: #007bff;
     border-radius: 8px;
@@ -327,7 +331,7 @@ body.minimal-theme .spend-btn {
     border: none;
 }
 body.minimal-theme .small-btn {
-    background: #e9ecef;
+    background: rgba(255,255,255,0.9);
     color: #333;
     border: 1px solid #ccc;
 }
@@ -337,18 +341,18 @@ body.minimal-theme .add-income-btn {
 
 /* Вкладки внизу */
 body.minimal-theme .bottom-nav {
-    background: #fff;
+    background: rgba(255, 255, 255, 0.95);
     border-top: 1px solid #eee;
 }
 body.minimal-theme .nav-btn {
-    background: #fff;
+    background: transparent;
     color: #888;
     border-right: none;
     font-family: 'Roboto', sans-serif;
 }
 body.minimal-theme .nav-btn.active {
     color: #007bff;
-    background: #f0f8ff;
+    background: rgba(0, 123, 255, 0.1);
     border-top: 3px solid #007bff;
     text-shadow: none;
 }
@@ -363,10 +367,11 @@ body.minimal-theme details.settings-section[open] { border-color: #007bff; box-s
 
 /* Гараж Карточки */
 body.minimal-theme .garage-card {
-    background: #f8f9fa;
-    border: 1px solid #e9ecef;
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 body.minimal-theme .garage-name-text { color: #333; }
 body.minimal-theme .garage-fact-km { color: #555; }
 body.minimal-theme .garage-next-km { color: #007bff; text-shadow: none; }
-body.minimal-theme .garage-type-badge { background: #e9ecef; color: #555; border: none; }
+body.minimal-theme .garage-type-badge { background: #eee; color: #555; border: none; }
