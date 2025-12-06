@@ -7,11 +7,12 @@ const userId = user?.id || 'guest';
 document.getElementById('user-id-display').innerText = `ID: ${userId}`;
 const STORAGE_KEY = `azeroth_budget_v3_${userId}`;
 const THEME_KEY = `azeroth_theme_pref_${userId}`;
-const MONTH_KEY = `azeroth_month_pref_${userId}`; 
+const MONTH_KEY = `azeroth_month_pref_${userId}`; // Ключ для месяца
 
 // ПЕРЕМЕННЫЕ
 let currentTheme = localStorage.getItem(THEME_KEY) || 'gaming';
 let currentTab = 'month';
+// Пытаемся загрузить месяц
 let selectedMonth = localStorage.getItem(MONTH_KEY) || 'Jan'; 
 
 const monthsList = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -112,7 +113,12 @@ function toggleTheme() {
 function init() {
     applyTheme(); 
     document.body.classList.add('tab-' + currentTab);
-    document.getElementById('month-select').value = selectedMonth;
+    
+    // === ВАЖНО: Восстанавливаем месяц в выпадающем списке ===
+    const monthSelect = document.getElementById('month-select');
+    if (monthSelect) {
+        monthSelect.value = selectedMonth;
+    }
 
     loadData();
     if (!globalCategoryNames.has('transport')) globalCategoryNames.set('transport', 'Транспорт (Машина)');
@@ -284,6 +290,7 @@ function switchTab(tab) {
 
 function changeMonth() {
     selectedMonth = document.getElementById('month-select').value;
+    // === СОХРАНЕНИЕ МЕСЯЦА ===
     localStorage.setItem(MONTH_KEY, selectedMonth);
     updateView();
 }
