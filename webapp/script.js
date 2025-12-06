@@ -133,17 +133,18 @@ function handleFileUpload(input, type) {
     const file = input.files[0];
     if (!file) return;
 
-    const btnText = type === 'main' ? 'Главный...' : 'Гараж...';
-    tg.showAlert(`Обработка фото: ${btnText}`);
+    // 1. Сразу закрываем модальное окно, чтобы не мешало
     closeBgModal();
 
     const reader = new FileReader();
     reader.onload = function(event) {
         const img = new Image();
         img.onload = function() {
+            // СЖАТИЕ КАРТИНКИ
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-            const MAX_SIZE = 800; 
+            
+            const MAX_SIZE = 1000; // Чуть увеличил качество (было 800)
             let width = img.width;
             let height = img.height;
 
@@ -157,7 +158,7 @@ function handleFileUpload(input, type) {
             canvas.height = height;
             ctx.drawImage(img, 0, 0, width, height);
 
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.8); // Качество 0.8
 
             try {
                 if (type === 'main') {
@@ -167,15 +168,21 @@ function handleFileUpload(input, type) {
                     localStorage.setItem(BG_GARAGE_KEY, dataUrl);
                     document.documentElement.style.setProperty('--bg-custom-garage', `url('${dataUrl}')`);
                 }
-                tg.showAlert("Фон успешно обновлен!");
+                
+                // 2. Показываем уведомление ТОЛЬКО когда всё готово
+                setTimeout(() => {
+                    tg.showAlert("Готово! Фон обновлен.");
+                }, 100); // Небольшая задержка для стабильности
+
             } catch (e) {
-                tg.showAlert("Ошибка: Фото слишком большое!");
+                tg.showAlert("Ошибка: Картинка слишком тяжелая!");
                 console.error(e);
             }
         };
         img.src = event.target.result;
     };
     reader.readAsDataURL(file);
+    
     input.value = ''; 
 }
 

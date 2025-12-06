@@ -270,7 +270,7 @@ body.minimal-theme.tab-garage .main-frame {
 }
 
 body.minimal-theme .main-frame::before {
-    background: rgba(255, 255, 255, 0.25); 
+    background: rgba(255, 255, 255, 0.27); 
 }
 
 /* Секции */
@@ -280,8 +280,8 @@ body.minimal-theme .breakdown-panel,
 body.minimal-theme .chart-box,
 body.minimal-theme details.settings-section,
 body.minimal-theme #month-selector-panel {
-    background: rgba(255, 255, 255, 0.55); 
-    backdrop-filter: blur(10px); 
+    background: rgba(255, 255, 255, 0.35); 
+    backdrop-filter: blur(4px); 
     border: 1px solid rgba(255,255,255,0.4);
     box-shadow: 0 4px 10px rgba(0,0,0,0.05);
     border-radius: 12px;
