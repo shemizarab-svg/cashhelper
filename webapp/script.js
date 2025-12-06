@@ -6,8 +6,10 @@ const user = tg.initDataUnsafe?.user;
 const userId = user?.id || 'guest';
 document.getElementById('user-id-display').innerText = `ID: ${userId}`;
 const STORAGE_KEY = `azeroth_budget_v3_${userId}`;
+const THEME_KEY = `azeroth_theme_pref_${userId}`; // Ключ для темы
 
 // ПЕРЕМЕННЫЕ
+let currentTheme = localStorage.getItem(THEME_KEY) || 'gaming'; // 'gaming' or 'minimal'
 let currentTab = 'month';
 let selectedMonth = 'Jan';
 const monthsList = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -93,7 +95,24 @@ function loadData() {
     }
 }
 
+// === УПРАВЛЕНИЕ ТЕМОЙ ===
+function applyTheme() {
+    if (currentTheme === 'minimal') {
+        document.body.classList.add('minimal-theme');
+    } else {
+        document.body.classList.remove('minimal-theme');
+    }
+}
+
+function toggleTheme() {
+    currentTheme = currentTheme === 'gaming' ? 'minimal' : 'gaming';
+    localStorage.setItem(THEME_KEY, currentTheme);
+    // Перезагружаем страницу, чтобы графики корректно перерисовались с новыми цветами
+    window.location.reload();
+}
+
 function init() {
+    applyTheme(); // Применяем тему до отрисовки
     loadData();
     if (!globalCategoryNames.has('transport')) globalCategoryNames.set('transport', 'Транспорт (Машина)');
     initCharts();
@@ -106,43 +125,71 @@ function init() {
     updateView();
 }
 
+// Настройка цветов графиков в зависимости от темы
+function getChartColors() {
+    if (currentTheme === 'minimal') {
+        return {
+            font: 'Roboto',
+            textColor: '#333',
+            gridColor: '#ddd',
+            primary: '#007bff',
+            secondary: '#6c757d',
+            danger: '#dc3545',
+            radarBg: 'rgba(0, 123, 255, 0.2)'
+        };
+    } else {
+        // Gaming style
+        return {
+            font: 'Cormorant SC',
+            textColor: '#a38f56',
+            gridColor: 'rgba(255,255,255,0.1)',
+            primary: '#ffd700',
+            secondary: '#ccc',
+            danger: '#ff4e4e',
+            radarBg: 'rgba(255, 215, 0, 0.25)'
+        };
+    }
+}
+
 function initCharts() {
-    Chart.defaults.font.family = 'Cormorant SC';
+    const c = getChartColors();
+
+    Chart.defaults.font.family = c.font;
     Chart.defaults.font.weight = 'bold';
-    Chart.defaults.color = '#a38f56';
+    Chart.defaults.color = c.textColor;
+    Chart.defaults.borderColor = c.gridColor;
     
     const ctxM = document.getElementById('radarChart').getContext('2d');
-    chartMonthly = new Chart(ctxM, createRadarConfig('Траты за месяц'));
+    chartMonthly = new Chart(ctxM, createRadarConfig('Траты за месяц', c));
     const ctxY1 = document.getElementById('yearRadarChart').getContext('2d');
-    chartYearlyRadar = new Chart(ctxY1, createRadarConfig('Всего трат за год'));
+    chartYearlyRadar = new Chart(ctxY1, createRadarConfig('Всего трат за год', c));
     const ctxY2 = document.getElementById('yearBarChartExpenses').getContext('2d');
-    chartYearlyBarExpenses = new Chart(ctxY2, createBarConfig('Траты по месяцам', '#ff4e4e'));
+    chartYearlyBarExpenses = new Chart(ctxY2, createBarConfig('Траты по месяцам', c.danger));
     const ctxY3 = document.getElementById('yearBarChartSavings').getContext('2d');
-    chartYearlyBarSavings = new Chart(ctxY3, createBarConfig('Накопления по месяцам', '#ffd700'));
+    chartYearlyBarSavings = new Chart(ctxY3, createBarConfig('Накопления по месяцам', c.primary));
 }
 
 // === ГАРАЖНЫЙ ГРАФИК ===
 function initGarageChart() {
+    const c = getChartColors();
     const ctxG = document.getElementById('garageChart').getContext('2d');
     chartGarage = new Chart(ctxG, {
         type: 'scatter',
-        data: {
-            datasets: [] 
-        },
+        data: { datasets: [] },
         options: {
             maintainAspectRatio: false,
             scales: {
                 x: {
                     type: 'linear',
                     position: 'bottom',
-                    grid: { color: '#333' },
-                    ticks: { color: '#aaa', callback: function(val) { return val / 1000 + 'k'; } },
-                    title: { display: true, text: 'Пробег (км)', color: '#666' }
+                    grid: { color: c.gridColor },
+                    ticks: { color: c.secondary, callback: function(val) { return val / 1000 + 'k'; } },
+                    title: { display: true, text: 'Пробег (км)', color: c.textColor }
                 },
                 y: {
-                    grid: { color: '#333' },
+                    grid: { color: c.gridColor },
                     ticks: { 
-                        color: '#ffd700',
+                        color: c.primary,
                         font: { size: 12 },
                         callback: function(value) {
                             const keys = Object.keys(db.garageTypes);
@@ -169,6 +216,7 @@ function initGarageChart() {
 }
 
 function updateGarageChart() {
+    const c = getChartColors();
     const typeKeys = Object.keys(db.garageTypes);
     let points = [];
 
@@ -177,7 +225,6 @@ function updateGarageChart() {
             db.months[m].garage.forEach(item => {
                 const typeValues = Object.values(db.garageTypes);
                 let yIndex = typeValues.indexOf(item.type);
-                
                 if (yIndex === -1) yIndex = 0; 
 
                 points.push({
@@ -192,7 +239,7 @@ function updateGarageChart() {
     chartGarage.data.datasets = [{
         label: 'История',
         data: points,
-        backgroundColor: '#ffd700',
+        backgroundColor: c.primary,
         pointRadius: 6,
         pointHoverRadius: 8
     }];
@@ -202,11 +249,11 @@ function updateGarageChart() {
 }
 
 
-function createRadarConfig(label) {
+function createRadarConfig(label, colors) {
     return {
         type: 'radar',
-        data: { labels: [], datasets: [{ label: label, data: [], backgroundColor: 'rgba(255, 215, 0, 0.25)', borderColor: '#ffd700', borderWidth: 2, pointBackgroundColor: '#fff', pointBorderColor: '#ffd700' }] },
-        options: { maintainAspectRatio: false, scales: { r: { angleLines: { color: 'rgba(255,255,255,0.1)' }, grid: { color: 'rgba(255,255,255,0.1)' }, pointLabels: { color: '#e0e0e0', font: { size: 14 } }, ticks: { display: false, backdropColor: 'transparent' } } }, plugins: { legend: { display: false } } }
+        data: { labels: [], datasets: [{ label: label, data: [], backgroundColor: colors.radarBg, borderColor: colors.primary, borderWidth: 2, pointBackgroundColor: '#fff', pointBorderColor: colors.primary }] },
+        options: { maintainAspectRatio: false, scales: { r: { angleLines: { color: colors.gridColor }, grid: { color: colors.gridColor }, pointLabels: { color: colors.textColor, font: { size: 14 } }, ticks: { display: false, backdropColor: 'transparent' } } }, plugins: { legend: { display: false } } }
     };
 }
 function createBarConfig(label, color) {
@@ -214,7 +261,7 @@ function createBarConfig(label, color) {
     return {
         type: 'bar',
         data: { labels: ruLabels, datasets: [{ label: label, data: [], backgroundColor: color, borderColor: '#fff', borderWidth: 1 }] },
-        options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { color: '#333' } }, x: { grid: { display: false } } }, plugins: { legend: { display: false } } }
+        options: { maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { color: '#ddd' } }, x: { grid: { display: false } } }, plugins: { legend: { display: false } } }
     };
 }
 
@@ -261,14 +308,11 @@ function renderGarageTypeSelect() {
         select.appendChild(opt);
     }
     
-    // Восстанавливаем выбор или ставим первый
     if (db.garageTypes[savedVal]) {
         select.value = savedVal;
     } else if (firstKey) {
         select.value = firstKey;
     }
-    
-    // ВАЖНО: Принудительно вызываем автозаполнение после рендера списка
     autoFillMileage();
 }
 
@@ -288,28 +332,14 @@ function addGarageType() {
     }
 }
 
-// === НОВАЯ ФУНКЦИЯ РЕДАКТИРОВАНИЯ ===
 function editGarageType() {
     const select = document.getElementById('car-part-type');
     const key = select.value;
     const oldName = db.garageTypes[key];
 
-    // Разрешаем редактировать даже стандартные типы (чтобы исправить перевод, если что), но ключи останутся прежними.
-    // Если хотите запретить редактировать стандартные: раскомментируйте проверку ниже.
-    /*
-    const protected = ['oil', 'filter', 'brakes', 'engine', 'wheels', 'other'];
-    if (protected.includes(key)) {
-        tg.showAlert("Нельзя переименовать стандартный тип!");
-        return;
-    }
-    */
-
     const newName = prompt("Исправить название:", oldName);
     if (newName && newName !== oldName) {
-        // 1. Обновляем в словаре типов
         db.garageTypes[key] = newName;
-        
-        // 2. Ищем и обновляем ВСЕ старые записи в истории (проходим по всем месяцам)
         for (let m of monthsList) {
             if (db.months[m].garage) {
                 db.months[m].garage.forEach(item => {
@@ -319,13 +349,11 @@ function editGarageType() {
                 });
             }
         }
-        
         saveData();
         renderGarageTypeSelect();
         renderGarageSettings();
         updateGarageChart();
-        renderGarageView(); // Обновить текущий список
-        
+        renderGarageView(); 
         tg.showAlert("Успешно переименовано!");
     }
 }
@@ -349,7 +377,6 @@ function deleteGarageType() {
         renderGarageTypeSelect();
         renderGarageSettings();
         
-        // Сбрасываем выбор на масло (если оно есть) или первый элемент
         select.selectedIndex = 0; 
         autoFillMileage();
     }
@@ -420,21 +447,18 @@ function updateGarageStandard(key, value) {
 function autoFillMileage() {
     const typeSelect = document.getElementById('car-part-type');
     if (!typeSelect) return;
-    
     const selectedType = typeSelect.value;
     const intervalInput = document.getElementById('car-interval-km');
     
-    // Защита от пустого выбора
     if (!selectedType) {
         intervalInput.value = '';
         return;
     }
-    
     const std = db.garageStandards[selectedType];
     if (std && std > 0) {
         intervalInput.value = std;
     } else {
-        intervalInput.value = ''; // Очищаем, если стандарта нет или он 0
+        intervalInput.value = '';
     }
 }
 
@@ -463,7 +487,12 @@ function renderMonthlyView() {
     let remaining = data.income - totalSpent;
     const remEl = document.getElementById('remaining-amount');
     remEl.innerText = remaining.toLocaleString();
-    remEl.style.color = remaining < 0 ? '#ff3333' : '#fff';
+    
+    // В минимализме красный не такой ядерный
+    const dangerColor = currentTheme === 'minimal' ? '#dc3545' : '#ff3333';
+    const normalColor = currentTheme === 'minimal' ? '#333' : '#fff';
+    
+    remEl.style.color = remaining < 0 ? dangerColor : normalColor;
 
     updateDropdown();
     renderBreakdown(data);
@@ -477,17 +506,13 @@ function renderGarageView() {
 
     if (!mData.garage) mData.garage = [];
     
-    // При открытии вкладки обновляем автозаполнение и график
     autoFillMileage();
     updateGarageChart();
 
     if (mData.garage.length > 0) {
         mData.garage.forEach((item, index) => {
-            
             let itemInterval = item.interval;
-            if (!itemInterval) {
-                itemInterval = item.expected - item.fact;
-            }
+            if (!itemInterval) itemInterval = item.expected - item.fact;
 
             let div = document.createElement('div');
             div.className = 'garage-card';
@@ -550,20 +575,23 @@ function renderYearlyView() {
         if (mSavings > maxSavingsMonth.val) maxSavingsMonth = { name: ruName, val: mSavings };
     }
 
+    const c = getChartColors();
+
     chartYearlyRadar.data.labels = yearLabels;
     chartYearlyRadar.data.datasets[0].data = totalExpensesByCategory;
     chartYearlyRadar.update();
     chartYearlyBarExpenses.data.datasets[0].data = expensesByMonth;
     chartYearlyBarExpenses.update();
     chartYearlyBarSavings.data.datasets[0].data = savingsByMonth;
-    chartYearlyBarSavings.data.datasets[0].backgroundColor = savingsByMonth.map(v => v < 0 ? '#ff4e4e' : '#ffd700');
+    // Цвета баров накоплений
+    chartYearlyBarSavings.data.datasets[0].backgroundColor = savingsByMonth.map(v => v < 0 ? c.danger : c.primary);
     chartYearlyBarSavings.update();
 
     document.getElementById('year-total-savings').innerText = totalYearSavings.toLocaleString();
     
     document.getElementById('year-text-report').innerHTML = `
-        <p>Самый затратный: <b style="color:#ff4e4e">${maxExpenseMonth.name}</b> (${maxExpenseMonth.val})</p>
-        <p>Лучшие накопления: <b style="color:#ffd700">${maxSavingsMonth.name}</b> (${maxSavingsMonth.val})</p>
+        <p>Самый затратный: <b style="color:${c.danger}">${maxExpenseMonth.name}</b> (${maxExpenseMonth.val})</p>
+        <p>Лучшие накопления: <b style="color:${c.primary}">${maxSavingsMonth.name}</b> (${maxSavingsMonth.val})</p>
     `;
 }
 
@@ -638,12 +666,16 @@ function renderBreakdown(monthData) {
         let limitHtml = '';
         let nameClass = 'breakdown-name under-budget';
         
+        // Цвета для минимализма
+        const dangerColor = currentTheme === 'minimal' ? '#dc3545' : '#ff3333';
+        const mutedColor = currentTheme === 'minimal' ? '#666' : '#555';
+
         if (limit > 0) {
             if (amount > limit) {
                 nameClass = 'breakdown-name over-budget';
-                limitHtml = `<span style="font-size:10px; color:#ff3333; display:block;">(Лимит: ${limit})</span>`;
+                limitHtml = `<span style="font-size:10px; color:${dangerColor}; display:block;">(Лимит: ${limit})</span>`;
             } else {
-                 limitHtml = `<span style="font-size:10px; color:#555; display:block;">(из ${limit})</span>`;
+                 limitHtml = `<span style="font-size:10px; color:${mutedColor}; display:block;">(из ${limit})</span>`;
             }
         }
         
@@ -651,7 +683,7 @@ function renderBreakdown(monthData) {
         div.className = 'breakdown-item';
         div.innerHTML = `
             <div style="flex:1">
-                <span class="${nameClass}">${name}</span>
+                <span class="${nameClass}" style="${nameClass.includes('over-budget') ? 'color:'+dangerColor : ''}">${name}</span>
                 ${limitHtml}
             </div>
             <div class="edit-wrapper">

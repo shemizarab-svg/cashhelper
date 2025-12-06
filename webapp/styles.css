@@ -5,7 +5,7 @@ input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none !important; margin: 0 !important; display: none !important; }
 input[type="number"] { -moz-appearance: textfield !important; appearance: none !important; }
 
-/* === ОСНОВА === */
+/* === ОСНОВА (GAMING ПО УМОЛЧАНИЮ) === */
 body { 
     margin: 0; padding: 0; height: 100vh; width: 100vw; background: #000; color: #f0e6d2; 
     font-family: 'Cormorant SC', serif; font-weight: 700; letter-spacing: 1px; overflow: hidden; 
@@ -15,6 +15,7 @@ body {
 
 .main-frame {
     width: 100%; max-width: 500px; height: 100%;
+    /* Фон для игровой темы */
     background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('bg.jpg');
     background-size: cover; background-position: center;
     position: relative; display: flex; flex-direction: column;
@@ -26,6 +27,12 @@ body {
 .scrollable-area { flex: 1; overflow-y: auto; padding: 15px; z-index: 1; scrollbar-width: none; }
 .scrollable-area::-webkit-scrollbar { display: none; }
 .bottom-spacer { height: 80px; }
+
+/* КНОПКА ТЕМЫ */
+.theme-btn {
+    background: transparent; border: 1px solid #a38f56; color: #ffd700;
+    border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 12px; padding: 2px 8px;
+}
 
 /* === СЕКЦИИ === */
 .gold-section {
@@ -226,3 +233,129 @@ details.settings-section[open] {
 
 .over-budget { color: #ff3333 !important; text-shadow: 0 0 5px rgba(255, 0, 0, 0.5); }
 .under-budget { color: #ccc; }
+
+
+/* ============================================== */
+/* === MINIMAL THEME OVERRIDES (Минимализм) === */
+/* ============================================== */
+
+body.minimal-theme {
+    font-family: 'Roboto', sans-serif !important;
+    background: #f0f2f5;
+    color: #333;
+    letter-spacing: normal;
+}
+
+body.minimal-theme .main-frame {
+    /* Фон для минимализма */
+    background: url('bg1.png');
+    background-size: cover; background-position: center;
+    border: none;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+}
+
+body.minimal-theme .main-frame::before {
+    background: rgba(255, 255, 255, 0.85); /* Светлая подложка */
+}
+
+/* Секции */
+body.minimal-theme .gold-section,
+body.minimal-theme .control-panel-wrapper,
+body.minimal-theme .breakdown-panel,
+body.minimal-theme .chart-box,
+body.minimal-theme details.settings-section,
+body.minimal-theme #month-selector-panel {
+    background: #fff;
+    border: 1px solid #ddd;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    border-radius: 12px;
+}
+
+/* Тексты и заголовки */
+body.minimal-theme .gold-label, 
+body.minimal-theme .limit-label,
+body.minimal-theme .panel-header,
+body.minimal-theme .gold-text {
+    color: #333;
+    text-shadow: none;
+    font-weight: 600;
+}
+body.minimal-theme .panel-header { color: #555; }
+
+body.minimal-theme .gold-icon-big::after { content: "💵"; filter: none; }
+body.minimal-theme .gold-text { color: #333; }
+
+/* Инпуты */
+body.minimal-theme .wow-input,
+body.minimal-theme .limit-input {
+    background: #f9f9f9;
+    border: 1px solid #ccc;
+    color: #333;
+    border-radius: 8px;
+    font-family: 'Roboto', sans-serif;
+}
+body.minimal-theme .invisible-input {
+    color: #333;
+    text-shadow: none;
+    border-bottom: 1px solid #ccc;
+    font-family: 'Roboto', sans-serif;
+}
+
+/* Кнопки */
+body.minimal-theme .wow-btn, 
+body.minimal-theme .theme-btn {
+    border: 1px solid #007bff;
+    color: #007bff;
+    border-radius: 8px;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+}
+body.minimal-theme .spend-btn {
+    background: #007bff;
+    color: #fff;
+    border: none;
+}
+body.minimal-theme .small-btn {
+    background: #e9ecef;
+    color: #333;
+    border: 1px solid #ccc;
+}
+body.minimal-theme .add-income-btn {
+    background: #28a745; border: none; color: #fff;
+}
+
+/* Вкладки внизу */
+body.minimal-theme .bottom-nav {
+    background: #fff;
+    border-top: 1px solid #eee;
+}
+body.minimal-theme .nav-btn {
+    background: #fff;
+    color: #888;
+    border-right: none;
+    font-family: 'Roboto', sans-serif;
+}
+body.minimal-theme .nav-btn.active {
+    color: #007bff;
+    background: #f0f8ff;
+    border-top: 3px solid #007bff;
+    text-shadow: none;
+}
+
+/* Списки */
+body.minimal-theme .breakdown-name { color: #333; font-weight: 500; font-family: 'Roboto', sans-serif;}
+body.minimal-theme .edit-expense-input { color: #333; border-bottom: 1px solid #ccc; font-family: 'Roboto', sans-serif;}
+body.minimal-theme .breakdown-item { border-bottom: 1px solid #eee; }
+
+body.minimal-theme .settings-summary { color: #333; }
+body.minimal-theme details.settings-section[open] { border-color: #007bff; box-shadow: none; }
+
+/* Гараж Карточки */
+body.minimal-theme .garage-card {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+}
+body.minimal-theme .garage-name-text { color: #333; }
+body.minimal-theme .garage-fact-km { color: #555; }
+body.minimal-theme .garage-next-km { color: #007bff; text-shadow: none; }
+body.minimal-theme .garage-type-badge { background: #e9ecef; color: #555; border: none; }
