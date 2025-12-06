@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="styles.css?v=13.0">
+    <link rel="stylesheet" href="styles.css?v=15.0">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
@@ -21,7 +21,10 @@
                 <div id="month-selector-panel" class="gold-section top-section">
                     <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 5px;">
                         <span class="gold-label">Месяц:</span>
-                        <button class="theme-btn" onclick="toggleTheme()">🎨 Стиль</button>
+                        <div style="display:flex; gap: 5px;">
+                            <button id="bg-change-btn" class="theme-btn" onclick="changeBackgroundConfig()" style="display:none;">🖼️ Фон</button>
+                            <button class="theme-btn" onclick="toggleTheme()">🎨 Стиль</button>
+                        </div>
                     </div>
                     
                     <select id="month-select" class="wow-input" onchange="changeMonth()">
@@ -60,12 +63,13 @@
                             <button class="add-income-btn" onclick="addMoreIncome()">+</button>
                         </div>
                     </div>
+
                     <div class="chart-box">
                         <div class="chart-wrapper">
                             <canvas id="radarChart"></canvas>
                         </div>
                     </div>
-                    
+
                     <div class="gold-section remaining-section">
                         <span class="gold-label">Остаток:</span>
                         <div class="gold-value-container">
@@ -193,6 +197,6 @@
         </div>
     </div>
 
-    <script src="script.js?v=13.0"></script>
+    <script src="script.js?v=15.0"></script>
 </body>
 </html>
