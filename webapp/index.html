@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="styles.css?v=15.0">
+    <link rel="stylesheet" href="styles.css?v=16.0">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
@@ -126,7 +126,7 @@
                     </div>
                     <div class="breakdown-panel">
                         <div class="panel-header">Статистика</div>
-                        <div id="year-text-report" style="color: #ccc; font-size: 16px; padding: 10px;"></div>
+                        <div id="year-text-report" style="padding: 10px;"></div>
                     </div>
                 </div>
 
@@ -197,6 +197,23 @@
         </div>
     </div>
 
-    <script src="script.js?v=15.0"></script>
+    <input type="file" id="file-input-main" accept="image/*" style="display: none;" onchange="handleFileUpload(this, 'main')">
+    <input type="file" id="file-input-garage" accept="image/*" style="display: none;" onchange="handleFileUpload(this, 'garage')">
+
+    <div id="bg-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h3 style="margin-top:0; color:#333;">Сменить фон</h3>
+            <p style="font-size: 14px; color:#666; margin-bottom: 20px;">Выберите фото из галереи:</p>
+            
+            <button class="wow-btn" style="width:100%; margin-bottom:10px;" onclick="triggerFile('main')">📱 Главный экран</button>
+            <button class="wow-btn" style="width:100%; margin-bottom:10px;" onclick="triggerFile('garage')">🚗 Гараж</button>
+            
+            <div style="border-top: 1px solid #ddd; margin: 15px 0;"></div>
+            
+            <button class="wow-btn small-btn" style="width:100%; border-color: #ff4e4e; color: #ff4e4e;" onclick="resetBackgrounds()">♻️ Сбросить на стандарт</button>
+            <button class="wow-btn small-btn" style="width:100%; margin-top:10px; border:none; background:transparent;" onclick="closeBgModal()">Отмена</button>
+        </div>
+    </div>
+    <script src="script.js?v=16.0"></script>
 </body>
 </html>

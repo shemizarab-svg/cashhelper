@@ -101,7 +101,6 @@ function loadData() {
 function applyTheme() {
     if (currentTheme === 'minimal') {
         document.body.classList.add('minimal-theme');
-        // Показываем кнопку фона только в минимализме
         document.getElementById('bg-change-btn').style.display = 'inline-block';
     } else {
         document.body.classList.remove('minimal-theme');
@@ -115,31 +114,25 @@ function toggleTheme() {
     window.location.reload();
 }
 
-// === НОВАЯ ФУНКЦИЯ ДЛЯ СМЕНЫ ФОНА ===
 // === ЛОГИКА ЗАГРУЗКИ ФОНОВ ИЗ ГАЛЕРЕИ ===
 
-// 1. Открыть окно выбора
 function changeBackgroundConfig() {
     document.getElementById('bg-modal').style.display = 'flex';
 }
 
-// 2. Закрыть окно
 function closeBgModal() {
     document.getElementById('bg-modal').style.display = 'none';
 }
 
-// 3. Нажатие на кнопку вызывает скрытый input
 function triggerFile(type) {
     if (type === 'main') document.getElementById('file-input-main').click();
     if (type === 'garage') document.getElementById('file-input-garage').click();
 }
 
-// 4. Обработка выбранного файла (Сжатие + Сохранение)
 function handleFileUpload(input, type) {
     const file = input.files[0];
     if (!file) return;
 
-    // Показываем, что процесс идет
     const btnText = type === 'main' ? 'Главный...' : 'Гараж...';
     tg.showAlert(`Обработка фото: ${btnText}`);
     closeBgModal();
@@ -148,11 +141,8 @@ function handleFileUpload(input, type) {
     reader.onload = function(event) {
         const img = new Image();
         img.onload = function() {
-            // СЖАТИЕ КАРТИНКИ (Чтобы влезла в память)
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-            
-            // Максимальный размер стороны (настройка качества)
             const MAX_SIZE = 800; 
             let width = img.width;
             let height = img.height;
@@ -167,7 +157,6 @@ function handleFileUpload(input, type) {
             canvas.height = height;
             ctx.drawImage(img, 0, 0, width, height);
 
-            // Получаем строку Base64 (формат JPEG, качество 0.7)
             const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
 
             try {
@@ -180,19 +169,16 @@ function handleFileUpload(input, type) {
                 }
                 tg.showAlert("Фон успешно обновлен!");
             } catch (e) {
-                tg.showAlert("Ошибка: Фото слишком большое даже после сжатия!");
+                tg.showAlert("Ошибка: Фото слишком большое!");
                 console.error(e);
             }
         };
         img.src = event.target.result;
     };
     reader.readAsDataURL(file);
-    
-    // Сбрасываем input, чтобы можно было выбрать тот же файл снова
     input.value = ''; 
 }
 
-// 5. Сброс на стандартные картинки
 function resetBackgrounds() {
     if(confirm("Вернуть стандартные фоны?")) {
         localStorage.removeItem(BG_MAIN_KEY);
@@ -208,13 +194,11 @@ function init() {
     applyTheme(); 
     document.body.classList.add('tab-' + currentTab);
     
-    // Восстанавливаем месяц
     const monthSelect = document.getElementById('month-select');
     if (monthSelect) {
         monthSelect.value = selectedMonth;
     }
 
-    // === ВОССТАНОВЛЕНИЕ ФОНОВ ИЗ ПАМЯТИ ===
     const savedMain = localStorage.getItem(BG_MAIN_KEY);
     const savedGarage = localStorage.getItem(BG_GARAGE_KEY);
     
@@ -695,9 +679,14 @@ function renderYearlyView() {
 
     document.getElementById('year-total-savings').innerText = totalYearSavings.toLocaleString();
     
+    // === ИСПРАВЛЕНИЕ: Цвета текста теперь зависят от темы ===
     document.getElementById('year-text-report').innerHTML = `
-        <p>Самый затратный: <b style="color:${c.danger}">${maxExpenseMonth.name}</b> (${maxExpenseMonth.val})</p>
-        <p>Лучшие накопления: <b style="color:${c.primary}">${maxSavingsMonth.name}</b> (${maxSavingsMonth.val})</p>
+        <p style="color: ${c.textColor}">
+            Самый затратный: <b style="color:${c.danger}">${maxExpenseMonth.name}</b> (${maxExpenseMonth.val})
+        </p>
+        <p style="color: ${c.textColor}">
+            Лучшие накопления: <b style="color:${c.primary}">${maxSavingsMonth.name}</b> (${maxSavingsMonth.val})
+        </p>
     `;
 }
 
