@@ -247,21 +247,21 @@ body.minimal-theme {
 }
 
 body.minimal-theme .main-frame {
-    /* Фон для минимализма по умолчанию (Бюджет/Год) */
+    /* Фон для минимализма по умолчанию */
     background: url('bg1.png');
     background-size: cover; background-position: center;
     border: none;
     box-shadow: 0 0 20px rgba(0,0,0,0.1);
 }
 
-/* === НОВОЕ: Фон для ГАРАЖА в минимализме === */
+/* Фон для ГАРАЖА в минимализме */
 body.minimal-theme.tab-garage .main-frame {
     background: url('bgarage.png');
     background-size: cover; background-position: center;
 }
 
 body.minimal-theme .main-frame::before {
-    background: rgba(255, 255, 255, 0.85); /* Светлая подложка */
+    background: rgba(255, 255, 255, 0.85);
 }
 
 /* Секции */
@@ -291,15 +291,19 @@ body.minimal-theme .panel-header { color: #555; }
 body.minimal-theme .gold-icon-big::after { content: "💵"; filter: none; }
 body.minimal-theme .gold-text { color: #333; }
 
-/* Инпуты */
+/* Инпуты и ВЫПАДАЮЩИЙ СПИСОК (Исправлено) */
 body.minimal-theme .wow-input,
-body.minimal-theme .limit-input {
+body.minimal-theme .limit-input,
+body.minimal-theme #month-select { /* <--- Добавлено это правило */
     background: #f9f9f9;
     border: 1px solid #ccc;
     color: #333;
     border-radius: 8px;
     font-family: 'Roboto', sans-serif;
+    font-weight: normal;
+    text-shadow: none;
 }
+
 body.minimal-theme .invisible-input {
     color: #333;
     text-shadow: none;
@@ -310,6 +314,7 @@ body.minimal-theme .invisible-input {
 /* Кнопки */
 body.minimal-theme .wow-btn, 
 body.minimal-theme .theme-btn {
+    background: #fff; /* Белый фон для кнопок */
     border: 1px solid #007bff;
     color: #007bff;
     border-radius: 8px;

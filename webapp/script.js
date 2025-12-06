@@ -6,12 +6,15 @@ const user = tg.initDataUnsafe?.user;
 const userId = user?.id || 'guest';
 document.getElementById('user-id-display').innerText = `ID: ${userId}`;
 const STORAGE_KEY = `azeroth_budget_v3_${userId}`;
-const THEME_KEY = `azeroth_theme_pref_${userId}`; // Ключ для темы
+const THEME_KEY = `azeroth_theme_pref_${userId}`;
+const MONTH_KEY = `azeroth_month_pref_${userId}`; // <--- НОВЫЙ КЛЮЧ ДЛЯ МЕСЯЦА
 
 // ПЕРЕМЕННЫЕ
-let currentTheme = localStorage.getItem(THEME_KEY) || 'gaming'; // 'gaming' or 'minimal'
+let currentTheme = localStorage.getItem(THEME_KEY) || 'gaming';
+// Пытаемся загрузить месяц из памяти, иначе ставим Январь
 let currentTab = 'month';
-let selectedMonth = 'Jan';
+let selectedMonth = localStorage.getItem(MONTH_KEY) || 'Jan'; 
+
 const monthsList = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const monthsNamesRu = {
     'Jan': 'Январь', 'Feb': 'Февраль', 'Mar': 'Март', 'Apr': 'Апрель', 'May': 'Май', 'Jun': 'Июнь',
@@ -107,15 +110,17 @@ function applyTheme() {
 function toggleTheme() {
     currentTheme = currentTheme === 'gaming' ? 'minimal' : 'gaming';
     localStorage.setItem(THEME_KEY, currentTheme);
-    // Перезагружаем страницу, чтобы графики корректно перерисовались с новыми цветами
     window.location.reload();
 }
 
 function init() {
-    applyTheme(); // Применяем тему до отрисовки
+    applyTheme(); 
     
-    // Устанавливаем начальный класс вкладки для правильного фона
+    // Устанавливаем класс вкладки
     document.body.classList.add('tab-' + currentTab);
+
+    // Устанавливаем правильный месяц в селекторе (визуально)
+    document.getElementById('month-select').value = selectedMonth;
 
     loadData();
     if (!globalCategoryNames.has('transport')) globalCategoryNames.set('transport', 'Транспорт (Машина)');
@@ -129,7 +134,7 @@ function init() {
     updateView();
 }
 
-// Настройка цветов графиков в зависимости от темы
+// Настройка цветов графиков
 function getChartColors() {
     if (currentTheme === 'minimal') {
         return {
@@ -142,7 +147,6 @@ function getChartColors() {
             radarBg: 'rgba(0, 123, 255, 0.2)'
         };
     } else {
-        // Gaming style
         return {
             font: 'Cormorant SC',
             textColor: '#a38f56',
@@ -173,7 +177,6 @@ function initCharts() {
     chartYearlyBarSavings = new Chart(ctxY3, createBarConfig('Накопления по месяцам', c.primary));
 }
 
-// === ГАРАЖНЫЙ ГРАФИК ===
 function initGarageChart() {
     const c = getChartColors();
     const ctxG = document.getElementById('garageChart').getContext('2d');
@@ -272,7 +275,6 @@ function createBarConfig(label, color) {
 function switchTab(tab) {
     currentTab = tab;
     
-    // === НОВОЕ: Переключение классов на BODY для фона ===
     document.body.classList.remove('tab-month', 'tab-garage', 'tab-year');
     document.body.classList.add('tab-' + tab);
     
@@ -291,6 +293,10 @@ function switchTab(tab) {
 
 function changeMonth() {
     selectedMonth = document.getElementById('month-select').value;
+    
+    // === СОХРАНЯЕМ ВЫБРАННЫЙ МЕСЯЦ ===
+    localStorage.setItem(MONTH_KEY, selectedMonth);
+    
     updateView();
 }
 
@@ -300,7 +306,6 @@ function updateView() {
     else renderYearlyView();
 }
 
-// === УПРАВЛЕНИЕ ТИПАМИ ГАРАЖА ===
 function renderGarageTypeSelect() {
     const select = document.getElementById('car-part-type');
     const savedVal = select.value; 
@@ -390,7 +395,6 @@ function deleteGarageType() {
     }
 }
 
-// === НАСТРОЙКИ БЮДЖЕТА ===
 function renderLimitsPanel() {
     const container = document.getElementById('limits-list-container');
     if (!container) return;
@@ -420,7 +424,6 @@ function updateLimit(key, value) {
     renderMonthlyView();
 }
 
-// === НАСТРОЙКИ ГАРАЖА ===
 function renderGarageSettings() {
     const container = document.getElementById('garage-standards-container');
     if (!container) return;
@@ -470,7 +473,6 @@ function autoFillMileage() {
     }
 }
 
-// === ОТРИСОВКА БЮДЖЕТА ===
 function renderMonthlyView() {
     const data = db.months[selectedMonth];
     const incInput = document.getElementById('income-input');
@@ -496,7 +498,6 @@ function renderMonthlyView() {
     const remEl = document.getElementById('remaining-amount');
     remEl.innerText = remaining.toLocaleString();
     
-    // В минимализме красный не такой ядерный
     const dangerColor = currentTheme === 'minimal' ? '#dc3545' : '#ff3333';
     const normalColor = currentTheme === 'minimal' ? '#333' : '#fff';
     
@@ -506,7 +507,6 @@ function renderMonthlyView() {
     renderBreakdown(data);
 }
 
-// === ОТРИСОВКА ГАРАЖА ===
 function renderGarageView() {
     const list = document.getElementById('garage-list');
     list.innerHTML = '';
@@ -591,7 +591,6 @@ function renderYearlyView() {
     chartYearlyBarExpenses.data.datasets[0].data = expensesByMonth;
     chartYearlyBarExpenses.update();
     chartYearlyBarSavings.data.datasets[0].data = savingsByMonth;
-    // Цвета баров накоплений
     chartYearlyBarSavings.data.datasets[0].backgroundColor = savingsByMonth.map(v => v < 0 ? c.danger : c.primary);
     chartYearlyBarSavings.update();
 
@@ -674,7 +673,6 @@ function renderBreakdown(monthData) {
         let limitHtml = '';
         let nameClass = 'breakdown-name under-budget';
         
-        // Цвета для минимализма
         const dangerColor = currentTheme === 'minimal' ? '#dc3545' : '#ff3333';
         const mutedColor = currentTheme === 'minimal' ? '#666' : '#555';
 
