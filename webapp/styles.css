@@ -251,7 +251,7 @@ body.minimal-theme .main-frame {
     background: url('bg1.png');
     background-size: cover; background-position: center;
     border: none;
-    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    box-shadow: 0 0 20px rgba(0,0,0,0.25);
 }
 
 /* Фон для ГАРАЖА в минимализме (принудительно) */
@@ -274,8 +274,8 @@ body.minimal-theme .chart-box,
 body.minimal-theme details.settings-section,
 body.minimal-theme #month-selector-panel {
     /* 0.55 - хорошая прозрачность */
-    background: rgba(255, 255, 255, 0.55); 
-    backdrop-filter: blur(10px); /* Блюр сильнее, чтобы текст читался */
+    background: rgba(255, 255, 255, 0.45); 
+    backdrop-filter: blur(7px); /* Блюр сильнее, чтобы текст читался */
     border: 1px solid rgba(255,255,255,0.4);
     box-shadow: 0 4px 10px rgba(0,0,0,0.05);
     border-radius: 12px;
