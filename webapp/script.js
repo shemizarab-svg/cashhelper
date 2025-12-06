@@ -1,13 +1,13 @@
 const tg = window.Telegram.WebApp;
 
-// === АГРЕССИВНОЕ РАЗВЕРТЫВАНИЕ НА ВЕСЬ ЭКРАН ===
-tg.expand(); // 1. Попытка сразу
-tg.ready();  // Сообщаем, что готовы
+// === АГРЕССИВНОЕ РАЗВЕРТЫВАНИЕ ===
+tg.expand();
+tg.ready();
 
-// 2. Страховка: пробуем развернуть еще раз через 50мс и 100мс
-// Это помогает на старых айфонах или при плохом интернете
+// Страховочные вызовы (для медленных телефонов)
 setTimeout(() => { tg.expand(); }, 50);
 setTimeout(() => { tg.expand(); }, 100);
+setTimeout(() => { tg.expand(); }, 500);
 
 // АВТОРИЗАЦИЯ
 const user = tg.initDataUnsafe?.user;
@@ -383,6 +383,7 @@ function changeMonth() {
     selectedMonth = document.getElementById('month-select').value;
     localStorage.setItem(MONTH_KEY, selectedMonth);
     
+    // Обновляем лимиты, так как месяц сменился
     renderLimitsPanel();
     updateView();
 }
@@ -482,6 +483,7 @@ function deleteGarageType() {
     }
 }
 
+// === НОВАЯ ЛОГИКА ЛИМИТОВ: ТОЛЬКО АКТИВНЫЕ КАТЕГОРИИ ===
 function renderLimitsPanel() {
     const container = document.getElementById('limits-list-container');
     if (!container) return;
@@ -489,11 +491,13 @@ function renderLimitsPanel() {
 
     const mData = db.months[selectedMonth];
     
+    // Если категорий нет
     if (!mData.activeCategories || mData.activeCategories.length === 0) {
         container.innerHTML = '<div style="color:#777; text-align:center; font-size:12px;">Нет расходов в этом месяце</div>';
         return;
     }
 
+    // Проходимся ТОЛЬКО по категориям этого месяца
     mData.activeCategories.forEach(key => {
         const name = globalCategoryNames.get(key) || key;
         const currentLimit = db.limits[key] || 0; 
@@ -694,6 +698,7 @@ function renderYearlyView() {
 
     document.getElementById('year-total-savings').innerText = totalYearSavings.toLocaleString();
     
+    // === ОБНОВЛЕННЫЕ ЦВЕТА ===
     document.getElementById('year-text-report').innerHTML = `
         <p style="color: ${c.textColor}">
             Самый затратный: <b style="color:${c.danger}">${maxExpenseMonth.name}</b> (${maxExpenseMonth.val})
