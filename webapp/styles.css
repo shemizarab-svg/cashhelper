@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=MedievalSharp&display=swap');
 
-/* === CSS ПЕРЕМЕННЫЕ ДЛЯ ФОНОВ (ПО УМОЛЧАНИЮ) === */
+/* === CSS ПЕРЕМЕННЫЕ ДЛЯ ФОНОВ === */
 :root {
     --bg-custom-main: url('bg1.png');
     --bg-custom-garage: url('bgarage.png');
@@ -11,17 +11,18 @@ input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none !important; margin: 0 !important; display: none !important; }
 input[type="number"] { -moz-appearance: textfield !important; appearance: none !important; }
 
-/* === ОСНОВА (GAMING ПО УМОЛЧАНИЮ) === */
+/* === ОСНОВА === */
 body { 
     margin: 0; padding: 0; height: 100vh; width: 100vw; background: #000; color: #f0e6d2; 
     font-family: 'Cormorant SC', serif; font-weight: 700; letter-spacing: 1px; overflow: hidden; 
 }
 
-.desktop-wrapper { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background: #050505; }
+.desktop-wrapper { 
+    width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; background: #050505; 
+}
 
 .main-frame {
     width: 100%; max-width: 500px; height: 100%;
-    /* Фон для игровой темы */
     background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('bg.jpg');
     background-size: cover; background-position: center;
     position: relative; display: flex; flex-direction: column;
@@ -30,14 +31,24 @@ body {
 }
 .main-frame::before { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 0; pointer-events: none; }
 
-.scrollable-area { flex: 1; overflow-y: auto; padding: 15px; z-index: 1; scrollbar-width: none; }
+/* === ИСПРАВЛЕНИЕ ОТСТУПА СВЕРХУ (ДЛЯ IPHONE) === */
+.scrollable-area { 
+    flex: 1; 
+    overflow-y: auto; 
+    padding: 15px; 
+    /* Добавляем безопасный отступ сверху, чтобы не перекрывало кнопки Telegram */
+    padding-top: 30px; 
+    z-index: 1; 
+    scrollbar-width: none; 
+}
 .scrollable-area::-webkit-scrollbar { display: none; }
 .bottom-spacer { height: 80px; }
 
 /* КНОПКА ТЕМЫ */
 .theme-btn {
     background: transparent; border: 1px solid #a38f56; color: #ffd700;
-    border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 12px; padding: 2px 8px;
+    border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 12px; padding: 4px 8px;
+    white-space: nowrap; /* Чтобы текст не ломался */
 }
 
 /* === СЕКЦИИ === */
@@ -46,6 +57,37 @@ body {
     border: 1px solid rgba(179, 154, 88, 0.4); display: flex; flex-direction: column;
     align-items: center; margin-bottom: 15px;
 }
+
+/* ИСПРАВЛЕНИЕ ВЕРХНЕЙ ПАНЕЛИ */
+#month-selector-panel { 
+    border-color: #ffd700; 
+    background: rgba(20, 10, 0, 0.8); 
+    /* Позволяем элементам переноситься, если экран узкий */
+    align-items: stretch;
+}
+
+.top-header-row {
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    width: 100%; 
+    margin-bottom: 8px;
+    flex-wrap: wrap; /* Если не влезает - переносим */
+    gap: 10px;
+}
+
+.top-buttons-group {
+    display: flex;
+    gap: 5px;
+}
+
+#month-select {
+    background: #000; color: #ffd700; border: 1px solid #a38f56;
+    font-family: 'Cormorant SC', serif; font-weight: bold; font-size: 20px; padding: 5px; text-align: center;
+    width: 100%; cursor: pointer;
+}
+
+/* Остальные стили без изменений... */
 .gold-value-container { display: flex; align-items: center; gap: 10px; }
 .gold-icon-big::after { content: "💰"; font-size: 24px; filter: drop-shadow(0 0 2px gold); }
 .gold-text { font-size: 32px; font-weight: bold; color: #fff; text-shadow: 0 0 10px #ffd700; }
@@ -61,13 +103,6 @@ body {
     background: #1a4a1a; color: #0f0; border: 1px solid #0f0; border-radius: 50%;
     width: 30px; height: 30px; font-size: 20px; cursor: pointer;
     font-family: 'Cormorant SC', serif; display: flex; align-items: center; justify-content: center;
-}
-
-#month-selector-panel { border-color: #ffd700; background: rgba(20, 10, 0, 0.8); }
-#month-select {
-    background: #000; color: #ffd700; border: 1px solid #a38f56;
-    font-family: 'Cormorant SC', serif; font-weight: bold; font-size: 20px; padding: 5px; text-align: center;
-    width: 100%; margin-top: 5px; cursor: pointer;
 }
 
 .chart-wrapper { min-height: 250px; margin-bottom: 10px; }
@@ -97,7 +132,6 @@ body {
 .spend-btn { background: #7d0808; margin-left: 5px; }
 .small-btn { background: #333; color: #aaa; border-color: #666; margin-left: 5px; }
 
-/* === СПИСОК РАСХОДОВ === */
 .breakdown-panel { background: rgba(0,0,0,0.8); padding: 10px; border-radius: 6px; border: 1px solid #444; }
 .breakdown-item {
     display: flex; justify-content: space-between; align-items: center;
@@ -117,58 +151,54 @@ body {
 }
 .delete-cat-btn:active { color: #ff3333; transform: scale(1.2); }
 
-/* === КАРТОЧКИ ГАРАЖА === */
-.garage-card {
-    background: rgba(30, 30, 30, 0.7);
-    border: 1px solid #444;
-    border-radius: 6px;
-    padding: 10px;
-    margin-bottom: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    position: relative;
+/* Настройки Лимитов */
+details.settings-section {
+    background: rgba(10, 10, 10, 0.9);
+    border: 1px solid #555;
+    transition: all 0.3s ease;
+}
+details.settings-section[open] { border-color: #ffd700; box-shadow: 0 0 15px rgba(255, 215, 0, 0.1); }
+.settings-summary {
+    cursor: pointer; font-size: 16px; color: #ffd700; font-weight: bold;
+    list-style: none; display: flex; justify-content: center; align-items: center;
+}
+.settings-summary::-webkit-details-marker { display: none; }
+.settings-content { margin-top: 15px; border-top: 1px dashed #333; padding-top: 10px; }
+
+.limit-row {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 8px; padding: 5px; border-bottom: 1px solid #222;
+}
+.limit-label { color: #ccc; font-size: 14px; flex: 1; }
+.limit-input {
+    background: #000; border: 1px solid #444; color: #ffd700; width: 80px;
+    padding: 5px; text-align: right; font-family: 'Cormorant SC', serif; font-weight: bold;
 }
 
-.garage-card-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #333;
-    padding-bottom: 5px;
-    margin-bottom: 5px;
+/* Кнопка удаления лимита (крестик) */
+.delete-limit-btn {
+    background: transparent; border: none; color: #ff4e4e; font-size: 16px;
+    margin-left: 10px; cursor: pointer; padding: 0 5px;
 }
+
+.over-budget { color: #ff3333 !important; text-shadow: 0 0 5px rgba(255, 0, 0, 0.5); }
+.under-budget { color: #ccc; }
+
+.garage-card {
+    background: rgba(30, 30, 30, 0.7); border: 1px solid #444; border-radius: 6px;
+    padding: 10px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 5px; position: relative;
+}
+.garage-card-top { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 5px; margin-bottom: 5px; }
 .garage-name-text { color: #fff; font-size: 16px; font-weight: bold; }
 .garage-price-text { color: #ff4e4e; font-size: 16px; font-weight: bold; }
-
-.garage-card-mid {
-    display: flex;
-    justify-content: space-between;
-    color: #aaa;
-    font-size: 12px;
-}
-.garage-type-badge {
-    background: #222; padding: 2px 6px; border-radius: 4px; border: 1px solid #555;
-}
-
-.garage-card-bot {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 14px;
-    margin-top: 2px;
-}
+.garage-card-mid { display: flex; justify-content: space-between; color: #aaa; font-size: 12px; }
+.garage-type-badge { background: #222; padding: 2px 6px; border-radius: 4px; border: 1px solid #555; }
+.garage-card-bot { display: flex; align-items: center; gap: 8px; font-size: 14px; margin-top: 2px; }
 .garage-fact-km { color: #ccc; font-weight: bold; }
 .garage-arrow { color: #666; font-size: 10px; }
 .garage-next-km { color: #ffd700; font-weight: bold; text-shadow: 0 0 5px rgba(255, 215, 0, 0.3); }
+.garage-delete-abs { position: absolute; top: 5px; right: -5px; width: 30px; height: 30px; background: transparent; border: none; color: #555; font-size: 16px; }
 
-.garage-delete-abs {
-    position: absolute; top: 5px; right: -5px;
-    width: 30px; height: 30px;
-    background: transparent; border: none; color: #555; font-size: 16px;
-}
-
-/* === ВКЛАДКИ === */
 .bottom-nav {
     position: absolute; bottom: 0; left: 0; width: 100%; height: 60px;
     background: #111; display: flex; border-top: 2px solid #b39a58; z-index: 10;
@@ -181,224 +211,55 @@ body {
     background: #4a0a0a; color: #ffd700; border-top: 3px solid #ff3333; text-shadow: 0 0 5px red;
 }
 
-/* === НАСТРОЙКИ (DETAILS/SUMMARY) === */
-details.settings-section {
-    background: rgba(10, 10, 10, 0.9);
-    border: 1px solid #555;
-    transition: all 0.3s ease;
-}
+/* === MINIMAL THEME === */
+body.minimal-theme { font-family: 'Roboto', sans-serif !important; background: #f0f2f5; color: #333; letter-spacing: normal; }
+body.minimal-theme .main-frame { background: var(--bg-custom-main) !important; background-size: cover !important; background-position: center !important; border: none; box-shadow: 0 0 20px rgba(0,0,0,0.1); }
+body.minimal-theme.tab-garage .main-frame { background: var(--bg-custom-garage) !important; background-size: cover !important; background-position: center !important; }
+body.minimal-theme .main-frame::before { background: rgba(255, 255, 255, 0.25); }
 
-details.settings-section[open] {
-    border-color: #ffd700;
-    box-shadow: 0 0 15px rgba(255, 215, 0, 0.1);
-}
-
-.settings-summary {
-    cursor: pointer;
-    font-size: 16px;
-    color: #ffd700;
-    font-weight: bold;
-    list-style: none;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-.settings-summary::-webkit-details-marker { display: none; }
-
-.settings-content {
-    margin-top: 15px;
-    border-top: 1px dashed #333;
-    padding-top: 10px;
-}
-
-.limit-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-    padding: 5px;
-    border-bottom: 1px solid #222;
-}
-
-.limit-label {
-    color: #ccc;
-    font-size: 14px;
-    flex: 1;
-}
-
-.limit-input {
-    background: #000;
-    border: 1px solid #444;
-    color: #ffd700;
-    width: 80px;
-    padding: 5px;
-    text-align: right;
-    font-family: 'Cormorant SC', serif;
-    font-weight: bold;
-}
-
-.over-budget { color: #ff3333 !important; text-shadow: 0 0 5px rgba(255, 0, 0, 0.5); }
-.under-budget { color: #ccc; }
-
-
-/* ============================================== */
-/* === MINIMAL THEME OVERRIDES (Минимализм) === */
-/* ============================================== */
-
-body.minimal-theme {
-    font-family: 'Roboto', sans-serif !important;
-    background: #f0f2f5;
-    color: #333;
-    letter-spacing: normal;
-}
-
-body.minimal-theme .main-frame {
-    /* ИСПОЛЬЗУЕМ ПЕРЕМЕННУЮ ВМЕСТО ЖЕСТКОЙ ССЫЛКИ */
-    background: var(--bg-custom-main) !important;
-    background-size: cover !important;
-    background-position: center !important;
-    border: none;
-    box-shadow: 0 0 20px rgba(0,0,0,0.1);
-}
-
-/* Фон для ГАРАЖА в минимализме */
-body.minimal-theme.tab-garage .main-frame {
-    /* ИСПОЛЬЗУЕМ ПЕРЕМЕННУЮ ВМЕСТО ЖЕСТКОЙ ССЫЛКИ */
-    background: var(--bg-custom-garage) !important;
-    background-size: cover !important;
-    background-position: center !important;
-}
-
-body.minimal-theme .main-frame::before {
-    background: rgba(255, 255, 255, 0.27); 
-}
-
-/* Секции */
 body.minimal-theme .gold-section,
 body.minimal-theme .control-panel-wrapper,
 body.minimal-theme .breakdown-panel,
 body.minimal-theme .chart-box,
 body.minimal-theme details.settings-section,
 body.minimal-theme #month-selector-panel {
-    background: rgba(255, 255, 255, 0.35); 
-    backdrop-filter: blur(4px); 
-    border: 1px solid rgba(255,255,255,0.4);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.55); backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.4); box-shadow: 0 4px 10px rgba(0,0,0,0.05); border-radius: 12px;
 }
 
-/* Тексты */
-body.minimal-theme .gold-label, 
-body.minimal-theme .limit-label,
-body.minimal-theme .panel-header,
-body.minimal-theme .gold-text {
-    color: #111; 
-    text-shadow: none;
-    font-weight: 700;
-}
+body.minimal-theme .gold-label, body.minimal-theme .limit-label, body.minimal-theme .panel-header, body.minimal-theme .gold-text { color: #111; text-shadow: none; font-weight: 700; }
 body.minimal-theme .panel-header { color: #333; }
-
 body.minimal-theme .gold-icon-big::after { content: "💵"; filter: none; }
 body.minimal-theme .gold-text { color: #222; }
 
-/* Инпуты */
-body.minimal-theme .wow-input,
-body.minimal-theme .limit-input,
-body.minimal-theme #month-select { 
-    background: rgba(255, 255, 255, 0.8) !important;
-    border: 1px solid #999 !important;
-    color: #000 !important;
-    border-radius: 8px;
-    font-family: 'Roboto', sans-serif !important;
-    font-weight: normal;
-    text-shadow: none;
+body.minimal-theme .wow-input, body.minimal-theme .limit-input, body.minimal-theme #month-select {
+    background: rgba(255, 255, 255, 0.8) !important; border: 1px solid #999 !important;
+    color: #000 !important; border-radius: 8px; font-family: 'Roboto', sans-serif !important; font-weight: normal; text-shadow: none;
 }
+body.minimal-theme .invisible-input { color: #111; text-shadow: none; border-bottom: 1px solid #666; font-family: 'Roboto', sans-serif; }
 
-body.minimal-theme .invisible-input {
-    color: #111;
-    text-shadow: none;
-    border-bottom: 1px solid #666;
-    font-family: 'Roboto', sans-serif;
+body.minimal-theme .wow-btn, body.minimal-theme .theme-btn {
+    background: rgba(255,255,255,0.9); border: 1px solid #007bff; color: #007bff; border-radius: 8px; font-family: 'Roboto', sans-serif; font-weight: 500;
 }
+body.minimal-theme .spend-btn { background: #007bff; color: #fff; border: none; }
+body.minimal-theme .small-btn { background: rgba(255,255,255,0.8); color: #333; border: 1px solid #ccc; }
+body.minimal-theme .add-income-btn { background: #28a745; border: none; color: #fff; }
 
-/* Кнопки */
-body.minimal-theme .wow-btn, 
-body.minimal-theme .theme-btn {
-    background: rgba(255,255,255,0.9);
-    border: 1px solid #007bff;
-    color: #007bff;
-    border-radius: 8px;
-    font-family: 'Roboto', sans-serif;
-    font-weight: 500;
-}
-body.minimal-theme .spend-btn {
-    background: #007bff;
-    color: #fff;
-    border: none;
-}
-body.minimal-theme .small-btn {
-    background: rgba(255,255,255,0.8);
-    color: #333;
-    border: 1px solid #ccc;
-}
-body.minimal-theme .add-income-btn {
-    background: #28a745; border: none; color: #fff;
-}
+body.minimal-theme .bottom-nav { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); border-top: 1px solid #ccc; }
+body.minimal-theme .nav-btn { background: transparent; color: #555; border-right: none; font-family: 'Roboto', sans-serif; }
+body.minimal-theme .nav-btn.active { color: #007bff; background: rgba(0, 123, 255, 0.1); border-top: 3px solid #007bff; text-shadow: none; }
 
-/* Вкладки */
-body.minimal-theme .bottom-nav {
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(10px);
-    border-top: 1px solid #ccc;
-}
-body.minimal-theme .nav-btn {
-    background: transparent;
-    color: #555;
-    border-right: none;
-    font-family: 'Roboto', sans-serif;
-}
-body.minimal-theme .nav-btn.active {
-    color: #007bff;
-    background: rgba(0, 123, 255, 0.1);
-    border-top: 3px solid #007bff;
-    text-shadow: none;
-}
-
-/* Списки */
 body.minimal-theme .breakdown-name { color: #111; font-weight: 600; font-family: 'Roboto', sans-serif;}
 body.minimal-theme .edit-expense-input { color: #111; border-bottom: 1px solid #999; font-family: 'Roboto', sans-serif;}
 body.minimal-theme .breakdown-item { border-bottom: 1px solid #ccc; }
-
 body.minimal-theme .settings-summary { color: #111; }
 body.minimal-theme details.settings-section[open] { border-color: #007bff; box-shadow: none; }
 
-/* Гараж Карточки */
-body.minimal-theme .garage-card {
-    background: rgba(255, 255, 255, 0.7);
-    border: 1px solid #aaa;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
+body.minimal-theme .garage-card { background: rgba(255, 255, 255, 0.7); border: 1px solid #aaa; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 body.minimal-theme .garage-name-text { color: #000; }
 body.minimal-theme .garage-fact-km { color: #333; }
 body.minimal-theme .garage-next-km { color: #007bff; text-shadow: none; }
 body.minimal-theme .garage-type-badge { background: #eee; color: #333; border: 1px solid #ccc; }
 
-/* === МОДАЛЬНОЕ ОКНО (ВЫБОР ФОНА) === */
-.modal-overlay {
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0, 0, 0, 0.6); /* Темный фон сзади */
-    z-index: 1000;
-    display: flex; justify-content: center; align-items: center;
-    backdrop-filter: blur(5px);
-}
-
-.modal-content {
-    background: #fff;
-    padding: 20px;
-    border-radius: 12px;
-    width: 80%;
-    max-width: 300px;
-    text-align: center;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-    font-family: 'Roboto', sans-serif; /* Всегда шрифт минимализма */
-}
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.6); z-index: 1000; display: flex; justify-content: center; align-items: center; backdrop-filter: blur(5px); }
+.modal-content { background: #fff; padding: 20px; border-radius: 12px; width: 80%; max-width: 300px; text-align: center; box-shadow: 0 10px 25px rgba(0,0,0,0.3); font-family: 'Roboto', sans-serif; }

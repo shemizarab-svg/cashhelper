@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="styles.css?v=16.0">
+    <link rel="stylesheet" href="styles.css?v=17.0">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
@@ -19,9 +19,9 @@
             <div class="scrollable-area">
                 
                 <div id="month-selector-panel" class="gold-section top-section">
-                    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 5px;">
+                    <div class="top-header-row">
                         <span class="gold-label">Месяц:</span>
-                        <div style="display:flex; gap: 5px;">
+                        <div class="top-buttons-group">
                             <button id="bg-change-btn" class="theme-btn" onclick="changeBackgroundConfig()" style="display:none;">🖼️ Фон</button>
                             <button class="theme-btn" onclick="toggleTheme()">🎨 Стиль</button>
                         </div>
@@ -49,7 +49,7 @@
                         <summary class="settings-summary">⚙️ Лимиты</summary>
                         <div class="settings-content">
                             <p style="font-size: 12px; color: #aaa; text-align: center; margin: 5px 0;">
-                                Установите лимит. При превышении сумма станет красной.
+                                Установите лимит. Нажмите крестик, чтобы удалить лишние категории.
                             </p>
                             <div id="limits-list-container"></div>
                         </div>
@@ -214,6 +214,7 @@
             <button class="wow-btn small-btn" style="width:100%; margin-top:10px; border:none; background:transparent;" onclick="closeBgModal()">Отмена</button>
         </div>
     </div>
-    <script src="script.js?v=16.0"></script>
+
+    <script src="script.js?v=17.0"></script>
 </body>
 </html>

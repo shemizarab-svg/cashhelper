@@ -8,7 +8,6 @@ document.getElementById('user-id-display').innerText = `ID: ${userId}`;
 const STORAGE_KEY = `azeroth_budget_v3_${userId}`;
 const THEME_KEY = `azeroth_theme_pref_${userId}`;
 const MONTH_KEY = `azeroth_month_pref_${userId}`; 
-// Ключи для фонов
 const BG_MAIN_KEY = `azeroth_bg_main_${userId}`;
 const BG_GARAGE_KEY = `azeroth_bg_garage_${userId}`;
 
@@ -114,8 +113,6 @@ function toggleTheme() {
     window.location.reload();
 }
 
-// === ЛОГИКА ЗАГРУЗКИ ФОНОВ ИЗ ГАЛЕРЕИ ===
-
 function changeBackgroundConfig() {
     document.getElementById('bg-modal').style.display = 'flex';
 }
@@ -133,18 +130,15 @@ function handleFileUpload(input, type) {
     const file = input.files[0];
     if (!file) return;
 
-    // 1. Сразу закрываем модальное окно, чтобы не мешало
     closeBgModal();
 
     const reader = new FileReader();
     reader.onload = function(event) {
         const img = new Image();
         img.onload = function() {
-            // СЖАТИЕ КАРТИНКИ
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-            
-            const MAX_SIZE = 1000; // Чуть увеличил качество (было 800)
+            const MAX_SIZE = 1000; 
             let width = img.width;
             let height = img.height;
 
@@ -158,7 +152,7 @@ function handleFileUpload(input, type) {
             canvas.height = height;
             ctx.drawImage(img, 0, 0, width, height);
 
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.8); // Качество 0.8
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
 
             try {
                 if (type === 'main') {
@@ -168,21 +162,14 @@ function handleFileUpload(input, type) {
                     localStorage.setItem(BG_GARAGE_KEY, dataUrl);
                     document.documentElement.style.setProperty('--bg-custom-garage', `url('${dataUrl}')`);
                 }
-                
-                // 2. Показываем уведомление ТОЛЬКО когда всё готово
-                setTimeout(() => {
-                    tg.showAlert("Готово! Фон обновлен.");
-                }, 100); // Небольшая задержка для стабильности
-
+                setTimeout(() => { tg.showAlert("Готово! Фон обновлен."); }, 100);
             } catch (e) {
                 tg.showAlert("Ошибка: Картинка слишком тяжелая!");
-                console.error(e);
             }
         };
         img.src = event.target.result;
     };
     reader.readAsDataURL(file);
-    
     input.value = ''; 
 }
 
@@ -208,13 +195,8 @@ function init() {
 
     const savedMain = localStorage.getItem(BG_MAIN_KEY);
     const savedGarage = localStorage.getItem(BG_GARAGE_KEY);
-    
-    if (savedMain) {
-        document.documentElement.style.setProperty('--bg-custom-main', `url('${savedMain}')`);
-    }
-    if (savedGarage) {
-        document.documentElement.style.setProperty('--bg-custom-garage', `url('${savedGarage}')`);
-    }
+    if (savedMain) { document.documentElement.style.setProperty('--bg-custom-main', `url('${savedMain}')`); }
+    if (savedGarage) { document.documentElement.style.setProperty('--bg-custom-garage', `url('${savedGarage}')`); }
 
     loadData();
     if (!globalCategoryNames.has('transport')) globalCategoryNames.set('transport', 'Транспорт (Машина)');
@@ -485,6 +467,7 @@ function deleteGarageType() {
     }
 }
 
+// === ОБНОВЛЕННАЯ ФУНКЦИЯ ДЛЯ ЛИМИТОВ С УДАЛЕНИЕМ ===
 function renderLimitsPanel() {
     const container = document.getElementById('limits-list-container');
     if (!container) return;
@@ -496,14 +479,42 @@ function renderLimitsPanel() {
         div.className = 'limit-row';
         div.innerHTML = `
             <span class="limit-label">${name}</span>
-            <input type="number" 
-                   class="limit-input" 
-                   placeholder="∞" 
-                   value="${currentLimit === 0 ? '' : currentLimit}" 
-                   onchange="updateLimit('${key}', this.value)">
+            <div style="display:flex; align-items:center;">
+                <input type="number" 
+                       class="limit-input" 
+                       placeholder="∞" 
+                       value="${currentLimit === 0 ? '' : currentLimit}" 
+                       onchange="updateLimit('${key}', this.value)">
+                <button class="delete-limit-btn" onclick="removeLimit('${key}')">✖</button>
+            </div>
         `;
         container.appendChild(div);
     });
+}
+
+// === НОВАЯ ФУНКЦИЯ УДАЛЕНИЯ ЛИМИТА ===
+function removeLimit(key) {
+    if (confirm("Удалить лимит и категорию (если она пустая)?")) {
+        delete db.limits[key];
+        
+        // Проверяем, используется ли категория хоть где-то
+        let isUsedAnywhere = false;
+        for (let m of monthsList) {
+            if (db.months[m].activeCategories.includes(key)) {
+                isUsedAnywhere = true;
+                break;
+            }
+        }
+        
+        // Если нет, удаляем глобально
+        if (!isUsedAnywhere) {
+            globalCategoryNames.delete(key);
+        }
+        
+        saveData();
+        renderLimitsPanel();
+        updateView();
+    }
 }
 
 function updateLimit(key, value) {
@@ -686,7 +697,6 @@ function renderYearlyView() {
 
     document.getElementById('year-total-savings').innerText = totalYearSavings.toLocaleString();
     
-    // === ИСПРАВЛЕНИЕ: Цвета текста теперь зависят от темы ===
     document.getElementById('year-text-report').innerHTML = `
         <p style="color: ${c.textColor}">
             Самый затратный: <b style="color:${c.danger}">${maxExpenseMonth.name}</b> (${maxExpenseMonth.val})
