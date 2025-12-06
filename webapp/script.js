@@ -1,14 +1,28 @@
 const tg = window.Telegram.WebApp;
 
-// === АГРЕССИВНОЕ РАЗВЕРТЫВАНИЕ ===
+// === СУПЕР-АГРЕССИВНОЕ РАЗВЕРТЫВАНИЕ ===
+
+// 1. Просим развернуться сразу
 tg.expand();
+
+// 2. Запускаем цикл: проверяем каждые 10мс, развернуто ли окно.
+// Если нет — снова командуем expand().
+// Это побеждает анимацию iPhone.
+const expandInterval = setInterval(() => {
+    if (tg.isExpanded) {
+        // Если уже развернуто — останавливаем цикл
+        clearInterval(expandInterval);
+    } else {
+        // Если нет — снова командуем
+        tg.expand();
+    }
+}, 10);
+
+// 3. На всякий случай останавливаем цикл через 3 секунды, чтобы не грузить телефон вечно
+setTimeout(() => { clearInterval(expandInterval); }, 3000);
+
+// 4. Сообщаем о готовности
 tg.ready();
-
-// Страховочные вызовы (для медленных телефонов)
-setTimeout(() => { tg.expand(); }, 50);
-setTimeout(() => { tg.expand(); }, 100);
-setTimeout(() => { tg.expand(); }, 500);
-
 // АВТОРИЗАЦИЯ
 const user = tg.initDataUnsafe?.user;
 const userId = user?.id || 'guest';
