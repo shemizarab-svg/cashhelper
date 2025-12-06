@@ -274,8 +274,8 @@ body.minimal-theme .chart-box,
 body.minimal-theme details.settings-section,
 body.minimal-theme #month-selector-panel {
     /* 0.55 - хорошая прозрачность */
-    background: rgba(255, 255, 255, 0.45); 
-    backdrop-filter: blur(7px); /* Блюр сильнее, чтобы текст читался */
+    background: rgba(255, 255, 255, 0.35); 
+    backdrop-filter: blur(4px); /* Блюр сильнее, чтобы текст читался */
     border: 1px solid rgba(255,255,255,0.4);
     box-shadow: 0 4px 10px rgba(0,0,0,0.05);
     border-radius: 12px;
